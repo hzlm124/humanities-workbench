@@ -4,41 +4,44 @@
 <meta charset="utf-8">
 <title>人文社科工作台 · 项目速览</title>
 <style>
-  :root { --bg:#0b0e12; --panel:#12161c; --line:#242a33; --ink:#e8edf4; --dim:#8b96a5; --accent:#c9a227; }
+  :root { --bg:#f6f7f9; --ink:#14181f; --dim:#5f6b7a; --card:#fff; --line:#e3e7ee; --accent:#2f6bff; }
   * { box-sizing:border-box; margin:0; padding:0; }
   html,body { height:100%; background:var(--bg); color:var(--ink);
     font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif; overflow:hidden; }
-  #stage { position:absolute; inset:0; display:grid; place-items:center; }
-  .slide { position:absolute; inset:0; padding:8% 9%; display:none; flex-direction:column; justify-content:center;
-    background:radial-gradient(1200px 700px at 15% 0%, #141a22 0%, var(--bg) 60%); }
-  .slide.on { display:flex; animation:fade .6s ease both; }
-  @keyframes fade { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:none; } }
-  .kicker { font-size:15px; letter-spacing:.28em; color:var(--accent); text-transform:uppercase; margin-bottom:26px; }
-  h1 { font:600 96px/1.1 "Songti SC",Georgia,serif; letter-spacing:.02em; }
-  h1 small { display:block; font:400 26px/1.5 "Segoe UI",sans-serif; color:var(--dim); letter-spacing:.06em; margin-top:18px; }
-  h2 { font:600 54px/1.25 "Songti SC",Georgia,serif; margin-bottom:34px; }
-  .rule { width:74px; height:3px; background:var(--accent); margin:30px 0; }
-  ul { list-style:none; display:flex; flex-direction:column; gap:20px; }
-  li { font-size:27px; line-height:1.6; color:var(--ink); padding-left:26px; position:relative; }
-  li:before { content:""; position:absolute; left:0; top:.62em; width:9px; height:9px; background:var(--accent); border-radius:50%; }
-  li span { color:var(--dim); font-size:20px; display:block; margin-top:4px; }
-  .chips { display:flex; gap:14px; flex-wrap:wrap; margin:10px 0 34px; }
-  .chip { border:1px solid var(--line); background:var(--panel); border-radius:8px; padding:12px 20px; font-size:20px; }
-  .cards { display:grid; grid-template-columns:1fr 1fr; gap:22px; margin-top:8px; }
-  .card { border:1px solid var(--line); background:var(--panel); border-radius:12px; padding:28px 30px; }
-  .card b { display:block; font-size:30px; margin-bottom:10px; }
-  .card p { color:var(--dim); font-size:19px; line-height:1.6; }
-  .grid18 { display:grid; grid-template-columns:repeat(6,1fr); gap:12px; margin-top:6px; }
-  .grid18 div { border:1px solid var(--line); background:var(--panel); border-radius:8px; padding:14px 12px; font-size:16px; color:var(--dim); }
+  #stage { position:absolute; inset:0; }
+  .slide { position:absolute; inset:0; padding:7.5% 9%; display:none; flex-direction:column; justify-content:center;
+    background:radial-gradient(1200px 720px at 12% -10%, #e9efff 0%, var(--bg) 62%); }
+  .slide.on { display:flex; animation:rise .75s cubic-bezier(.22,1,.36,1) both; }
+  @keyframes rise { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:none; } }
+  .kicker { font-size:15px; letter-spacing:.26em; color:var(--accent); text-transform:uppercase; margin-bottom:24px; }
+  h1 { font:600 98px/1.12 "Songti SC",Georgia,serif; }
+  h1 small { display:block; font:400 28px/1.5 "Segoe UI",sans-serif; color:var(--dim); letter-spacing:.05em; margin-top:16px; }
+  h2 { font:600 56px/1.25 "Songti SC",Georgia,serif; margin-bottom:32px; }
+  .rule { width:84px; height:4px; border-radius:2px; background:var(--accent); margin:30px 0; }
+  ul { list-style:none; display:flex; flex-direction:column; gap:22px; }
+  li { font-size:28px; font-weight:600; line-height:1.55; padding-left:28px; position:relative; }
+  li:before { content:""; position:absolute; left:0; top:.58em; width:11px; height:11px; border-radius:50%; background:var(--accent); }
+  li span { color:var(--dim); font-size:21px; font-weight:400; display:block; margin-top:4px; }
+  .chips { display:flex; gap:14px; flex-wrap:wrap; margin:6px 0 34px; }
+  .chip { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:13px 22px; font-size:21px;
+    box-shadow:0 4px 14px rgb(23 43 77 / .05); }
+  .cards { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:32px 34px;
+    box-shadow:0 6px 20px rgb(23 43 77 / .06); }
+  .card b { display:block; font-size:32px; margin-bottom:14px; }
+  .card p { color:var(--dim); font-size:20px; line-height:1.7; }
+  .grid18 { display:grid; grid-template-columns:repeat(6,1fr); gap:12px; }
+  .grid18 div { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:15px 14px; font-size:17px; color:var(--dim); }
   .grid18 div b { display:block; color:var(--accent); font-size:16px; margin-bottom:6px; letter-spacing:.08em; }
-  .tools { display:grid; grid-template-columns:repeat(2,1fr); gap:18px; }
-  .tool { border-left:3px solid var(--accent); background:var(--panel); padding:20px 24px; border-radius:0 10px 10px 0; }
-  .tool code { font:600 24px/1.4 ui-monospace,Consolas,monospace; color:var(--ink); }
-  .tool p { color:var(--dim); font-size:18px; margin-top:8px; }
-  .end { font:600 44px/1.5 "Songti SC",Georgia,serif; }
-  .endsub { color:var(--dim); font-size:22px; margin-top:26px; letter-spacing:.04em; }
-  #bar { position:fixed; left:0; bottom:0; height:3px; background:var(--accent); width:0; transition:width .1s linear; }
-  #mark { position:fixed; right:42px; bottom:30px; font-size:13px; letter-spacing:.22em; color:#5a6472; }
+  .tools { display:grid; grid-template-columns:repeat(2,1fr); gap:20px; }
+  .tool { background:var(--card); border:1px solid var(--line); border-left:4px solid var(--accent); border-radius:4px 12px 12px 4px;
+    padding:22px 26px; box-shadow:0 4px 14px rgb(23 43 77 / .05); }
+  .tool code { font:600 26px/1.4 ui-monospace,Consolas,monospace; }
+  .tool p { color:var(--dim); font-size:19px; margin-top:8px; }
+  .end { font:600 56px/1.4 "Songti SC",Georgia,serif; }
+  .endsub { color:var(--dim); font-size:24px; margin-top:24px; }
+  #bar { position:fixed; left:0; bottom:0; height:4px; background:var(--accent); width:0; transition:width .12s linear; }
+  #mark { position:fixed; right:44px; bottom:28px; font-size:13px; letter-spacing:.22em; color:#aab2c0; }
   body.still .slide { animation:none; }
 </style>
 </head>
@@ -48,7 +51,6 @@
     <div class="kicker">Humanities &amp; Social Sciences Workbench</div>
     <h1>人文社科工作台<small>面板 · 取证工具 · 方法手册</small></h1>
     <div class="rule"></div>
-    <p style="color:#8b96a5;font-size:22px">把散在十几个文件夹里的研究规范，收进一个面板。</p>
   </section>
 
   <section class="slide" data-d="17.3">
@@ -70,10 +72,10 @@
     <h2>一套配置，一个研究目录</h2>
     <div class="cards">
       <div class="card"><b>默认配置</b><p>通用方法论 + 空白画像模板。不含个人立场，可直接分享。</p></div>
-      <div class="card"><b>个人版本</b><p>自己的画像、规则与红线，另存一套。两套并行，互不覆盖。</p></div>
+      <div class="card"><b>个人版本</b><p>自己的画像、规则与红线。另存一套，两套并行，互不覆盖。</p></div>
     </div>
     <div class="rule"></div>
-    <p style="color:#8b96a5;font-size:21px">也可以导入 JSON 配置；不是配置格式的文件，会被存成参考材料。</p>
+    <p style="color:var(--dim);font-size:21px">也可以导入 JSON 配置；不是配置格式的文件，会被存成参考材料。</p>
   </section>
 
   <section class="slide" data-d="11.4">
@@ -86,7 +88,7 @@
       <div class="tool"><code>hw_bilibili</code><p>按 BV 号取字幕并清成正文</p></div>
     </div>
     <div class="rule"></div>
-    <p style="color:#8b96a5;font-size:21px">需要登录的站点，把 cookie 放进 cookies.json，会自动带上。</p>
+    <p style="color:var(--dim);font-size:21px">需要登录的站点，把 cookie 放进 cookies.json，会自动带上。</p>
   </section>
 
   <section class="slide" data-d="8.0">
@@ -116,24 +118,16 @@
   const still = params.get('still');
   const slides = [...document.querySelectorAll('.slide')];
   const durs = slides.map(s => parseFloat(s.dataset.d) || 8);
-
   function show(i) {
     slides.forEach((s, k) => s.classList.toggle('on', k === i));
     document.getElementById('bar').style.width = ((i + 1) / slides.length * 100) + '%';
   }
-
   if (still !== null) {
     document.body.classList.add('still');
     show(Math.min(slides.length - 1, Math.max(0, parseInt(still, 10) || 0)));
   } else {
-    let i = 0;
-    show(0);
-    const advance = () => {
-      i += 1;
-      if (i >= slides.length) return;
-      show(i);
-      setTimeout(advance, durs[i] * 1000);
-    };
+    let i = 0; show(0);
+    const advance = () => { i += 1; if (i >= slides.length) return; show(i); setTimeout(advance, durs[i] * 1000); };
     setTimeout(advance, durs[0] * 1000);
   }
 </script>
