@@ -1,95 +1,115 @@
 ![人文社科工作台](docs/cover.png)
 
-# Humanities & Social Sciences Workbench
+# 人文社科工作台
 
-把一套研究规范做成**可读的面板**，把取证做成**可调用的工具**。DSH 插件，AGPL-3.0。
+因为嫌历史资料和相关研究太麻烦，做了这个东西：一个能按自己的研究习惯定制的人文社科研究插件。
 
-面板不替你思考，它只做三件事：让规范随时看得见、让材料随手取得、让结论有地方落。
+面板、取证工具、方法手册三件套。日常查资料、读文献、写东西够用；不高兴了可以整套换掉——它不预设你该怎么研究。
 
-## 面板
+思路参考过 [Misaka-Agent](https://github.com/Luciole-Studio/Misaka-Agent) 的研究编排结构；实现方式、方法框架和规则来自与作者的反复讨论与打磨。代码由 AI 编写，规范由人确定。开源出来，供学习参考。
 
-左侧栏全局面板，顶部一排栏目：
+## 能做什么
 
-| 栏目 | 内容 |
+**面板** —— 左侧栏一个全局页面，六个栏目：概览（条件链流程图）、事实结构、未解张力、执行规则、红线、方法手册。支持全文搜索，可一键导出 Markdown。
+
+**配置集** —— 一套配置 = 一个研究目录 + 一组栏目。默认只带一份通用方法论，你自己的版本另建一套，两套并行、互不影响。
+
+**读取工具** —— 给模型四个能直接用的取数口：
+
+| 工具 | 用途 |
 |---|---|
-| 概览 | 一句话立场、条件链流程图（主链 + 边界条件两栏）、方法论前提 |
-| 六事实 | 事实依赖结构：主事实 → 派生机制 → 保障结构 → 主体条件 |
-| 张力 | 尚未解决的矛盾与现行结论 |
-| 规则 | 执行规则卡片（可搜索） |
-| 红线 | 写作禁区与冲突优先级 |
-| 材料 | 参考册清单与语料计数 |
+| `hw_page` | 网页正文（去脚本、按 charset 解码含 GBK、登录墙识别） |
+| `hw_batch` | 批量抓取，最多 8 个 URL、并发 3 |
+| `hw_wiki` | 维基百科纯文本摘要 |
+| `hw_bilibili` | 按 BV 号取本地字幕库的 CC 字幕 |
 
-数据来自 Host 的只读路由，每次请求重读磁盘。改完笔记点「刷新」即生效，不需要重新构建。
-面板支持搜索与导出 Markdown。
+知乎、Z-Library 这类要登录的站，把 cookie 放进 `~/.dsh/humanities-workbench/cookies.json`，`hw_page` 会自动带上。
 
-## 配置集
+**方法手册** —— 18 册：证据分级与来源路由、精读、编排、红队、分歧审查、反事实、设定审计、覆盖表、交付物、画像方法、藏书获取、概念史、影像作为史料、概念分析、研究协议。
 
-`~/.dsh/humanities-workbench/configs/*.json`，一套配置 = 一个 `skillDir` + 栏目选择：
+**离线可用** —— 路由不可用时回落到内置快照，面板不会开天窗。
+
+## 部署
+
+**要求**：DSH 0.2.x 及以上，宿主需提供 `webServer` 与 `tools` 两个服务（Desktop 与 Web 版默认都有）。
+
+**方式一（推荐）**
+
+左侧栏 → **Plugins** → **Add plugin** → 选择本目录 → 重启 DSH。
+
+**方式二（手工）**
+
+1. 把本目录放到任意位置；
+2. 在 profile 的 `package.json`：
+   ```json
+   "dependencies": { "@local/humanities-workbench": "link:<本目录绝对路径>" },
+   "dsh": { "profile": { "bundles": ["@local/humanities-workbench"] } }
+   ```
+3. 在 `node_modules` 下建同名联结指向本目录；
+4. 重启 DSH。
+
+**首次启动会发生什么**
+
+- 自动生成 `~/.dsh/humanities-workbench/configs/default.json`，指向自带的通用方法论目录；
+- 面板出现「人文社科工作台」入口；
+- 四个工具注册为 `hw_*`。
+
+**验证**
+
+```powershell
+# 面板数据（应返回 200 与 JSON）
+curl.exe http://127.0.0.1:<端口>/humanities-workbench/data.json
+# 离线自检
+node _build/selftest.mjs
+```
+
+## 自定义
+
+配置文件长这样，放在 `~/.dsh/humanities-workbench/configs/`：
 
 ```json
 {
-  "id": "default",
-  "name": "默认配置",
-  "skillDir": "~/.dsh/skills/humanities-research-neutral",
+  "id": "mine",
+  "name": "我的配置",
+  "skillDir": "~/.dsh/skills/my-research",
   "subsDir": "",
   "tabs": ["overview", "facts", "tensions", "rules", "redlines", "refs"],
-  "note": "通用方法论与空白画像模板"
+  "note": "一句话说明这套配置干什么"
 }
 ```
 
-`skillDir` 里放三样东西：`profile/profile.md`（画像）、`profile/rules.md`（规则）、
-`profile/panel.json`（面板内容）、`references/*.md`（方法论册）。换目录即换一整套内容。
+`skillDir` 里放四样东西：
 
-首次启动只播种「默认配置」——通用方法论 + 空白画像模板。你自己的版本另建一套配置即可，两套互不干扰。
-
-## 工具
-
-| 工具 | 作用 |
+| 文件 | 作用 |
 |---|---|
-| `hw_page` | 网页正文：去脚本样式、按 charset 解码（含 GBK）、20 秒超时、登录墙识别 |
-| `hw_batch` | 批量读取最多 8 个 URL，并发 3，单项失败不影响其它 |
-| `hw_wiki` | 维基百科纯文本摘要（先搜索再取 extract） |
-| `hw_bilibili` | 按 BV 号取本地字幕库的 CC 字幕并清成正文 |
+| `profile/profile.md` | 研究画像：你的判断框架、优先级、未解张力 |
+| `profile/rules.md` | 执行规则，写成 if-then |
+| `profile/panel.json` | 面板正文：条件链、事实结构、张力、红线 |
+| `references/*.md` | 方法手册，一册一个主题 |
 
-需要登录的站点在 `~/.dsh/humanities-workbench/cookies.json` 里按域名后缀放 cookie，`hw_page` 自动附加：
+改完点面板上的「刷新」，不用重新构建、不用重启。
 
-```json
-{ "www.zhihu.com": "z_c0=…", "z-lib.gs": "…" }
-```
+## 仓库构成
 
-## 安装
-
-**方式一**：DSH 左侧栏 → Plugins → Add plugin → 选择本目录。
-
-**方式二**（手工，等价）：
-
-1. 把本目录放到任意位置；
-2. 在 profile 的 `package.json` 依赖里加 `"@local/humanities-workbench": "link:<本目录>"`；
-3. 在 `dsh.profile.bundles` 里加 `"@local/humanities-workbench"`；
-4. 重启 DSH。
-
-要求 DSH 0.2.x 及以上；依赖宿主的 `webServer` 与 `tools` 两个服务。
-
-## 开发
-
-```powershell
-python _build/build_client.py      # 由模板生成 client.js（内含离线快照）
-node _build/selftest.mjs           # 离线自检：解析器、路由、工具形状、配置集
-```
-
-`client.template.js` 是手改的那份，`client.js` 是生成物。离线快照只用于路由不可用时兜底。
+| 文件 | 作用 |
+|---|---|
+| `index.js` | 两条 HTTP 路由 + 四个工具注册 |
+| `data.mjs` | 读 skill 目录，产出面板数据 |
+| `configs.mjs` | 配置集读写与播种 |
+| `tools.mjs` | 抓取与解析（网页 / 维基 / 字幕） |
+| `client.template.js` | 面板界面，手改这一份 |
+| `client.js` | 生成物，含离线快照 |
+| `_build/build_client.py` | 由模板生成 client.js |
+| `_build/selftest.mjs` | 离线自检：解析器、路由、工具、配置集 |
 
 ## Related work
 
-这个插件里的代码全部为本项目原创，没有复制任何第三方实现。思路上有几处明确的外部来源，列出来是为了让读者知道该往哪里找更完整的对照：
+代码全部原创，没有复制任何第三方实现。思路上有几处外部来源，列出来是为了让读者知道该往哪里找更完整的对照：
 
-- **概念史与症候阅读**：Koselleck 的概念史（术语的义域变迁与时间层）、Althusser 的过度决定与症候阅读（结构不单独出场、文本的沉默处）。这两条是学术方法，本插件把它们写成可执行的检查项。
-- **研究编排的形态**：研究 DAG / 红队复查 / 分歧审查（把"未走的路"也记下来）这类结构在多个 agent 研究项目里被独立发明过。本插件采用同类结构的**形态**，实现是按 DSH 的插槽与远程调用重写的。
-- **DSH 插件实践**：视觉与注入方式参考了社区插件 `dsh-oil-ui` 的设计方法论（先定品类与调性，再谈差异），以及 `dsh-structured` 关于"规则要每次请求重新求值"的结论。两者都只借结论，不借代码。
-- **概念分析的方法骨架**：来自公开的政治哲学与法哲学通识讨论，已抽象为 17、18 两册，不带任何具体国别或人物的判断。
-
-如果你打算把本项目的面板结构移植到别的框架，欢迎，但请保留 AGPL-3.0 的传染性条款。
+- **[Misaka-Agent](https://github.com/Luciole-Studio/Misaka-Agent)**：研究任务的分派与汇总形态（研究图、红队复查、分歧审查）参考了它。本插件按 DSH 的插槽与远程调用重写了实现，没有引入它的代码。
+- **概念史与症候阅读**：术语义域变迁的处理方式来自概念史（Koselleck）；「结构不单独出场」「读文本的沉默处」来自 Althusser。这两条是学术方法，本插件把它们写成可执行的检查项。
+- **DSH 插件实践**：视觉与注入方式参考社区插件 `dsh-oil-ui` 的设计方法论，以及 `dsh-structured` 关于「规则要每次请求重新求值」的结论。只借结论，不借代码。
 
 ## 许可
 
-AGPL-3.0。见 [LICENSE](LICENSE)。
+AGPL-3.0，见 [LICENSE](LICENSE)。
