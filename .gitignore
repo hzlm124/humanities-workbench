@@ -2,3 +2,6 @@ _build/data.json
 node_modules
 *.log
 *.bak
+docs/promo/frames/
+docs/promo/audio/
+docs/promo/voice.m4a
