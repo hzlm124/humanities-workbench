@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import asyncio, pathlib
 import edge_tts
-out = pathlib.Path(r"D:\\dsh-humanities-workbench\\docs\\promo\audio")
+out = __import__("pathlib").Path(__file__).resolve().parent / "audio"
 items = [
  ("01","历史资料和研究规范，通常散在十几个文件夹、几十个网页里。人文社科工作台，把它们收进一个面板。"),
  ("02","左侧栏一个入口，六个栏目：概览、事实结构、未解张力、执行规则、红线、方法手册。条件链画成流程图，边界条件单独一栏。数据直接读磁盘，改完笔记点一下刷新就生效。"),

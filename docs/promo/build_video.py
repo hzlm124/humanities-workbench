@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-import subprocess, pathlib, json, sys
+import subprocess, pathlib, json, sys, os, shutil
 
-BASE = pathlib.Path(r"D:\dsh-humanities-workbench\docs\promo")
-FF = r"ffmpeg\ffmpeg.exe"
-FP = r"ffmpeg\ffprobe.exe"
+BASE = pathlib.Path(__file__).resolve().parent
+FF = os.environ.get("FFMPEG") or shutil.which("ffmpeg") or "ffmpeg"
+FP = os.environ.get("FFPROBE") or shutil.which("ffprobe") or "ffprobe"
 A = BASE / "audio"
 FPS = 30
 

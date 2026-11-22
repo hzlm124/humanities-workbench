@@ -2,7 +2,7 @@
 from PIL import Image, ImageDraw, ImageFont
 import pathlib, math
 
-OUT = pathlib.Path(r"D:\dsh-humanities-workbench\docs\promo\frames")
+OUT = pathlib.Path(__file__).resolve().parent / "frames"
 OUT.mkdir(parents=True, exist_ok=True)
 W, H = 1920, 1080
 BG, PANEL, LINE = (11, 14, 18), (18, 22, 28), (36, 42, 51)
