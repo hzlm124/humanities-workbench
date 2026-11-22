@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>人文社科工作台 — 分镜</title>
+<style>
+  html, body { margin:0; padding:0; background:#f6f7f9; }
+  #stage {
+    position:relative; width:1920px; height:1080px; overflow:hidden; color:#14181f;
+    font-family:"Microsoft YaHei","微软雅黑",sans-serif;
+    background:
+      radial-gradient(1080px 640px at 16% 6%, #e6eeff 0%, rgba(230,238,255,0) 64%),
+      #f6f7f9;
+  }
+  .scene { position:absolute; inset:0; padding:186px 180px 0; box-sizing:border-box;
+           display:flex; flex-direction:column; visibility:hidden; transform-origin:50% 50%; }
+  .blk { will-change:transform,opacity; }
+  .kick { font-size:25px; letter-spacing:.16em; color:#2f6bff; font-weight:400; }
+  .h1 { font-size:108px; font-weight:700; letter-spacing:.01em; margin-top:26px; line-height:1.16; }
+  .h2 { font-size:64px; font-weight:700; margin-top:20px; line-height:1.24; }
+  .rule { width:84px; height:4px; border-radius:2px; background:#2f6bff; margin-top:34px; }
+  .sub { font-size:32px; color:#5f6b7a; margin-top:38px; }
+  .chips { display:flex; gap:18px; margin-top:54px; }
+  .chip { background:#fff; border:1px solid #e3e7ee; border-radius:12px; padding:13px 28px;
+          font-size:27px; box-shadow:0 1px 2px rgba(20,24,31,.04); }
+  .items { margin-top:56px; display:flex; flex-direction:column; gap:44px; }
+  .item { display:flex; gap:26px; }
+  .dot { width:14px; height:14px; border-radius:50%; background:#2f6bff; margin-top:13px; flex:none; }
+  .item .t { font-size:31px; font-weight:700; }
+  .item .s { font-size:25px; color:#5f6b7a; margin-top:9px; }
+  .cards { display:flex; gap:44px; margin-top:58px; }
+  .card { background:#fff; border:1px solid #e3e7ee; border-radius:16px; padding:42px 44px;
+          box-shadow:0 2px 8px rgba(20,24,31,.05); box-sizing:border-box; }
+  .card.wide { width:756px; }
+  .card .ct { font-size:38px; font-weight:700; }
+  .card .cl { font-size:25px; color:#5f6b7a; margin-top:26px; line-height:1.5; }
+  .note { font-size:27px; color:#5f6b7a; margin-top:42px; }
+  .tools { display:grid; grid-template-columns:744px 744px; gap:36px 48px; margin-top:56px; }
+  .tool { position:relative; background:#fff; border:1px solid #e3e7ee; border-radius:14px;
+          padding:30px 42px; box-shadow:0 2px 8px rgba(20,24,31,.05); }
+  .tool::before { content:""; position:absolute; left:0; top:16px; bottom:16px; width:5px;
+                  border-radius:3px; background:#2f6bff; }
+  .tool .code { font-family:Consolas,"Courier New",monospace; font-size:36px; }
+  .tool .desc { font-size:25px; color:#5f6b7a; margin-top:14px; }
+  .grid18 { display:grid; grid-template-columns:repeat(6, 246px); gap:20px 16px; margin-top:52px; }
+  .cell { background:#fff; border:1px solid #e3e7ee; border-radius:12px; height:126px;
+          padding:20px 22px; box-sizing:border-box; box-shadow:0 1px 3px rgba(20,24,31,.04); }
+  .cell .n { font-size:25px; color:#2f6bff; }
+  .cell .nm { font-size:25px; color:#5f6b7a; margin-top:14px; }
+  .foot { position:absolute; right:180px; bottom:56px; font-size:25px; color:#aab3c0; letter-spacing:.08em; }
+  #bar { position:absolute; left:0; bottom:0; height:3px; width:0; background:#2f6bff; opacity:.55; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="scene" id="s0">
+    <div class="blk kick">HUMANITIES &amp; SOCIAL SCIENCES WORKBENCH</div>
+    <div class="blk h1">人文社科工作台</div>
+    <div class="blk rule"></div>
+    <div class="blk sub">面板 · 取证工具 · 方法手册</div>
+  </div>
+
+  <div class="scene" id="s1">
+    <div class="blk kick">01 — 面板</div>
+    <div class="blk h2">六个栏目，一屏读完</div>
+    <div class="blk chips">
+      <div class="chip">概览</div><div class="chip">事实结构</div><div class="chip">未解张力</div>
+      <div class="chip">执行规则</div><div class="chip">红线</div><div class="chip">方法手册</div>
+    </div>
+    <div class="blk items">
+      <div class="item"><div class="dot"></div><div><div class="t">条件链画成流程图</div><div class="s">主链与边界条件分栏，不再是线性清单</div></div></div>
+      <div class="item"><div class="dot"></div><div><div class="t">数据直接读磁盘</div><div class="s">改完笔记点「刷新」即生效，不重新构建</div></div></div>
+      <div class="item"><div class="dot"></div><div><div class="t">搜索 / 导出 Markdown</div><div class="s">规则与参考册可全文检索</div></div></div>
+    </div>
+  </div>
+
+  <div class="scene" id="s2">
+    <div class="blk kick">02 — 配置集</div>
+    <div class="blk h2">一套配置，一个研究目录</div>
+    <div class="blk cards">
+      <div class="card wide">
+        <div class="ct">默认配置</div>
+        <div class="cl">通用方法论 + 空白画像模板。<br>不含个人立场，可直接分享。</div>
+      </div>
+      <div class="card wide">
+        <div class="ct">个人版本</div>
+        <div class="cl">自己的画像、规则与红线。<br>另存一套，两套并行，互不覆盖。</div>
+      </div>
+    </div>
+    <div class="blk note">也可以导入 JSON 配置；不是配置格式的文件，会被存成参考材料。</div>
+  </div>
+
+  <div class="scene" id="s3">
+    <div class="blk kick">03 — 取数工具</div>
+    <div class="blk h2">四个取数口</div>
+    <div class="blk tools">
+      <div class="tool"><div class="code">hw_page</div><div class="desc">网页正文，按 charset 解码，识别登录墙</div></div>
+      <div class="tool"><div class="code">hw_batch</div><div class="desc">批量抓取，最多 8 个 URL，并发 3</div></div>
+      <div class="tool"><div class="code">hw_wiki</div><div class="desc">维基百科纯文本摘要</div></div>
+      <div class="tool"><div class="code">hw_bilibili</div><div class="desc">按 BV 号取字幕并清成正文</div></div>
+    </div>
+    <div class="blk note">需要登录的站点，把 cookie 放进 cookies.json，会自动带上。</div>
+  </div>
+
+  <div class="scene" id="s4">
+    <div class="blk kick">04 — 方法手册</div>
+    <div class="blk h2">十八册，一册一个主题</div>
+    <div class="blk grid18" id="grid"></div>
+  </div>
+
+  <div class="scene" id="s5">
+    <div class="blk kick">05 — 许可</div>
+    <div class="blk h1" style="font-size:70px">AGPL-3.0 开源</div>
+    <div class="blk rule"></div>
+    <div class="blk sub">代码由 AI 编写，规范由人确定。</div>
+  </div>
+
+  <div class="foot">DSH PLUGIN</div>
+  <div id="bar"></div>
+</div>
+
+<script>
+const NAMES = ["证据分级","来源路由","精读","编排","红队","分歧审查","反事实","设定审计",
+               "覆盖表","交付物","画像方法","藏书获取","结构分析","推演","概念史","影像史料",
+               "概念分析","研究协议"];
+(function(){
+  const g = document.getElementById('grid');
+  NAMES.forEach((nm, i) => {
+    const d = document.createElement('div');
+    d.className = 'cell blk';
+    d.innerHTML = '<div class="n">' + String(i+1).padStart(2,'0') + '</div><div class="nm">' + nm + '</div>';
+    g.appendChild(d);
+  });
+})();
+
+const stage = document.getElementById('stage');
+const bar = document.getElementById('bar');
+const scenes = [0,1,2,3,4,5].map(i => document.getElementById('s' + i));
+const blocks = scenes.map(s => Array.from(s.children));
+let TL = null;
+
+const clamp = (v, a=0, b=1) => v < a ? a : (v > b ? b : v);
+const outCubic = p => 1 - Math.pow(1 - p, 3);
+const inCubic  = p => p * p * p;
+
+const IN_DUR = 0.50, OUT_DUR = 0.30, STAG_IN = 0.060, STAG_OUT = 0.020;
+const ENTER_BASE = 0.35, SHIFT_IN = 110, SHIFT_OUT = 90;
+
+window.setTimeline = function(tl){
+  TL = tl;
+  blocks.forEach((bs, si) => {
+    const sc = TL.scenes[si];
+    bs.forEach((el, b) => {
+      el.dataset.enter = (sc.start + ENTER_BASE + b * STAG_IN).toFixed(4);
+      el.dataset.exit  = (sc.end - TL.overlap + b * STAG_OUT).toFixed(4);
+    });
+  });
+  return TL.total;
+};
+
+window.renderAt = function(t){
+  if (!TL) throw new Error('timeline missing');
+  for (let si = 0; si < scenes.length; si++) {
+    const sc = TL.scenes[si];
+    const sc_el = scenes[si];
+    const on = t >= sc.start - 0.05 && t <= sc.end + 0.05;
+    sc_el.style.visibility = on ? 'visible' : 'hidden';
+    if (!on) continue;
+    const span = Math.max(0.001, sc.end - sc.start);
+    const k = clamp((t - sc.start) / span);
+    sc_el.style.transform = 'scale(' + (1 + 0.006 * k).toFixed(5) + ')';
+    blocks[si].forEach(el => {
+      const es = parseFloat(el.dataset.enter), xs = parseFloat(el.dataset.exit);
+      const pIn = outCubic(clamp((t - es) / IN_DUR));
+      const pOut = inCubic(clamp((t - xs) / OUT_DUR));
+      const o = pIn * (1 - pOut);
+      const dy = (1 - pIn) * SHIFT_IN - pOut * SHIFT_OUT;
+      el.style.opacity = o.toFixed(4);
+      el.style.transform = 'translate3d(0,' + dy.toFixed(2) + 'px,0)';
+    });
+  }
+  bar.style.width = (1920 * clamp(t / TL.total)).toFixed(1) + 'px';
+};
+</script>
+</body>
+</html>

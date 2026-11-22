@@ -3,5 +3,7 @@ node_modules
 *.log
 *.bak
 docs/promo/frames/
+docs/promo/frames_rec/
 docs/promo/audio/
 docs/promo/voice.m4a
+docs/promo/timeline.json

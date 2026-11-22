@@ -101,6 +101,10 @@ node _build/selftest.mjs
 | `client.js` | 生成物，含离线快照 |
 | `_build/build_client.py` | 由模板生成 client.js |
 | `_build/selftest.mjs` | 离线自检：解析器、路由、工具、配置集 |
+| `docs/promo/scene.html` | 宣传片分镜，逐帧由时间轴驱动 |
+| `docs/promo/record_video.mjs` | 用本机 Edge 逐帧截图，产出帧序列 |
+| `docs/promo/make_timeline.py` | 依旁白时长生成时间轴 `timeline.json` |
+| `docs/promo/assemble_anim.py` | 帧序列 + 旁白合成成片 |
 
 ## Related work
 
