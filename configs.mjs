@@ -25,6 +25,12 @@ function fileOf(id) {
   return join(CONFIG_DIR, id + '.json')
 }
 
+export function writeConfig(config) {
+  mkdirSync(CONFIG_DIR, { recursive: true })
+  writeFileSync(fileOf(config.id), JSON.stringify(config, null, 2) + '\n', 'utf8')
+  return config
+}
+
 export function readConfig(id) {
   try {
     const raw = readFileSync(fileOf(id), 'utf8')

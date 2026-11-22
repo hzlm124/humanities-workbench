@@ -70,6 +70,9 @@ window.__ModuleLoader__.load({
       '.hw-search{appearance:none;border:none;border-bottom:1px solid var(--dsw-alias-border-l1);background:none;color:var(--dsw-alias-label-primary);font:inherit;font-size:12px;padding:1px 2px;width:8rem}',
       '.hw-search:focus{outline:none;border-bottom-color:var(--dsw-alias-brand-primary)}',
       '.hw-search::placeholder{color:var(--dsw-alias-label-secondary);opacity:.7}',
+      '.hw-check{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;color:var(--dsw-alias-label-secondary);cursor:pointer;user-select:none}',
+      '.hw-check input{margin:0;accent-color:var(--dsw-alias-brand-primary)}',
+      '.hw-notice{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:60;padding:8px 16px;border-radius:8px;background:var(--dsw-alias-bg-overlay,var(--dsw-alias-bg-layer-1));border:1px solid var(--dsw-alias-border-l1);color:var(--dsw-alias-label-primary);font-size:12.5px;box-shadow:0 10px 28px rgb(0 0 0 / .25);max-width:24rem}',
       '.hw-credit{font-size:11px;color:var(--dsw-alias-label-secondary);text-decoration:none;border-bottom:1px dotted var(--dsw-alias-border-l1);white-space:nowrap}',
       '.hw-credit:hover{color:var(--dsw-alias-brand-primary);border-bottom-color:var(--dsw-alias-brand-primary)}',
       '.hw-flow{display:grid;grid-template-columns:minmax(0,1fr) 17rem;gap:30px;align-items:start;margin-top:6px}',
@@ -114,16 +117,15 @@ window.__ModuleLoader__.load({
           type: 'button', className: 'hw-pickbtn', 'aria-haspopup': 'listbox', 'aria-expanded': open,
           onClick: function () { setOpen(!open); },
         }, current.name, h('span', { className: 'hw-caret' }, '\u25BE')),
-        open ? h('div', { className: 'hw-scrim', onClick: function () { setOpen(false); } },
-          h('div', { className: 'hw-menu', role: 'listbox', onClick: function (e) { e.stopPropagation(); } },
-            props.options.map(function (o) {
-              return h('button', {
-                key: o.id, type: 'button', role: 'option', 'aria-selected': o.id === props.value,
-                className: o.id === props.value ? 'hw-opt on' : 'hw-opt',
-                onClick: function () { props.onChange(o.id); setOpen(false); },
-              }, o.name);
-            })
-          )
+        open ? h('div', { className: 'hw-scrim', onClick: function () { setOpen(false); } }) : null,
+        open ? h('div', { className: 'hw-menu', role: 'listbox', onClick: function (e) { e.stopPropagation(); } },
+          props.options.map(function (o) {
+            return h('button', {
+              key: o.id, type: 'button', role: 'option', 'aria-selected': o.id === props.value,
+              className: o.id === props.value ? 'hw-opt on' : 'hw-opt',
+              onClick: function () { props.onChange(o.id); setOpen(false); },
+            }, o.name);
+          })
         ) : null
       );
     }
@@ -136,6 +138,8 @@ window.__ModuleLoader__.load({
       const [state, setState] = React.useState({ busy: true, live: false, message: '' });
       const [view, setView] = React.useState(function () { return read(VIEW_KEY, 'overview'); });
       const [q, setQ] = React.useState('');
+      const [autoWizard, setAutoWizard] = React.useState(function () { return read('humanitiesWorkbench.autoWizard', '1') === '1'; });
+      const [notice, setNotice] = React.useState('');
       const hit = function (text) {
         if (!q) return true;
         return String(text || '').toLowerCase().indexOf(q.toLowerCase()) >= 0;
@@ -185,6 +189,31 @@ window.__ModuleLoader__.load({
       const current = tabs.indexOf(view) >= 0 ? view : tabs[0];
       const labels = { overview: t('overview'), facts: t('facts'), tensions: t('tensions'), rules: t('rules'), redlines: t('redlines'), refs: t('refs') };
       const counts = { facts: D.facts.length, tensions: D.tensions.length, rules: D.rules.length, redlines: D.redlines.length, refs: D.refs.length };
+
+      const doImport = function (file) {
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function () {
+          window.fetch('/humanities-workbench/import', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ filename: file.name, text: String(reader.result || '') }),
+          })
+            .then(function (r) { return r.json(); })
+            .then(function (json) {
+              if (json.error) { setNotice('导入失败：' + json.error); return; }
+              setNotice(json.kind === 'config' ? '已导入配置「' + json.name + '」' : '已存为参考文件「' + json.name + '」');
+              if (json.kind === 'config') {
+                window.fetch(CONFIGS, { cache: 'no-store' })
+                  .then(function (r) { return r.json(); })
+                  .then(function (c) { setConfigs(c.configs || []); load(json.id || json.name); })
+                  .catch(function () {});
+              }
+            })
+            .catch(function (e) { setNotice('导入失败：' + String((e && e.message) || e)); });
+        };
+        reader.readAsText(file, 'utf-8');
+      };
 
       function rows(items) {
         return h('div', null, items.map(function (r, i) {
@@ -289,15 +318,28 @@ window.__ModuleLoader__.load({
                 onChange: function (e) { setQ(e.target.value); },
               }),
               h('button', { type: 'button', className: 'hw-link', onClick: function () { load(configId); }, disabled: state.busy }, '刷新'),
+              h('label', { className: 'hw-link' }, '导入',
+                h('input', {
+                  type: 'file', accept: '.json,.md,.txt,.markdown', style: { display: 'none' },
+                  onChange: function (e) { doImport(e.target.files && e.target.files[0]); e.target.value = ''; },
+                })
+              ),
+              h('button', { type: 'button', className: 'hw-link', onClick: function () { props.exportMd && props.exportMd(D, current); } }, '导出'),
               h('button', {
                 type: 'button', className: 'hw-link',
                 onClick: function () {
-                  const r = props.openWizard && props.openWizard(D.config ? D.config.name : '');
-                  if (r === 'copied') setState(function (s) { return Object.assign({}, s, { message: '提示词已复制' }); });
-                  if (r === 'failed') setState(function (s) { return Object.assign({}, s, { message: '无法打开新对话' }); });
+                  const r = props.openWizard && props.openWizard(D.config ? D.config.name : '', autoWizard);
+                  if (r === 'copied') setNotice('提示词已复制，粘到新对话即可');
+                  if (r === 'failed') setNotice('无法打开新对话，也无法复制');
                 },
               }, '新建配置'),
-              h('button', { type: 'button', className: 'hw-link', onClick: function () { props.exportMd && props.exportMd(D, current); } }, '导出')
+              h('label', { className: 'hw-check', title: '开启后「新建配置」直接开一个新对话；关闭则只复制提示词' },
+                h('input', {
+                  type: 'checkbox', checked: autoWizard,
+                  onChange: function (e) { setAutoWizard(e.target.checked); write('humanitiesWorkbench.autoWizard', e.target.checked ? '1' : '0'); },
+                }),
+                '对话改配置'
+              )
             )
           ),
           h('div', { className: 'hw-tabs', role: 'tablist' }, tabs.map(function (key) {
@@ -308,7 +350,8 @@ window.__ModuleLoader__.load({
             }, labels[key], counts[key] == null ? null : h('i', null, counts[key]));
           })),
           h('div', { className: 'hw-body', role: 'tabpanel' }, body),
-          state.message ? h('div', { className: 'hw-err' }, state.message) : null
+          state.message ? h('div', { className: 'hw-err' }, state.message) : null,
+          notice ? h('div', { className: 'hw-notice' }, notice) : null
         )
       );
     }
@@ -319,7 +362,7 @@ window.__ModuleLoader__.load({
         ctx.effect(function () { return ctx.locale.register(NS, DICTS); }, 'humanities-workbench: dictionaries');
         const t = ctx.locale.bind(NS);
 
-        const openWizard = function (name) {
+        const openWizard = function (name, auto) {
           const text = [
             '新建或修改一套「人文社科工作台」配置。',
             '配置目录：~/.dsh/humanities-workbench/configs/，当前：' + (name || '默认配置'),
@@ -328,7 +371,7 @@ window.__ModuleLoader__.load({
             '3 用 data.json?config=<id> 校验规则 21、参考册 16；4 报告改动。不要动其它插件。',
           ].join('\n');
           const ui = ctx.get('uiWorkspace');
-          if (ui && typeof ui.startSession === 'function') {
+          if (auto !== false && ui && typeof ui.startSession === 'function') {
             ui.startSession(undefined, { prompt: text, whenDraftExists: 'replace' });
             return 'opened';
           }

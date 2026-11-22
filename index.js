@@ -5,11 +5,13 @@ import { mkdirSync, appendFileSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { homedir } from 'node:os'
 import { buildData } from './data.mjs'
-import { listConfigs, resolveConfig, configStatus } from './configs.mjs'
+import { listConfigs, resolveConfig, configStatus, writeConfig, ALL_TABS, ROOT } from './configs.mjs'
+import { mkdirSync as mkdir, writeFileSync } from 'node:fs'
 import { readPage, readPages, wikiExtract, bilibiliTranscript } from './tools.mjs'
 
 export const DATA_PATH = '/humanities-workbench/data.json'
 export const CONFIGS_PATH = '/humanities-workbench/configs.json'
+export const IMPORT_PATH = '/humanities-workbench/import'
 export const inject = ['webServer', 'tools']
 
 const CACHE_MS = 1500
@@ -138,6 +140,55 @@ export function apply(ctx, config) {
       return json(payload(id))
     },
   }), 'humanities-workbench: data')
+
+
+  ctx.effect(() => ctx.webServer.register({
+    kind: 'exact',
+    path: IMPORT_PATH,
+    handler: (req, res) => {
+      const send = (code, body) => {
+        res.statusCode = code
+        res.setHeader('content-type', 'application/json; charset=utf-8')
+        res.end(JSON.stringify(body))
+      }
+      if (req.method !== 'POST') return send(405, { error: 'POST only' })
+      const chunks = []
+      let size = 0
+      req.on('data', (chunk) => {
+        chunks.push(chunk)
+        size += chunk.length
+        if (size > 2000000) req.destroy()
+      })
+      req.on('end', () => {
+        try {
+          const { filename, text } = JSON.parse(Buffer.concat(chunks).toString('utf8'))
+          const safe = String(filename || 'import.txt').replace(/[\\/:*?"<>|]/g, '_').slice(0, 80)
+          let parsed = null
+          try { parsed = JSON.parse(String(text)) } catch { parsed = null }
+          if (parsed && typeof parsed === 'object' && (parsed.skillDir || parsed.tabs || parsed.skillRoot)) {
+            const id = String(parsed.id || safe.replace(/\.json$/i, '') || 'imported').replace(/[^\w.-]/g, '-').slice(0, 40) || 'imported'
+            const config = writeConfig({
+              id,
+              name: String(parsed.name || id),
+              skillDir: String(parsed.skillDir || ''),
+              subsDir: String(parsed.subsDir || ''),
+              tabs: Array.isArray(parsed.tabs) && parsed.tabs.length ? parsed.tabs : ALL_TABS,
+              note: String(parsed.note || '从文件导入'),
+              updatedAt: new Date().toISOString(),
+            })
+            return send(200, { kind: 'config', id: config.id, name: config.name })
+          }
+          const dir = join(ROOT, 'imports')
+          mkdir(dir, { recursive: true })
+          const target = join(dir, safe)
+          writeFileSync(target, String(text), 'utf8')
+          send(200, { kind: 'reference', name: safe, path: target })
+        } catch (error) {
+          send(400, { error: String((error && error.message) || error) })
+        }
+      })
+    },
+  }), 'humanities-workbench: import')
 
   ctx.effect(() => ctx.webServer.register({
     kind: 'exact',
