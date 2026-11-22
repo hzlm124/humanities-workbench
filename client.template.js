@@ -176,7 +176,12 @@ window.__ModuleLoader__.load({
 
       const all = ['overview', 'facts', 'tensions', 'rules', 'redlines', 'refs'];
       const allowed = (D.config && D.config.tabs && D.config.tabs.length) ? D.config.tabs : all;
-      const tabs = all.filter(function (k) { return allowed.indexOf(k) >= 0; });
+      const counts0 = { facts: D.facts.length, tensions: D.tensions.length, rules: D.rules.length, redlines: D.redlines.length, refs: D.refs.length };
+      const tabs = all.filter(function (k) {
+        if (allowed.indexOf(k) < 0) return false;
+        if (k === 'overview') return true;
+        return (counts0[k] || 0) > 0;
+      });
       const current = tabs.indexOf(view) >= 0 ? view : tabs[0];
       const labels = { overview: t('overview'), facts: t('facts'), tensions: t('tensions'), rules: t('rules'), redlines: t('redlines'), refs: t('refs') };
       const counts = { facts: D.facts.length, tensions: D.tensions.length, rules: D.rules.length, redlines: D.redlines.length, refs: D.refs.length };
