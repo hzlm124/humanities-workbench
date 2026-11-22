@@ -31,6 +31,14 @@
 
 ## 部署
 
+**获取**
+
+```powershell
+git clone https://github.com/hzlm124/humanities-workbench.git
+```
+
+也可以在 [Releases](https://github.com/hzlm124/humanities-workbench/releases) 页下载 `Source code (zip)` 或 `Source code (tar.gz)` 解压。仓库没有发布 npm 包（`package.json` 标了 `private`），请从源码安装。
+
 **要求**：DSH 0.2.x 及以上，宿主需提供 `webServer` 与 `tools` 两个服务（Desktop 与 Web 版默认都有）。
 
 **方式一（推荐）**
