@@ -116,4 +116,4 @@ node _build/selftest.mjs
 
 ## 许可
 
-AGPL-3.0，见 [LICENSE](LICENSE)。
+AGPL-3.0。全文见 [LICENSE](LICENSE)，著作权人与声明见 [NOTICE](NOTICE)。

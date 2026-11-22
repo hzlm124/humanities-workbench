@@ -1,0 +1,17 @@
+人文社科工作台 / Humanities & Social Sciences Workbench
+
+Copyright (C) 2026 技术红茶
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU Affero General Public License as published by the Free
+Software Foundation, either version 3 of the License, or (at your option) any
+later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.  See the GNU Affero General Public License for more details.
+
+The full licence text is in LICENSE. If you did not receive it, see
+<https://www.gnu.org/licenses/>.
+
+插件本身不含第三方代码。方法层面的外部来源见 README 的 Related work 一节。
