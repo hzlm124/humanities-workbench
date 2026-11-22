@@ -4,7 +4,8 @@
   "private": true,
   "license": "AGPL-3.0-or-later",
   "type": "module",
-  "description": "Humanities research workbench: the profile, rules, red lines and evidence ledger of the humanities-research skill, as a global panel.",
+  "description": "Humanities and social sciences workbench: a global panel for a customized research profile, plus page, Wikipedia and subtitle reader tools.",
+  "author": "技术红茶",
   "exports": {
     ".": "./index.js",
     "./client": "./client.js",
