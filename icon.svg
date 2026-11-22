@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="Humanities workbench">
+  <rect width="256" height="256" rx="56" fill="#1b1a17"/>
+  <rect x="52" y="44" width="152" height="168" rx="14" fill="#c9a227"/>
+  <rect x="52" y="44" width="28" height="168" rx="14" fill="#8d6f14"/>
+  <g stroke="#1b1a17" stroke-width="9" stroke-linecap="round">
+    <line x1="100" y1="92" x2="176" y2="92"/>
+    <line x1="100" y1="128" x2="176" y2="128"/>
+    <line x1="100" y1="164" x2="148" y2="164"/>
+  </g>
+</svg>

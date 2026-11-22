@@ -1,0 +1,4 @@
+_build/data.json
+node_modules
+*.log
+*.bak
