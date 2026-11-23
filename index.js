@@ -8,10 +8,13 @@ import { buildData } from './data.mjs'
 import { listConfigs, resolveConfig, configStatus, writeConfig, ALL_TABS, ROOT } from './configs.mjs'
 import { mkdirSync as mkdir, writeFileSync } from 'node:fs'
 import { readPage, readPages, wikiExtract, bilibiliTranscript } from './tools.mjs'
+import { buildCorpus, loadCorpus, saveCorpus, search as searchCorpus, corpusStatus, clock } from './knowledge.mjs'
 
 export const DATA_PATH = '/humanities-workbench/data.json'
 export const CONFIGS_PATH = '/humanities-workbench/configs.json'
 export const IMPORT_PATH = '/humanities-workbench/import'
+export const CORPUS_PATH = '/humanities-workbench/corpus.json'
+export const CORPUS_FILE = join(homedir(), '.dsh', 'humanities-workbench', 'corpus.json')
 export const inject = ['webServer', 'tools']
 
 const CACHE_MS = 1500
@@ -32,6 +35,38 @@ function json(body) {
 
 const asText = (value) => [{ type: 'text', text: typeof value === 'string' ? value : JSON.stringify(value, null, 1) }]
 const output = { schema: { type: 'string' }, render: (args, value) => asText(value) }
+
+function subsDirOf(base) {
+  if (base && base.subsDir) return base.subsDir
+  const chosen = resolveConfig()
+  return (chosen && chosen.subsDir) || ''
+}
+
+let corpusCache = null
+
+/** Load the corpus index, rebuilding it when the subtitle directory changed. */
+const sameDir = (a, b) => String(a || '').replace(/\\/g, '/').replace(/\/+$/, '').toLowerCase() ===
+  String(b || '').replace(/\\/g, '/').replace(/\/+$/, '').toLowerCase()
+
+export function corpusFor(subsDir, force = false) {
+  const status = corpusStatus(CORPUS_FILE, subsDir)
+  const usable = (c) => Boolean(c) && (!subsDir || sameDir(c.subsDir, subsDir))
+  const cached = corpusCache && corpusCache.path === CORPUS_FILE ? corpusCache.data : null
+  if (!force && cached && !status.stale && usable(cached)) return cached
+  if (!force && !status.stale) {
+    const loaded = loadCorpus(CORPUS_FILE)
+    if (usable(loaded)) { corpusCache = { path: CORPUS_FILE, data: loaded }; return loaded }
+  }
+  if (!subsDir) return null
+  try {
+    const built = buildCorpus(subsDir)
+    saveCorpus(CORPUS_FILE, built)
+    corpusCache = { path: CORPUS_FILE, data: built }
+    return built
+  } catch {
+    return null
+  }
+}
 
 function registerTools(ctx, options) {
   const subsDir = () => options.subsDir || (resolveConfig() || {}).subsDir
@@ -123,10 +158,15 @@ export function apply(ctx, config) {
     const key = (id || '') + '|' + (skillDir || '') + '|' + (subsDir || '')
     const now = Date.now()
     if (cache && cache.key === key && now - cache.at < CACHE_MS) return cache.body
+    const data = buildData({ skillDir, subsDir })
+    const corpusState = corpusStatus(CORPUS_FILE, subsDir)
     const body = {
-      ...buildData({ skillDir, subsDir }),
+      ...data,
       config: chosen ? { id: chosen.id, name: chosen.name, tabs: chosen.tabs, note: chosen.note } : null,
       status: configStatus({ skillDir }),
+      corpus: corpusState.exists
+        ? { ready: true, stale: corpusState.stale, segments: (loadCorpus(CORPUS_FILE) || { stats: {} }).stats.segments || 0 }
+        : { ready: false, stale: corpusState.stale, segments: 0 },
     }
     cache = { key, at: now, body }
     return body
@@ -199,9 +239,46 @@ export function apply(ctx, config) {
 
   ctx.effect(() => ctx.webServer.register({
     kind: 'exact',
+    path: CORPUS_PATH,
+    resource: async (request) => {
+      const q = new URL(request.url).searchParams.get('q') || ''
+      const subs = subsDirOf(base)
+      const status = corpusStatus(CORPUS_FILE, subs)
+      if (!q) return json({ ready: status.exists, stale: status.stale, subsDir: subs || '' })
+      const corpus = corpusFor(subs)
+      if (!corpus) return json({ ready: false, error: '没有可用语料', hits: [] })
+      return json({ ready: true, total: corpus.stats.segments, files: corpus.stats.files, hits: searchCorpus(corpus, q, 8) })
+    },
+  }), 'humanities-workbench: corpus')
+
+  ctx.effect(() => ctx.webServer.register({
+    kind: 'exact',
     path: CONFIGS_PATH,
     resource: async () => json({ configs: listConfigs() }),
   }), 'humanities-workbench: configs')
+
+  ctx.effect(() => ctx.tools.register({
+    name: 'hw_corpus',
+    description: '在本地字幕语料里检索，返回最相关的片段、BV 号与时间码。用于确认某个概念在语料里到底怎么讲、出处是哪一段。',
+    parameters: {
+      type: 'object',
+      properties: {
+        query: { type: 'string', description: '检索词，中文按二元组匹配' },
+        limit: { type: 'number', description: '返回条数，默认 5，最多 20' },
+        rebuild: { type: 'boolean', description: '字幕目录有新增时强制重建索引' },
+      },
+      required: ['query'],
+      additionalProperties: false,
+    },
+    output,
+    async execute(args) {
+      const corpus = corpusFor(subsDir(), Boolean(args.rebuild))
+      if (!corpus) return JSON.stringify({ error: '没有可用语料：请先在配置里设置 subsDir，并确认目录存在' })
+      const limit = Math.min(Math.max(Number(args.limit) || 5, 1), 20)
+      const hits = searchCorpus(corpus, String(args.query), limit)
+      return JSON.stringify({ query: args.query, total: corpus.stats.segments, files: corpus.stats.files, hits })
+    },
+  }), 'humanities-workbench: hw_corpus')
 
   registerTools(ctx, base)
   note('routes and tools registered')

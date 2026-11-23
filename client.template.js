@@ -90,6 +90,10 @@ window.__ModuleLoader__.load({
       '@media (max-width:1100px){.hw-cols{columns:1}}',
       '@media (max-width:900px){.hw-flow{grid-template-columns:1fr;gap:18px}}',
       '@media (max-width:720px){.hw-wrap{padding:20px 16px 56px}.hw-tabs{gap:18px}.hw-row{grid-template-columns:1fr;gap:2px}}',
+      '.hw-corpusbar{display:flex;gap:10px;margin:18px 0 6px}',
+      '.hw-corpusbar>.hw-search{flex:1}',
+      '.hw-tbl{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}',
+      '.hw-tbl th,.hw-tbl td{border-bottom:1px solid var(--dsw-alias-border-l1);padding:8px 10px;text-align:left;vertical-align:top}',
     ].join('\n');
 
     function read(key, fallback) {
@@ -105,6 +109,43 @@ window.__ModuleLoader__.load({
         h('path', { d: 'M5 3.6h11.5a2.5 2.5 0 0 1 2.5 2.5v14.3H7.5A2.5 2.5 0 0 1 5 17.9z', fill: 'none', stroke: 'currentColor', strokeWidth: 1.5, strokeLinejoin: 'round' }),
         h('path', { d: 'M19 20.4H7.4a2.4 2.4 0 0 1 0-4.8H19', fill: 'none', stroke: 'currentColor', strokeWidth: 1.5, strokeLinejoin: 'round' }),
         h('path', { d: 'M9 7.6h6M9 10.8h4', stroke: 'currentColor', strokeWidth: 1.3, strokeLinecap: 'round' })
+      );
+    }
+
+    function CorpusPane() {
+      const [term, setTerm] = React.useState('');
+      const [state, setState] = React.useState({ busy: false, hits: [], total: 0, msg: '' });
+      const run = function (value) {
+        const text = String(value || '').trim();
+        if (!text) { setState({ busy: false, hits: [], total: 0, msg: '' }); return; }
+        setState({ busy: true, hits: [], total: 0, msg: '' });
+        window.fetch('/humanities-workbench/corpus.json?q=' + encodeURIComponent(text), { cache: 'no-store' })
+          .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+          .then(function (json) {
+            setState({
+              busy: false, hits: json.hits || [], total: json.total || 0,
+              msg: json.ready === false ? (json.error || '索引未就绪，请先配置字幕目录') : '',
+            });
+          })
+          .catch(function (e) { setState({ busy: false, hits: [], total: 0, msg: String((e && e.message) || e) }); });
+      };
+      return h('div', null,
+        h('div', { className: 'hw-corpusbar' },
+          h('input', {
+            className: 'hw-search', type: 'search', value: term, placeholder: '在字幕语料里检索，回车执行',
+            onChange: function (e) { setTerm(e.target.value); },
+            onKeyDown: function (e) { if (e.key === 'Enter') run(term); },
+          })
+        ),
+        state.msg ? h('p', { className: 'hw-note' }, state.msg) : null,
+        state.hits.length ? h('p', { className: 'hw-note' }, '共 ' + state.total + ' 段语料，命中 ' + state.hits.length + ' 条') : null,
+        state.hits.map(function (hit, i) {
+          return h('div', { key: i, className: 'hw-row' },
+            h('div', { className: 'hw-k' }, hit.bvid + (hit.at ? ' · ' + hit.at : '')),
+            h('div', { className: 'hw-v' }, hit.text,
+              h('div', { className: 'hw-note' }, '匹配度 ' + hit.score + ' · ' + hit.file))
+          );
+        })
       );
     }
 
@@ -178,16 +219,19 @@ window.__ModuleLoader__.load({
         readAt = new Date(D.generatedAt).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', hour12: false });
       } catch (e) { readAt = ''; }
 
-      const all = ['overview', 'facts', 'tensions', 'rules', 'redlines', 'refs'];
+      const all = ['overview', 'facts', 'tensions', 'rules', 'redlines', 'refs', 'corpus'];
       const allowed = (D.config && D.config.tabs && D.config.tabs.length) ? D.config.tabs : all;
-      const counts0 = { facts: D.facts.length, tensions: D.tensions.length, rules: D.rules.length, redlines: D.redlines.length, refs: D.refs.length };
+      const counts0 = { facts: D.facts.length, tensions: D.tensions.length, rules: D.rules.length, redlines: D.redlines.length, refs: D.refs.length, corpus: (D.corpus && D.corpus.ready) ? 1 : 0 };
       const tabs = all.filter(function (k) {
-        if (allowed.indexOf(k) < 0) return false;
         if (k === 'overview') return true;
+        if (k === 'corpus') return Boolean(D.corpus && D.corpus.ready);
+        if (allowed.indexOf(k) < 0) return false;
         return (counts0[k] || 0) > 0;
       });
       const current = tabs.indexOf(view) >= 0 ? view : tabs[0];
-      const labels = { overview: t('overview'), facts: t('facts'), tensions: t('tensions'), rules: t('rules'), redlines: t('redlines'), refs: t('refs') };
+      const labels = { overview: t('overview'), facts: t('facts'), tensions: t('tensions'), rules: t('rules'), redlines: t('redlines'), refs: t('refs'), corpus: '语料' };
+      const sections = Array.isArray(D.sections) ? D.sections : [];
+      const hasSections = sections.length > 0;
       const counts = { facts: D.facts.length, tensions: D.tensions.length, rules: D.rules.length, redlines: D.redlines.length, refs: D.refs.length };
 
       const doImport = function (file) {
@@ -289,7 +333,47 @@ window.__ModuleLoader__.load({
         );
       }
 
-      const body = current === 'facts' ? facts()
+      function blockOf(spec, index) {
+        if (!spec || !spec.kind) return null;
+        const items = spec.items || [];
+        const title = spec.title ? h('h2', { className: 'hw-h2' }, spec.title) : null;
+        const wrap = function (node) { return h('div', { key: index, className: 'hw-sec' }, title, node); };
+        if (spec.kind === 'heading') return h('h2', { key: index, className: 'hw-h2' }, spec.text || spec.title || '');
+        if (spec.kind === 'lede' || spec.kind === 'prose') return h('p', { key: index, className: 'hw-lede' }, spec.text || '');
+        if (spec.kind === 'quote') return h('div', { key: index, className: 'hw-quote' }, spec.text || '');
+        if (spec.kind === 'list') return wrap(h('ul', { className: 'hw-ul' }, items.map(function (x, j) { return h('li', { key: j }, x); })));
+        if (spec.kind === 'rows') return wrap(h('div', null, items.map(function (r, j) {
+          return h('div', { key: j, className: 'hw-row' },
+            h('div', { className: 'hw-k' }, r[0]),
+            h('div', { className: 'hw-v' }, r[1], r[2] ? h('div', { className: 'hw-note' }, r[2]) : null));
+        })));
+        if (spec.kind === 'stats') return h('div', { key: index, className: 'hw-stats' }, items.map(function (k, j) {
+          return h('div', { key: j }, h('b', null, k[0]), k[1]);
+        }));
+        if (spec.kind === 'chain') return wrap(h('div', { className: 'hw-flow' },
+          h('div', { className: 'hw-ladder' }, items.map(function (n, j) {
+            return h('div', { key: j, className: 'hw-node' }, h('span', { className: 'hw-num' }, j + 1), String(n));
+          })),
+          spec.aside ? h('aside', { className: 'hw-bound' },
+            h('div', { className: 'hw-boundtitle' }, spec.aside.title || '边界条件'),
+            (spec.aside.items || []).map(function (x, j) { return h('p', { key: j }, x); })) : null));
+        if (spec.kind === 'table') return wrap(h('table', { className: 'hw-tbl' },
+          h('thead', null, h('tr', null, (spec.columns || []).map(function (c, j) { return h('th', { key: j }, c); }))),
+          h('tbody', null, (spec.rows || []).map(function (r, j) {
+            return h('tr', { key: j }, (r || []).map(function (c, k) { return h('td', { key: k }, c); }));
+          }))));
+        if (spec.kind === 'cards' || spec.kind === 'cols') return wrap(h('div', { className: 'hw-cols' }, items.map(function (c, j) {
+          return h('div', { key: j, className: 'hw-row' },
+            h('div', { className: 'hw-k' }, c.title || c[0] || ''),
+            h('div', { className: 'hw-v' }, c.text || c[1] || '', c.note ? h('div', { className: 'hw-note' }, c.note) : null));
+        })));
+        return null;
+      }
+
+      const body = hasSections
+        ? h('div', null, sections.map(function (spec, i) { return blockOf(spec, i); }))
+        : current === 'corpus' ? h(CorpusPane, null)
+        : current === 'facts' ? facts()
         : current === 'tensions' ? tensions()
         : current === 'rules' ? rules()
         : current === 'redlines' ? redlines()
@@ -342,7 +426,7 @@ window.__ModuleLoader__.load({
               )
             )
           ),
-          h('div', { className: 'hw-tabs', role: 'tablist' }, tabs.map(function (key) {
+          hasSections ? null : h('div', { className: 'hw-tabs', role: 'tablist' }, tabs.map(function (key) {
             return h('button', {
               key: key, type: 'button', role: 'tab', className: 'hw-tab',
               'aria-selected': current === key ? 'true' : 'false',

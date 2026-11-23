@@ -22,6 +22,7 @@
 | `hw_batch` | 批量抓取，最多 8 个 URL、并发 3 |
 | `hw_wiki` | 维基百科纯文本摘要 |
 | `hw_bilibili` | 按 BV 号取本地字幕库的 CC 字幕 |
+| `hw_corpus` | 在字幕语料里检索，返回片段、BV 号与时间码 |
 
 知乎、Z-Library 这类要登录的站，把 cookie 放进 `~/.dsh/humanities-workbench/cookies.json`，`hw_page` 会自动带上——只对 https 发送，http 链接一律不带。取址会拒绝本机、局域网与云元数据地址（含重定向的每一跳），避免被网页内容引去读内网。
 
@@ -71,6 +72,8 @@ curl.exe http://127.0.0.1:<端口>/humanities-workbench/data.json
 node _build/selftest.mjs
 # 取数工具回归：内网拦截、结果顺序、GBK 字幕
 node _build/test-tools.mjs
+# 语料索引回归：SRT 解析、时间码、排序、GBK
+node _build/test-knowledge.mjs
 ```
 
 ## 自定义
@@ -103,6 +106,34 @@ node _build/test-tools.mjs
 
 改完点面板上的「刷新」，不用重新构建、不用重启。
 
+## 语料检索
+
+把字幕目录接进配置（`subsDir`）后，先建一次索引：
+
+```powershell
+node _build/build_index.mjs "D:\path\to\subs"
+```
+
+索引落在 `~/.dsh/humanities-workbench/corpus.json`——本机 82 个视频得到 1444 段、764 KB，属于派生数据：不进仓库，也不进模型上下文。之后有三处可用：
+
+- 面板多出「语料」栏，输入词回车即检索，命中的每一条给出 BV 号、时间码与匹配度
+- 工具 `hw_corpus` 给模型用：`{ query, limit }`，返回片段与出处，用来核对某个概念在语料里究竟怎么讲
+- 字幕目录变化后自动重建（比对 mtime 与目录一致性）
+
+排序用二元组加 IDF 加权：常见词权重低，三段以上的查询至少要命中两段。所以语料里没有的说法（例如「证据分级」）会明确返回 0，而不是凑几条看着像的结果。
+
+## 区块自排（实验）
+
+`panel.json` 里加 `sections` 数组，面板就不再走六个固定分区，按你给的区块渲染；不写 `sections` 时行为完全不变，默认仍是原来那套排版。
+
+```json
+{ "kind": "rows", "title": "来源账本", "items": [["A-01", "一手档案", "可核对扫描件"]] }
+```
+
+可用 `kind`：`heading` `lede` `prose` `quote` `list` `rows` `stats` `chain` `table` `cards` `cols`。完整示例见 `docs/sections-example.json`。
+
+0.2 会让配置指向自己的 HTML，在沙箱 iframe 里跑、数据经 `postMessage` 传入——那一步才是真正意义上的「一套独立前端」。
+
 ## 仓库构成
 
 | 文件 | 作用 |
@@ -119,6 +150,10 @@ node _build/test-tools.mjs
 | `docs/promo/record_video.mjs` | 用本机 Edge 逐帧截图，产出帧序列 |
 | `docs/promo/make_timeline.py` | 依旁白时长生成时间轴 `timeline.json` |
 | `docs/promo/assemble_anim.py` | 帧序列 + 旁白合成成片 |
+| `knowledge.mjs` | 字幕切段、索引与检索（纯函数） |
+| `_build/build_index.mjs` | 建语料索引，落到 `~/.dsh/humanities-workbench/corpus.json` |
+| `_build/test-knowledge.mjs` | 语料层回归 |
+| `docs/sections-example.json` | 区块自排的写法示例 |
 
 ## Related work
 

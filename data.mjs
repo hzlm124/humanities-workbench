@@ -33,7 +33,7 @@ export function defaultSubsDir() {
   return ''
 }
 
-const EMPTY_PANEL = { thesis: '', chain: [], boundary: [], facts: [], inferences: [], tensions: [], redlines: [], redlineNote: '' }
+const EMPTY_PANEL = { thesis: '', chain: [], boundary: [], facts: [], inferences: [], tensions: [], redlines: [], redlineNote: '', sections: [] }
 
 /** Neutral section labels; a skill set may override any of them in panel.json. */
 const DEFAULT_HEADINGS = {
@@ -147,6 +147,7 @@ export function buildData(options = {}) {
     rules: parsedRules,
     redlines: panel.redlines,
     redlineNote: panel.redlineNote,
+    sections: Array.isArray(panel.sections) ? panel.sections : [],
     materials: [[String(subs), '字幕文件'], [String(refs.length), '参考册']],
     refs,
     profileBytes: profile.length,

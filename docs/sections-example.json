@@ -1,0 +1,92 @@
+{
+  "id": "example-sections",
+  "name": "用区块自排的配置",
+  "skillDir": "~/.dsh/skills/my-research",
+  "subsDir": "",
+  "tabs": [
+    "overview"
+  ],
+  "note": "把 panel.json 换成 sections 即可让面板按你的结构显示",
+  "sections": [
+    {
+      "kind": "lede",
+      "text": "这一页不按插件的六分区走，而是由 panel.json 里的 sections 决定。"
+    },
+    {
+      "kind": "stats",
+      "items": [
+        [
+          "3",
+          "待查命题"
+        ],
+        [
+          "12",
+          "已归档来源"
+        ],
+        [
+          "2",
+          "未解分歧"
+        ]
+      ]
+    },
+    {
+      "kind": "heading",
+      "text": "我的问题链"
+    },
+    {
+      "kind": "chain",
+      "title": "从问题到证据",
+      "items": [
+        "先把问题写成可查证的命题",
+        "为每个命题配来源层级",
+        "把反例单独建档"
+      ],
+      "aside": {
+        "title": "边界条件",
+        "items": [
+          "来源不可得时标为待补，不猜"
+        ]
+      }
+    },
+    {
+      "kind": "rows",
+      "title": "来源账本",
+      "items": [
+        [
+          "A-01",
+          "一手档案",
+          "可核对扫描件"
+        ],
+        [
+          "B-07",
+          "二手研究",
+          "仅作定位"
+        ]
+      ]
+    },
+    {
+      "kind": "table",
+      "title": "分歧表",
+      "columns": [
+        "争点",
+        "甲方",
+        "乙方"
+      ],
+      "rows": [
+        [
+          "起点年份",
+          "1850",
+          "1848"
+        ]
+      ]
+    },
+    {
+      "kind": "list",
+      "title": "下一步",
+      "items": [
+        "补三条一手材料",
+        "复核一处转述"
+      ]
+    }
+  ]
+}

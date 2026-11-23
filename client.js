@@ -18,7 +18,7 @@ window.__ModuleLoader__.load({
       en: { panel: 'Humanities desk', title: 'Humanities research desk', overview: 'Overview', facts: 'Six facts', tensions: 'Tensions', rules: 'Rules', redlines: 'Red lines', refs: 'Material' },
     };
 
-    const SNAPSHOT = {"meta":{"subtitle":"快照 · 规则 10 条 · 参考册 16 · 2026-11-23 13:19","foot":"","headings":{"chain":"条件链（结构性必要条件，不是时间表）","facts":"事实依赖结构","inferences":"硬约束","tensions":"未解张力","rules":"执行规则 R1–R10","redlines":"红线","refs":"方法论参考册"}},"thesis":"过度决定与情势分析：结构规定可能性空间，具体结果由情势与主观抉择决定。读文本用症候阅读——在该说而没说、过度解释、范畴错位三处定位它服务的立场。","kpi":[["0","张力"],["6","事实"],["10","规则"],["5","红线"]],"chain":["谁占有资源与生产资料（产权 / 决策权 / 分配权）","占有的形式决定收益如何被抽取","抽取方式塑造劳动过程的组织","组织方式约束生产力的发展方向","生活形态与个体发展空间由此被限定"],"boundary":["个体自由：始终是相对的，受共同体规范约束","制度自身：同时承担维持与自我转化的双重任务"],"overdetermination":"经济最终决定，但从不单独出场；「最后实例永不到来」。可能性是绝对的，必然性是相对的。不能写「必然走向」，只能写「在什么情势下、由谁抉择、有多大可能」。","facts":[["① 主事实","资源与生产资料占有的实际分布（产权／决策权／分配权分开看）","最重要 · 唯一独立变量"],["② 派生机制","收益抽取的机制（利润／地租／税收／利息／平台抽成）","被①决定"],["③ 派生机制","劳动过程控制权的归属","跟①有关"],["④ 保障结构","权力不对称及其对抽取的保障","重要"],["⑤ 保障结构","强制机关的实际能力","重要"],["⑥ 主体条件","相关群体的组织化程度 × 是否被制度承认","组织化 × 制度化"]],"inferences":["②③ 不能单独承重：分配形式变化不等于生产关系变化，必须回到①。","① 变了 ②③ 会滞后：旧抽取形式常以新名义存活，滞后是常态。","⑥ 不是人数，是组织度 × 制度化：组织化而无制度化＝只有动员能力；制度化而无组织化＝空壳。"],"tensions":[],"rules":[["R1","证据分级","L0 原件（档案、统计原表、原始影像） / L1 同期出版物（报刊、公文、私人通信） / L2 事后研究（专著、论文）"],["R2","论战性著作","限用：仅当可被独立材料交叉支持；标 source_class=polemics-crossed。 / 同时作意识形态样本分析：修辞、受众、必须夸张什么、在哪里沉默。 / 不因立场拒用，也不因「敢揭露」升格。"],["R3","回忆录与口述","三级证据。必查立场、记忆距离、利益、出版背景。 / 准入：档案统计可验 或 与独立证词互证 或 与结构事实相容。 / 不用：纯规范性论断、不描述具体情况的整体评价、文学化段落当引文。"],["R4","官方文件三档","默认：事情本身大概真实，具体经过可疑。 / 等级：意图 > 执行 > 事后总结。 / 意图（讲话、决议）→ 对「想做什么」高；执行（报表、批复、会议记录）→ 对「怎么运行」较高；"],["R5","立场冲突","先报冲突（不改写材料、不静默调和），再给选项：改判断 / 改对材料的评价 / 保留冲突并标注。"],["R6","反目的论","禁「必然走向 X」。改写为情势句：在<条件>下，由<主体>作出<抉择>，X 成为可能；若<条件>改变，则走向<另一分支>。 / 趋势可以写，但必须写成在条件下被生产出来的。"],["R7","代价分析","强制三段：谁承担成本 / 通过什么机制 / 当时约束下有无替代。 / 禁止用总量数字替代机制说明。"],["R8","事实依赖结构","① 资源与生产资料占有的实际分布（产权/决策权/分配权分开看）   ← 主事实 / ② 收益抽取机制　③ 劳动过程控制权    ← ① 的派生，不得单独承重 / ④ 权力不对称对①②③的保障　⑤ 强制机关的实际能力   ← 保障结构"],["R9","概念使用","先定范畴，再定功能，最后查谱系（见 17、18 册）。 / 同一词在不同范畴间切换即为偷换，必须标出。"],["R10","虚构与史实分隔","架空设定一律标 fiction，与史实输出物理分隔（不同文件、不同小节标题）。"]],"redlines":[["红线一","非目的论，但承认趋势的条件性生成","不写「必然走向X」；趋势须在条件下生成。"],["红线二","不作单一价值前提","任何整体性贬斥若缺结构与利益分析，视为未完成论断，不采信。"],["红线三","fiction 标记","架空设定一律标 fiction，与史实输出物理分隔。"],["红线四","禁道德账本 + 学派并列","代价写谁承担／何机制／有无替代；禁止数字去语境化；学派并列呈现证据与反驳。"],["红线五","单一来源不作合法性依据","合法性判断须经明确程序，不以情绪或单一来源替代。"]],"redlineNote":"降级项：回忆录与论战著作不作红线，作方法（R1／R2）。冲突优先级：红线三 > 红线一 > 红线四 > 其余。","materials":[["0","字幕文件"],["16","参考册"]],"refs":[["01-evidence-bridge.md","01 · 证据桥接与史料批判","一切研究争议最终都落在同一处：**为什么这份材料支持这个理解？**"],["02-source-routing.md","02 · 来源路由（按材料类型）","| 层 | 材料 | 用途 | 可信度起点 |"],["03-close-reading.md","03 · 精读：四法 + 一句一注","精读不是摘要。摘要把文本压短，精读把文本**翻回它正在解决的问题**。"],["04-orchestration.md","04 · 两级编排（DSH 原生）","Misaka 的卡死来自三处：把整套契约注入每个请求、每个角色再起一个 harness、节点递归等待彼此的会话。"],["05-red-team.md","05 · 红队：只挑错","你的任务是让结论受伤，不是让它更漂亮。不要扩写、不要补充材料、不要调整文风、不要替作者辩护。"],["06-divergence.md","06 · 分歧审查：未取之路与缺口","红队问「你错在哪」，你问「你没走哪条路、你漏了什么」。"],["07-counterfactual.md","07 · 反事实与架空推演","反事实不是「随便改一下看看」。它是一条**受史料约束的推理**：改动必须小到史实仍能承重，后果必须大到值得推演。"],["08-setting-audit.md","08 · 架空设定审计","设定的问题通常不在「不符合史实」，而在**没有代价**：制度免费运转、技术免费扩散、意识形态无摩擦。"],["09-coverage.md","09 · 覆盖表与维度扫描","一张研究计划只能覆盖作者想到的东西。覆盖表的作用不是「更全面」，而是让**空白变成声明**，而不是疏忽。"],["10-deliverables.md","10 · 交付物","四种成品，各有固定骨架。不要在正文里出现流程词（节点、卡片、红队、处置、v1/v2）。"],["11-profile.md","11 · 意识形态画像：怎么读一个人，而不是怎么奉承他","画像的目的不是让输出「合口味」，而是让推演**从你的前提出发**，同时把代价说清。"],["12-source-acquisition.md","12 · 电子书获取、入库与版本校勘","研究卡在「书拿不到」上，比卡在「书读不懂」上更常见。这一册处理获取、入库、版本与检索。"],["15-conceptual-history.md","15 · 概念史先行","中文里大量抽象词是泊来词。**你在用别人翻译过来的范畴思考，而翻译本身带着立场。**"],["16-video-learning.md","16 · 视频作为史料：工具链与可信度","视频（讲座、访谈、课程、UP 主的概念史讲解）是**线索来源**，不是**承重证据**。"],["17-concept-analysis.md","17 · 概念分析（方法册）","先问三层，不许直接给定义："],["18-method-protocol.md","18 · 概念研究方法协议（可复用流程）","| 输入 | 产物 |"]],"profileBytes":569};
+    const SNAPSHOT = {"meta":{"subtitle":"快照 · 规则 10 条 · 参考册 16 · 2026-11-23 15:54","foot":"","headings":{"chain":"条件链（结构性必要条件，不是时间表）","facts":"事实依赖结构","inferences":"硬约束","tensions":"未解张力","rules":"执行规则 R1–R10","redlines":"红线","refs":"方法论参考册"}},"thesis":"过度决定与情势分析：结构规定可能性空间，具体结果由情势与主观抉择决定。读文本用症候阅读——在该说而没说、过度解释、范畴错位三处定位它服务的立场。","kpi":[["0","张力"],["6","事实"],["10","规则"],["5","红线"]],"chain":["谁占有资源与生产资料（产权 / 决策权 / 分配权）","占有的形式决定收益如何被抽取","抽取方式塑造劳动过程的组织","组织方式约束生产力的发展方向","生活形态与个体发展空间由此被限定"],"boundary":["个体自由：始终是相对的，受共同体规范约束","制度自身：同时承担维持与自我转化的双重任务"],"overdetermination":"经济最终决定，但从不单独出场；「最后实例永不到来」。可能性是绝对的，必然性是相对的。不能写「必然走向」，只能写「在什么情势下、由谁抉择、有多大可能」。","facts":[["① 主事实","资源与生产资料占有的实际分布（产权／决策权／分配权分开看）","最重要 · 唯一独立变量"],["② 派生机制","收益抽取的机制（利润／地租／税收／利息／平台抽成）","被①决定"],["③ 派生机制","劳动过程控制权的归属","跟①有关"],["④ 保障结构","权力不对称及其对抽取的保障","重要"],["⑤ 保障结构","强制机关的实际能力","重要"],["⑥ 主体条件","相关群体的组织化程度 × 是否被制度承认","组织化 × 制度化"]],"inferences":["②③ 不能单独承重：分配形式变化不等于生产关系变化，必须回到①。","① 变了 ②③ 会滞后：旧抽取形式常以新名义存活，滞后是常态。","⑥ 不是人数，是组织度 × 制度化：组织化而无制度化＝只有动员能力；制度化而无组织化＝空壳。"],"tensions":[],"rules":[["R1","证据分级","L0 原件（档案、统计原表、原始影像） / L1 同期出版物（报刊、公文、私人通信） / L2 事后研究（专著、论文）"],["R2","论战性著作","限用：仅当可被独立材料交叉支持；标 source_class=polemics-crossed。 / 同时作意识形态样本分析：修辞、受众、必须夸张什么、在哪里沉默。 / 不因立场拒用，也不因「敢揭露」升格。"],["R3","回忆录与口述","三级证据。必查立场、记忆距离、利益、出版背景。 / 准入：档案统计可验 或 与独立证词互证 或 与结构事实相容。 / 不用：纯规范性论断、不描述具体情况的整体评价、文学化段落当引文。"],["R4","官方文件三档","默认：事情本身大概真实，具体经过可疑。 / 等级：意图 > 执行 > 事后总结。 / 意图（讲话、决议）→ 对「想做什么」高；执行（报表、批复、会议记录）→ 对「怎么运行」较高；"],["R5","立场冲突","先报冲突（不改写材料、不静默调和），再给选项：改判断 / 改对材料的评价 / 保留冲突并标注。"],["R6","反目的论","禁「必然走向 X」。改写为情势句：在<条件>下，由<主体>作出<抉择>，X 成为可能；若<条件>改变，则走向<另一分支>。 / 趋势可以写，但必须写成在条件下被生产出来的。"],["R7","代价分析","强制三段：谁承担成本 / 通过什么机制 / 当时约束下有无替代。 / 禁止用总量数字替代机制说明。"],["R8","事实依赖结构","① 资源与生产资料占有的实际分布（产权/决策权/分配权分开看）   ← 主事实 / ② 收益抽取机制　③ 劳动过程控制权    ← ① 的派生，不得单独承重 / ④ 权力不对称对①②③的保障　⑤ 强制机关的实际能力   ← 保障结构"],["R9","概念使用","先定范畴，再定功能，最后查谱系（见 17、18 册）。 / 同一词在不同范畴间切换即为偷换，必须标出。"],["R10","虚构与史实分隔","架空设定一律标 fiction，与史实输出物理分隔（不同文件、不同小节标题）。"]],"redlines":[["红线一","非目的论，但承认趋势的条件性生成","不写「必然走向X」；趋势须在条件下生成。"],["红线二","不作单一价值前提","任何整体性贬斥若缺结构与利益分析，视为未完成论断，不采信。"],["红线三","fiction 标记","架空设定一律标 fiction，与史实输出物理分隔。"],["红线四","禁道德账本 + 学派并列","代价写谁承担／何机制／有无替代；禁止数字去语境化；学派并列呈现证据与反驳。"],["红线五","单一来源不作合法性依据","合法性判断须经明确程序，不以情绪或单一来源替代。"]],"redlineNote":"降级项：回忆录与论战著作不作红线，作方法（R1／R2）。冲突优先级：红线三 > 红线一 > 红线四 > 其余。","materials":[["0","字幕文件"],["16","参考册"]],"refs":[["01-evidence-bridge.md","01 · 证据桥接与史料批判","一切研究争议最终都落在同一处：**为什么这份材料支持这个理解？**"],["02-source-routing.md","02 · 来源路由（按材料类型）","| 层 | 材料 | 用途 | 可信度起点 |"],["03-close-reading.md","03 · 精读：四法 + 一句一注","精读不是摘要。摘要把文本压短，精读把文本**翻回它正在解决的问题**。"],["04-orchestration.md","04 · 两级编排（DSH 原生）","Misaka 的卡死来自三处：把整套契约注入每个请求、每个角色再起一个 harness、节点递归等待彼此的会话。"],["05-red-team.md","05 · 红队：只挑错","你的任务是让结论受伤，不是让它更漂亮。不要扩写、不要补充材料、不要调整文风、不要替作者辩护。"],["06-divergence.md","06 · 分歧审查：未取之路与缺口","红队问「你错在哪」，你问「你没走哪条路、你漏了什么」。"],["07-counterfactual.md","07 · 反事实与架空推演","反事实不是「随便改一下看看」。它是一条**受史料约束的推理**：改动必须小到史实仍能承重，后果必须大到值得推演。"],["08-setting-audit.md","08 · 架空设定审计","设定的问题通常不在「不符合史实」，而在**没有代价**：制度免费运转、技术免费扩散、意识形态无摩擦。"],["09-coverage.md","09 · 覆盖表与维度扫描","一张研究计划只能覆盖作者想到的东西。覆盖表的作用不是「更全面」，而是让**空白变成声明**，而不是疏忽。"],["10-deliverables.md","10 · 交付物","四种成品，各有固定骨架。不要在正文里出现流程词（节点、卡片、红队、处置、v1/v2）。"],["11-profile.md","11 · 意识形态画像：怎么读一个人，而不是怎么奉承他","画像的目的不是让输出「合口味」，而是让推演**从你的前提出发**，同时把代价说清。"],["12-source-acquisition.md","12 · 电子书获取、入库与版本校勘","研究卡在「书拿不到」上，比卡在「书读不懂」上更常见。这一册处理获取、入库、版本与检索。"],["15-conceptual-history.md","15 · 概念史先行","中文里大量抽象词是泊来词。**你在用别人翻译过来的范畴思考，而翻译本身带着立场。**"],["16-video-learning.md","16 · 视频作为史料：工具链与可信度","视频（讲座、访谈、课程、UP 主的概念史讲解）是**线索来源**，不是**承重证据**。"],["17-concept-analysis.md","17 · 概念分析（方法册）","先问三层，不许直接给定义："],["18-method-protocol.md","18 · 概念研究方法协议（可复用流程）","| 输入 | 产物 |"]],"profileBytes":569};
 
     const CSS = [
       '.hw{height:100%;overflow:auto;background:var(--dsw-alias-bg-base);color:var(--dsw-alias-label-primary)}',
@@ -90,6 +90,10 @@ window.__ModuleLoader__.load({
       '@media (max-width:1100px){.hw-cols{columns:1}}',
       '@media (max-width:900px){.hw-flow{grid-template-columns:1fr;gap:18px}}',
       '@media (max-width:720px){.hw-wrap{padding:20px 16px 56px}.hw-tabs{gap:18px}.hw-row{grid-template-columns:1fr;gap:2px}}',
+      '.hw-corpusbar{display:flex;gap:10px;margin:18px 0 6px}',
+      '.hw-corpusbar>.hw-search{flex:1}',
+      '.hw-tbl{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}',
+      '.hw-tbl th,.hw-tbl td{border-bottom:1px solid var(--dsw-alias-border-l1);padding:8px 10px;text-align:left;vertical-align:top}',
     ].join('\n');
 
     function read(key, fallback) {
@@ -105,6 +109,43 @@ window.__ModuleLoader__.load({
         h('path', { d: 'M5 3.6h11.5a2.5 2.5 0 0 1 2.5 2.5v14.3H7.5A2.5 2.5 0 0 1 5 17.9z', fill: 'none', stroke: 'currentColor', strokeWidth: 1.5, strokeLinejoin: 'round' }),
         h('path', { d: 'M19 20.4H7.4a2.4 2.4 0 0 1 0-4.8H19', fill: 'none', stroke: 'currentColor', strokeWidth: 1.5, strokeLinejoin: 'round' }),
         h('path', { d: 'M9 7.6h6M9 10.8h4', stroke: 'currentColor', strokeWidth: 1.3, strokeLinecap: 'round' })
+      );
+    }
+
+    function CorpusPane() {
+      const [term, setTerm] = React.useState('');
+      const [state, setState] = React.useState({ busy: false, hits: [], total: 0, msg: '' });
+      const run = function (value) {
+        const text = String(value || '').trim();
+        if (!text) { setState({ busy: false, hits: [], total: 0, msg: '' }); return; }
+        setState({ busy: true, hits: [], total: 0, msg: '' });
+        window.fetch('/humanities-workbench/corpus.json?q=' + encodeURIComponent(text), { cache: 'no-store' })
+          .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+          .then(function (json) {
+            setState({
+              busy: false, hits: json.hits || [], total: json.total || 0,
+              msg: json.ready === false ? (json.error || '索引未就绪，请先配置字幕目录') : '',
+            });
+          })
+          .catch(function (e) { setState({ busy: false, hits: [], total: 0, msg: String((e && e.message) || e) }); });
+      };
+      return h('div', null,
+        h('div', { className: 'hw-corpusbar' },
+          h('input', {
+            className: 'hw-search', type: 'search', value: term, placeholder: '在字幕语料里检索，回车执行',
+            onChange: function (e) { setTerm(e.target.value); },
+            onKeyDown: function (e) { if (e.key === 'Enter') run(term); },
+          })
+        ),
+        state.msg ? h('p', { className: 'hw-note' }, state.msg) : null,
+        state.hits.length ? h('p', { className: 'hw-note' }, '共 ' + state.total + ' 段语料，命中 ' + state.hits.length + ' 条') : null,
+        state.hits.map(function (hit, i) {
+          return h('div', { key: i, className: 'hw-row' },
+            h('div', { className: 'hw-k' }, hit.bvid + (hit.at ? ' · ' + hit.at : '')),
+            h('div', { className: 'hw-v' }, hit.text,
+              h('div', { className: 'hw-note' }, '匹配度 ' + hit.score + ' · ' + hit.file))
+          );
+        })
       );
     }
 
@@ -178,16 +219,19 @@ window.__ModuleLoader__.load({
         readAt = new Date(D.generatedAt).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', hour12: false });
       } catch (e) { readAt = ''; }
 
-      const all = ['overview', 'facts', 'tensions', 'rules', 'redlines', 'refs'];
+      const all = ['overview', 'facts', 'tensions', 'rules', 'redlines', 'refs', 'corpus'];
       const allowed = (D.config && D.config.tabs && D.config.tabs.length) ? D.config.tabs : all;
-      const counts0 = { facts: D.facts.length, tensions: D.tensions.length, rules: D.rules.length, redlines: D.redlines.length, refs: D.refs.length };
+      const counts0 = { facts: D.facts.length, tensions: D.tensions.length, rules: D.rules.length, redlines: D.redlines.length, refs: D.refs.length, corpus: (D.corpus && D.corpus.ready) ? 1 : 0 };
       const tabs = all.filter(function (k) {
-        if (allowed.indexOf(k) < 0) return false;
         if (k === 'overview') return true;
+        if (k === 'corpus') return Boolean(D.corpus && D.corpus.ready);
+        if (allowed.indexOf(k) < 0) return false;
         return (counts0[k] || 0) > 0;
       });
       const current = tabs.indexOf(view) >= 0 ? view : tabs[0];
-      const labels = { overview: t('overview'), facts: t('facts'), tensions: t('tensions'), rules: t('rules'), redlines: t('redlines'), refs: t('refs') };
+      const labels = { overview: t('overview'), facts: t('facts'), tensions: t('tensions'), rules: t('rules'), redlines: t('redlines'), refs: t('refs'), corpus: '语料' };
+      const sections = Array.isArray(D.sections) ? D.sections : [];
+      const hasSections = sections.length > 0;
       const counts = { facts: D.facts.length, tensions: D.tensions.length, rules: D.rules.length, redlines: D.redlines.length, refs: D.refs.length };
 
       const doImport = function (file) {
@@ -289,7 +333,47 @@ window.__ModuleLoader__.load({
         );
       }
 
-      const body = current === 'facts' ? facts()
+      function blockOf(spec, index) {
+        if (!spec || !spec.kind) return null;
+        const items = spec.items || [];
+        const title = spec.title ? h('h2', { className: 'hw-h2' }, spec.title) : null;
+        const wrap = function (node) { return h('div', { key: index, className: 'hw-sec' }, title, node); };
+        if (spec.kind === 'heading') return h('h2', { key: index, className: 'hw-h2' }, spec.text || spec.title || '');
+        if (spec.kind === 'lede' || spec.kind === 'prose') return h('p', { key: index, className: 'hw-lede' }, spec.text || '');
+        if (spec.kind === 'quote') return h('div', { key: index, className: 'hw-quote' }, spec.text || '');
+        if (spec.kind === 'list') return wrap(h('ul', { className: 'hw-ul' }, items.map(function (x, j) { return h('li', { key: j }, x); })));
+        if (spec.kind === 'rows') return wrap(h('div', null, items.map(function (r, j) {
+          return h('div', { key: j, className: 'hw-row' },
+            h('div', { className: 'hw-k' }, r[0]),
+            h('div', { className: 'hw-v' }, r[1], r[2] ? h('div', { className: 'hw-note' }, r[2]) : null));
+        })));
+        if (spec.kind === 'stats') return h('div', { key: index, className: 'hw-stats' }, items.map(function (k, j) {
+          return h('div', { key: j }, h('b', null, k[0]), k[1]);
+        }));
+        if (spec.kind === 'chain') return wrap(h('div', { className: 'hw-flow' },
+          h('div', { className: 'hw-ladder' }, items.map(function (n, j) {
+            return h('div', { key: j, className: 'hw-node' }, h('span', { className: 'hw-num' }, j + 1), String(n));
+          })),
+          spec.aside ? h('aside', { className: 'hw-bound' },
+            h('div', { className: 'hw-boundtitle' }, spec.aside.title || '边界条件'),
+            (spec.aside.items || []).map(function (x, j) { return h('p', { key: j }, x); })) : null));
+        if (spec.kind === 'table') return wrap(h('table', { className: 'hw-tbl' },
+          h('thead', null, h('tr', null, (spec.columns || []).map(function (c, j) { return h('th', { key: j }, c); }))),
+          h('tbody', null, (spec.rows || []).map(function (r, j) {
+            return h('tr', { key: j }, (r || []).map(function (c, k) { return h('td', { key: k }, c); }));
+          }))));
+        if (spec.kind === 'cards' || spec.kind === 'cols') return wrap(h('div', { className: 'hw-cols' }, items.map(function (c, j) {
+          return h('div', { key: j, className: 'hw-row' },
+            h('div', { className: 'hw-k' }, c.title || c[0] || ''),
+            h('div', { className: 'hw-v' }, c.text || c[1] || '', c.note ? h('div', { className: 'hw-note' }, c.note) : null));
+        })));
+        return null;
+      }
+
+      const body = hasSections
+        ? h('div', null, sections.map(function (spec, i) { return blockOf(spec, i); }))
+        : current === 'corpus' ? h(CorpusPane, null)
+        : current === 'facts' ? facts()
         : current === 'tensions' ? tensions()
         : current === 'rules' ? rules()
         : current === 'redlines' ? redlines()
@@ -342,7 +426,7 @@ window.__ModuleLoader__.load({
               )
             )
           ),
-          h('div', { className: 'hw-tabs', role: 'tablist' }, tabs.map(function (key) {
+          hasSections ? null : h('div', { className: 'hw-tabs', role: 'tablist' }, tabs.map(function (key) {
             return h('button', {
               key: key, type: 'button', role: 'tab', className: 'hw-tab',
               'aria-selected': current === key ? 'true' : 'false',
