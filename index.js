@@ -117,12 +117,12 @@ export function apply(ctx, config) {
   let cache = null
 
   const payload = (id) => {
-    const key = (id || '') + '|' + (base.skillDir || '')
-    const now = Date.now()
-    if (cache && cache.key === key && now - cache.at < CACHE_MS) return cache.body
     const chosen = resolveConfig(id)
     const skillDir = base.skillDir || (chosen && chosen.skillDir)
     const subsDir = base.subsDir || (chosen && chosen.subsDir)
+    const key = (id || '') + '|' + (skillDir || '') + '|' + (subsDir || '')
+    const now = Date.now()
+    if (cache && cache.key === key && now - cache.at < CACHE_MS) return cache.body
     const body = {
       ...buildData({ skillDir, subsDir }),
       config: chosen ? { id: chosen.id, name: chosen.name, tabs: chosen.tabs, note: chosen.note } : null,
@@ -154,12 +154,19 @@ export function apply(ctx, config) {
       if (req.method !== 'POST') return send(405, { error: 'POST only' })
       const chunks = []
       let size = 0
+      let aborted = false
       req.on('data', (chunk) => {
+        if (aborted) return
         chunks.push(chunk)
         size += chunk.length
-        if (size > 2000000) req.destroy()
+        if (size > 2000000) {
+          aborted = true
+          send(413, { error: '导入文件超过 2 MB 上限，已中止' })
+          req.destroy()
+        }
       })
       req.on('end', () => {
+        if (aborted) return
         try {
           const { filename, text } = JSON.parse(Buffer.concat(chunks).toString('utf8'))
           const safe = String(filename || 'import.txt').replace(/[\\/:*?"<>|]/g, '_').slice(0, 80)

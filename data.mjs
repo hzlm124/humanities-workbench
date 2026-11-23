@@ -5,8 +5,17 @@
 import { readFileSync, readdirSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { homedir } from 'node:os'
+import { fileURLToPath } from 'node:url'
 
+/** The reference set that ships inside this package. */
+export function bundledSkillDir() {
+  return fileURLToPath(new URL('./skill/', import.meta.url)).replace(/[\\/]+$/, '')
+}
+
+/** Default set: the bundled one when present, else a set under the home directory. */
 export function defaultSkillDir() {
+  const bundled = bundledSkillDir()
+  if (existsSync(join(bundled, 'references'))) return bundled
   return join(homedir(), '.dsh', 'skills', 'humanities-research-neutral')
 }
 
@@ -25,6 +34,19 @@ export function defaultSubsDir() {
 }
 
 const EMPTY_PANEL = { thesis: '', chain: [], boundary: [], facts: [], inferences: [], tensions: [], redlines: [], redlineNote: '' }
+
+/** Neutral section labels; a skill set may override any of them in panel.json. */
+const DEFAULT_HEADINGS = {
+  chain: '条件链（结构性必要条件，非历史保证）',
+  facts: '事实依赖结构',
+  inferences: '硬约束',
+  tensions: '未解张力',
+  rules: '执行规则 {n}',
+  redlines: '红线',
+  refs: '方法论参考册',
+}
+
+const DEFAULT_METHOD_NOTE = '结论只写「在什么情势下、由谁抉择、有多大可能」，不写「必然走向」。'
 
 /** Panel content lives with the skill set, not in code. */
 function readPanel(skillDir) {
@@ -83,6 +105,8 @@ export function buildData(options = {}) {
   const refs = parseRefs(join(skillDir, 'references'))
   const now = new Date()
 
+  const heads = { ...DEFAULT_HEADINGS, ...(panel.headings || {}) }
+
   let subs = 0
   const subsPath = options.subsDir || defaultSubsDir()
   if (subsPath && existsSync(subsPath)) {
@@ -93,18 +117,18 @@ export function buildData(options = {}) {
     source: 'live',
     generatedAt: now.toISOString(),
     meta: {
-      subtitle: '实时数据 · 规则 ' + parsedRules.length + ' 条 · 红线 5 条 · 参考册 ' + refs.length +
+      subtitle: '实时数据 · 规则 ' + parsedRules.length + ' 条 · 红线 ' + panel.redlines.length + ' 条 · 参考册 ' + refs.length +
         ' · 读取于 ' + now.toLocaleString('zh-CN', { hour12: false }),
       foot: '本页每次打开（或点「刷新」）都直接读取 ' + skillDir + ' 与字幕目录，不再需要重新构建。' +
         '页面不写会话日志，也不改动任何 profile 状态。',
       headings: {
-        chain: '条件链（结构性必要条件，非历史保证）',
-        facts: 'Q22 六事实：不是清单，是依赖结构',
-        inferences: '三条硬约束',
-        tensions: '七条张力与现行结论',
-        rules: '执行规则 R1–R' + parsedRules.length + '（个性化收紧，优先于通用册）',
-        redlines: 'Q30 红线（定稿五条）',
-        refs: '方法论参考册',
+        chain: heads.chain,
+        facts: heads.facts,
+        inferences: heads.inferences,
+        tensions: heads.tensions,
+        rules: heads.rules.replace('{n}', 'R1–R' + parsedRules.length),
+        redlines: heads.redlines,
+        refs: heads.refs,
       },
     },
     thesis: panel.thesis,
@@ -116,14 +140,14 @@ export function buildData(options = {}) {
     ],
     chain: panel.chain,
     boundary: panel.boundary,
-    overdetermination: '经济最终决定，但从不单独出场；「最后实例永不到来」。可能性是绝对的，必然性是相对的。不能写「必然走向」，只能写「在什么情势下、由谁抉择、有多大可能」。',
+    overdetermination: panel.overdetermination || DEFAULT_METHOD_NOTE,
     facts: panel.facts,
     inferences: panel.inferences,
     tensions: panel.tensions,
     rules: parsedRules,
     redlines: panel.redlines,
     redlineNote: panel.redlineNote,
-    materials: [[String(subs), '字幕文件'], ['89', '频道视频'], [String(refs.length), '参考册']],
+    materials: [[String(subs), '字幕文件'], [String(refs.length), '参考册']],
     refs,
     profileBytes: profile.length,
   }

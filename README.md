@@ -18,14 +18,14 @@
 
 | 工具 | 用途 |
 |---|---|
-| `hw_page` | 网页正文（去脚本、按 charset 解码含 GBK、登录墙识别） |
+| `hw_page` | 网页正文（去脚本、按 charset 解码含 GBK、登录墙识别），单页最多读 5 MB |
 | `hw_batch` | 批量抓取，最多 8 个 URL、并发 3 |
 | `hw_wiki` | 维基百科纯文本摘要 |
 | `hw_bilibili` | 按 BV 号取本地字幕库的 CC 字幕 |
 
-知乎、Z-Library 这类要登录的站，把 cookie 放进 `~/.dsh/humanities-workbench/cookies.json`，`hw_page` 会自动带上。
+知乎、Z-Library 这类要登录的站，把 cookie 放进 `~/.dsh/humanities-workbench/cookies.json`，`hw_page` 会自动带上——只对 https 发送，http 链接一律不带。取址会拒绝本机、局域网与云元数据地址（含重定向的每一跳），避免被网页内容引去读内网。
 
-**方法手册** —— 18 册：证据分级与来源路由、精读、编排、红队、分歧审查、反事实、设定审计、覆盖表、交付物、画像方法、藏书获取、概念史、影像作为史料、概念分析、研究协议。
+**方法手册** —— 16 册：证据分级与来源路由、精读、编排、红队、分歧审查、反事实、设定审计、覆盖表、交付物、画像方法、藏书获取、概念史、影像作为史料、概念分析、研究协议。随插件发布在 `skill/` 下，装好即用。
 
 **离线可用** —— 路由不可用时回落到内置快照，面板不会开天窗。
 
@@ -69,6 +69,8 @@ git clone https://github.com/hzlm124/humanities-workbench.git
 curl.exe http://127.0.0.1:<端口>/humanities-workbench/data.json
 # 离线自检
 node _build/selftest.mjs
+# 取数工具回归：内网拦截、结果顺序、GBK 字幕
+node _build/test-tools.mjs
 ```
 
 ## 自定义
@@ -94,6 +96,10 @@ node _build/selftest.mjs
 | `profile/rules.md` | 执行规则，写成 if-then |
 | `profile/panel.json` | 面板正文：条件链、事实结构、张力、红线 |
 | `references/*.md` | 方法手册，一册一个主题 |
+
+不填 `skillDir` 时用插件自带的 `skill/`（16 册通用方法论 + 空白画像模板）。想换整套内容，复制一份改 `skillDir` 指过去即可。
+
+`panel.json` 里除了面板正文，还可以覆盖界面用词：`headings`（各分区标题，`rules` 支持 `{n}` 占位）与 `overdetermination`（方法提示那一行）。
 
 改完点面板上的「刷新」，不用重新构建、不用重启。
 
