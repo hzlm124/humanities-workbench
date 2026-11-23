@@ -126,10 +126,17 @@ const NAMES = ["证据分级","来源路由","精读","编排","红队","分歧�
 (function(){
   const g = document.getElementById('grid');
   NAMES.forEach((nm, i) => {
-    const d = document.createElement('div');
-    d.className = 'cell blk';
-    d.innerHTML = '<div class="n">' + String(i+1).padStart(2,'0') + '</div><div class="nm">' + nm + '</div>';
-    g.appendChild(d);
+    const cell = document.createElement('div');
+    cell.className = 'cell blk';
+    const num = document.createElement('div');
+    num.className = 'n';
+    num.textContent = String(i + 1).padStart(2, '0');
+    const label = document.createElement('div');
+    label.className = 'nm';
+    label.textContent = nm;
+    cell.appendChild(num);
+    cell.appendChild(label);
+    g.appendChild(cell);
   });
 })();
 
