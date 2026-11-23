@@ -1,6 +1,7 @@
 import { buildData } from '../data.mjs'
-import { apply, DATA_PATH, CONFIGS_PATH } from '../index.js'
+import { apply, DATA_PATH, CONFIGS_PATH, FRONTEND_PATH, frontendPayload } from '../index.js'
 
+const repoRoot = new URL('..', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1')
 const data = buildData()
 console.log('parser: rules=' + data.rules.length + ' refs=' + data.refs.length)
 
@@ -26,6 +27,11 @@ for (const c of configs.body.configs) {
   const r = await call(DATA_PATH, '?config=' + encodeURIComponent(c.id))
   console.log('  ' + c.id + ': ' + r.status + ' rules=' + r.body.rules.length + ' refs=' + r.body.refs.length + ' tabs=' + r.body.config.tabs.join('/'))
 }
+const front = routes.get(FRONTEND_PATH)
+console.log('frontend_route=' + (front ? front.kind + '/' + front.auth : 'MISSING'))
+console.log('frontend_payload_none=' + JSON.stringify(frontendPayload(null, data, '')))
+console.log('frontend_payload_bad=' + JSON.stringify(frontendPayload(null, { frontend: 'nope' }, repoRoot)))
+
 const bad = Array.from(tools.values()).filter((d) => !d.description || !d.parameters || typeof d.execute !== 'function')
 console.log('tool_shape_bad=' + bad.length)
 console.log('OK')

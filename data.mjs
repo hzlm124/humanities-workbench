@@ -58,6 +58,12 @@ function readPanel(skillDir) {
   }
 }
 
+/** The optional custom-frontend block a skill set may carry. */
+export function panelFrontend(skillDir) {
+  const panel = readPanel(skillDir)
+  return panel.frontend || null
+}
+
 function readText(path) {
   try { return readFileSync(path, 'utf8') } catch { return '' }
 }
@@ -148,6 +154,7 @@ export function buildData(options = {}) {
     redlines: panel.redlines,
     redlineNote: panel.redlineNote,
     sections: Array.isArray(panel.sections) ? panel.sections : [],
+    frontend: panel.frontend || null,
     materials: [[String(subs), '字幕文件'], [String(refs.length), '参考册']],
     refs,
     profileBytes: profile.length,

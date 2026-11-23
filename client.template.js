@@ -10,6 +10,7 @@ window.__ModuleLoader__.load({
     const PANEL_ID = 'humanities-workbench';
     const VIEW_KEY = 'humanitiesWorkbench.view';
     const CFG_KEY = 'humanitiesWorkbench.config';
+    const MODE_KEY = 'humanitiesWorkbench.mode';
     const DATA = '/humanities-workbench/data.json';
     const CONFIGS = '/humanities-workbench/configs.json';
 
@@ -94,6 +95,10 @@ window.__ModuleLoader__.load({
       '.hw-corpusbar>.hw-search{flex:1}',
       '.hw-tbl{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}',
       '.hw-tbl th,.hw-tbl td{border-bottom:1px solid var(--dsw-alias-border-l1);padding:8px 10px;text-align:left;vertical-align:top}',
+      '.hw-frame{margin-top:16px}',
+      '.hw-iframe{width:100%;height:calc(100vh - 240px);min-height:520px;border:1px solid var(--dsw-alias-border-l1);border-radius:10px;background:#fff;display:block}',
+      '.hw-framebar{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px;font-size:11.5px;color:var(--dsw-alias-label-secondary);margin-top:2px}',
+      '.hw-framebar code{font:inherit;font-size:11px;opacity:.85;word-break:break-all}',
     ].join('\n');
 
     function read(key, fallback) {
@@ -149,6 +154,87 @@ window.__ModuleLoader__.load({
       );
     }
 
+    /**
+     * The configured HTML page, isolated in a sandboxed frame. It gets no
+     * credentials, so every read goes through postMessage: the parent answers
+     * panel / corpus / configs and nothing else.
+     */
+    function CustomFrame(props) {
+      const frameRef = React.useRef(null);
+      const live = React.useRef(props);
+      live.current = props;
+      const [height, setHeight] = React.useState(props.height || 0);
+
+      React.useEffect(function () {
+        const win = function () { return frameRef.current && frameRef.current.contentWindow; };
+        const send = function (msg) {
+          const target = win();
+          if (!target) return;
+          try { target.postMessage(msg, '*'); } catch (e) { /* frame went away */ }
+        };
+        const onMessage = function (event) {
+          const target = win();
+          if (!target || !event || event.source !== target) return;
+          const msg = event.data;
+          if (!msg || msg.hw !== 1) return;
+          const id = msg.id;
+          const reply = function (body) {
+            send(Object.assign({ hw: 1, id: id, re: String(msg.op || '') }, body));
+          };
+          const op = String(msg.op || '');
+          if (op === 'hello' || op === 'panel') { reply({ ok: true, data: live.current.data }); return; }
+          if (op === 'resize') {
+            const n = Number(msg.height);
+            if (n > 0) setHeight(Math.min(Math.max(Math.round(n), 320), 8000));
+            reply({ ok: true });
+            return;
+          }
+          if (op === 'configs') { reply({ ok: true, configs: live.current.configs || [] }); return; }
+          if (op === 'refresh') { reply({ ok: true }); if (live.current.onRefresh) live.current.onRefresh(); return; }
+          if (op === 'open-config') { reply({ ok: true }); if (live.current.onOpen) live.current.onOpen(String(msg.config || '')); return; }
+          if (op === 'notice') { reply({ ok: true }); if (live.current.onNotice) live.current.onNotice(String(msg.text || '').slice(0, 200)); return; }
+          if (op === 'corpus') {
+            const term = String(msg.query || '').trim();
+            if (!term) { reply({ ok: true, hits: [], total: 0, ready: true }); return; }
+            window.fetch('/humanities-workbench/corpus.json?q=' + encodeURIComponent(term), { cache: 'no-store' })
+              .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+              .then(function (json) {
+                reply({
+                  ok: true, ready: json.ready !== false, total: json.total || 0,
+                  hits: json.hits || [], error: json.error || '',
+                });
+              })
+              .catch(function (e) { reply({ ok: false, error: String((e && e.message) || e) }); });
+            return;
+          }
+          reply({ ok: false, error: 'unknown op: ' + op });
+        };
+        window.addEventListener('message', onMessage);
+        return function () { window.removeEventListener('message', onMessage); };
+      }, []);
+
+      React.useEffect(function () {
+        const target = frameRef.current && frameRef.current.contentWindow;
+        if (!target) return;
+        try { target.postMessage({ hw: 1, op: 'panel', data: props.data }, '*'); } catch (e) { /* not ready */ }
+      }, [props.data]);
+
+      return h('div', { className: 'hw-framewrap' },
+        h('div', { className: 'hw-framebar' },
+          h('span', null, '自定义前端' + (props.title ? ' · ' + props.title : '') + '（沙箱隔离，数据经 postMessage 传入）'),
+          h('code', null, props.dir || '')
+        ),
+        h('div', { className: 'hw-frame' },
+          h('iframe', {
+            ref: frameRef, className: 'hw-iframe', src: props.url, title: props.title || '自定义前端',
+            sandbox: 'allow-scripts allow-forms allow-popups allow-downloads',
+            referrerPolicy: 'no-referrer',
+            style: height ? { height: height + 'px' } : null,
+          })
+        )
+      );
+    }
+
     function Picker(props) {
       const [open, setOpen] = React.useState(false);
       const current = props.options.filter(function (o) { return o.id === props.value; })[0] || props.options[0];
@@ -181,6 +267,7 @@ window.__ModuleLoader__.load({
       const [q, setQ] = React.useState('');
       const [autoWizard, setAutoWizard] = React.useState(function () { return read('humanitiesWorkbench.autoWizard', '1') === '1'; });
       const [notice, setNotice] = React.useState('');
+      const [mode, setMode] = React.useState(function () { return read(MODE_KEY, 'custom'); });
       const hit = function (text) {
         if (!q) return true;
         return String(text || '').toLowerCase().indexOf(q.toLowerCase()) >= 0;
@@ -232,6 +319,13 @@ window.__ModuleLoader__.load({
       const labels = { overview: t('overview'), facts: t('facts'), tensions: t('tensions'), rules: t('rules'), redlines: t('redlines'), refs: t('refs'), corpus: '语料' };
       const sections = Array.isArray(D.sections) ? D.sections : [];
       const hasSections = sections.length > 0;
+      const fx = D.frontend || null;
+      const showCustom = Boolean(fx && mode !== 'builtin');
+      const toggleMode = function () {
+        const next = showCustom ? 'builtin' : 'custom';
+        setMode(next);
+        write(MODE_KEY, next);
+      };
       const counts = { facts: D.facts.length, tensions: D.tensions.length, rules: D.rules.length, redlines: D.redlines.length, refs: D.refs.length };
 
       const doImport = function (file) {
@@ -370,7 +464,15 @@ window.__ModuleLoader__.load({
         return null;
       }
 
-      const body = hasSections
+      const body = showCustom
+        ? h(CustomFrame, {
+            url: fx.url, title: fx.title, dir: fx.dir, height: fx.height,
+            data: D, configs: configs,
+            onRefresh: function () { load(configId); },
+            onOpen: function (id) { load(id); },
+            onNotice: function (text) { setNotice(text); },
+          })
+        : hasSections
         ? h('div', null, sections.map(function (spec, i) { return blockOf(spec, i); }))
         : current === 'corpus' ? h(CorpusPane, null)
         : current === 'facts' ? facts()
@@ -401,6 +503,10 @@ window.__ModuleLoader__.load({
                 className: 'hw-search', type: 'search', value: q, placeholder: '搜索',
                 onChange: function (e) { setQ(e.target.value); },
               }),
+              fx ? h('button', {
+                type: 'button', className: 'hw-link', title: '在「' + (fx.title || '自定义前端') + '」与内置视图之间切换：' + (fx.dir || ''),
+                onClick: toggleMode,
+              }, showCustom ? '内置视图' : '自定义前端') : null,
               h('button', { type: 'button', className: 'hw-link', onClick: function () { load(configId); }, disabled: state.busy }, '刷新'),
               h('label', { className: 'hw-link' }, '导入',
                 h('input', {
@@ -426,7 +532,7 @@ window.__ModuleLoader__.load({
               )
             )
           ),
-          hasSections ? null : h('div', { className: 'hw-tabs', role: 'tablist' }, tabs.map(function (key) {
+          (hasSections || showCustom) ? null : h('div', { className: 'hw-tabs', role: 'tablist' }, tabs.map(function (key) {
             return h('button', {
               key: key, type: 'button', role: 'tab', className: 'hw-tab',
               'aria-selected': current === key ? 'true' : 'false',
@@ -435,6 +541,7 @@ window.__ModuleLoader__.load({
           })),
           h('div', { className: 'hw-body', role: 'tabpanel' }, body),
           state.message ? h('div', { className: 'hw-err' }, state.message) : null,
+          D.frontendError ? h('div', { className: 'hw-err' }, '自定义前端未启用：' + D.frontendError) : null,
           notice ? h('div', { className: 'hw-notice' }, notice) : null
         )
       );

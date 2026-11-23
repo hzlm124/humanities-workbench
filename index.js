@@ -1,10 +1,12 @@
 /**
  * Host half: panel data routes plus the reader tools.
  */
-import { mkdirSync, appendFileSync } from 'node:fs'
-import { join, dirname } from 'node:path'
+import { mkdirSync, appendFileSync, existsSync } from 'node:fs'
+import { readFile } from 'node:fs/promises'
+import { join, dirname, extname, resolve, normalize, sep } from 'node:path'
+import { createHash, randomBytes } from 'node:crypto'
 import { homedir } from 'node:os'
-import { buildData } from './data.mjs'
+import { buildData, panelFrontend } from './data.mjs'
 import { listConfigs, resolveConfig, configStatus, writeConfig, ALL_TABS, ROOT } from './configs.mjs'
 import { mkdirSync as mkdir, writeFileSync } from 'node:fs'
 import { readPage, readPages, wikiExtract, bilibiliTranscript } from './tools.mjs'
@@ -16,6 +18,31 @@ export const IMPORT_PATH = '/humanities-workbench/import'
 export const CORPUS_PATH = '/humanities-workbench/corpus.json'
 export const CORPUS_FILE = join(homedir(), '.dsh', 'humanities-workbench', 'corpus.json')
 export const inject = ['webServer', 'tools']
+
+export const FRONTEND_PATH = '/humanities-workbench/frontend'
+/** One unguessable segment per process: a sandboxed frame carries no credentials. */
+const FRONTEND_TOKEN = randomBytes(12).toString('hex')
+
+/** Extensions the frame may load. Anything else is refused, so a mis-typed path cannot serve notes or keys. */
+const FRONTEND_MIME = {
+  '.html': 'text/html; charset=utf-8',
+  '.htm': 'text/html; charset=utf-8',
+  '.css': 'text/css; charset=utf-8',
+  '.js': 'text/javascript; charset=utf-8',
+  '.mjs': 'text/javascript; charset=utf-8',
+  '.json': 'application/json; charset=utf-8',
+  '.svg': 'image/svg+xml',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.webp': 'image/webp',
+  '.gif': 'image/gif',
+  '.ico': 'image/x-icon',
+  '.woff': 'font/woff',
+  '.woff2': 'font/woff2',
+  '.ttf': 'font/ttf',
+  '.otf': 'font/otf',
+}
 
 const CACHE_MS = 1500
 const BOOT_LOG = join(homedir(), '.dsh', 'humanities-workbench', 'boot.log')
@@ -65,6 +92,97 @@ export function corpusFor(subsDir, force = false) {
     return built
   } catch {
     return null
+  }
+}
+
+/** Normalise the \`frontend\` field of a config set or of panel.json. */
+export function frontendSpec(raw) {
+  if (!raw) return null
+  const spec = typeof raw === 'string' ? { dir: raw } : (typeof raw === 'object' ? raw : null)
+  if (!spec || typeof spec.dir !== 'string' || !spec.dir.trim()) return null
+  const height = Number(spec.height)
+  return {
+    dir: spec.dir.trim(),
+    entry: String(spec.entry || 'index.html').trim().replace(/^[\\/]+/, ''),
+    title: typeof spec.title === 'string' ? spec.title.slice(0, 80) : '',
+    height: Number.isFinite(height) ? Math.min(Math.max(Math.round(height), 320), 4000) : 0,
+  }
+}
+
+/** Resolve the frontend directory against the skill set and report why it is unusable. */
+export function resolveFrontend(skillDir, raw) {
+  const spec = frontendSpec(raw)
+  if (!spec) return null
+  const root = skillDir ? resolve(skillDir, spec.dir) : ''
+  const entry = root ? resolve(root, spec.entry) : ''
+  const inside = Boolean(entry) && (entry === root || entry.startsWith(root + sep))
+  const hasRoot = Boolean(root) && existsSync(root)
+  const hasEntry = inside && hasRoot && existsSync(entry)
+  let reason = ''
+  if (!skillDir) reason = '配置里没有 skillDir'
+  else if (!hasRoot) reason = '前端目录不存在：' + spec.dir
+  else if (!inside) reason = '入口文件越出前端目录'
+  else if (!hasEntry) reason = '入口文件不存在：' + spec.entry
+  return { ...spec, root: hasRoot ? root : '', entryPath: inside ? entry : '', ok: hasEntry, reason }
+}
+
+export function frontendUrl(configId, entry) {
+  const parts = String(entry || 'index.html').split(/[\\/]+/).filter(Boolean).map(encodeURIComponent)
+  return FRONTEND_PATH + '/' + FRONTEND_TOKEN + '/' + encodeURIComponent(String(configId || '_')) + '/' + parts.join('/')
+}
+
+/**
+ * Serve one file for the custom frontend. Mirrors the host's dist server: the
+ * prefix is stripped, decoding failures reject, and a path that leaves the
+ * directory is refused before any read.
+ */
+export async function serveFrontend(request, options) {
+  const root = options && options.root ? resolve(options.root) : ''
+  const token = (options && options.token) || FRONTEND_TOKEN
+  if (!root) return new Response(null, { status: 404 })
+  const rest = new URL(request.url).pathname.slice(FRONTEND_PATH.length + 1)
+  const parts = rest.split('/')
+  if (parts[0] !== token) return new Response(null, { status: 404 })
+  let rel = ''
+  try { rel = decodeURIComponent(parts.slice(2).join('/')) } catch { return new Response(null, { status: 400 }) }
+  if (!rel || rel.endsWith('/')) rel += 'index.html'
+  const target = resolve(normalize(join(root, rel)))
+  if (target !== root && !target.startsWith(root + sep)) return new Response(null, { status: 403 })
+  const mime = FRONTEND_MIME[extname(target).toLowerCase()]
+  if (!mime) return new Response(null, { status: 403 })
+  let body
+  try { body = await readFile(target) } catch { return new Response(null, { status: 404 }) }
+  if (request.signal && typeof request.signal.throwIfAborted === 'function') request.signal.throwIfAborted()
+  const etag = 'W/"' + createHash('sha1').update(body).digest('base64url') + '"'
+  const headers = {
+    'content-type': mime,
+    'cache-control': 'no-cache',
+    etag,
+    'referrer-policy': 'no-referrer',
+    'x-content-type-options': 'nosniff',
+  }
+  if (request.headers.get('if-none-match') === etag) return new Response(null, { status: 304, headers })
+  if (request.method === 'HEAD') return new Response(null, { status: 200, headers })
+  return new Response(body, { status: 200, headers })
+}
+
+/** What the panel receives about its custom frontend. */
+export function frontendPayload(config, data, skillDir) {
+  const fromConfig = config && config.frontend
+  const raw = fromConfig || (data && data.frontend) || null
+  const fx = resolveFrontend(skillDir, raw)
+  if (!fx) return { frontend: null, frontendError: '' }
+  if (!fx.ok) return { frontend: null, frontendError: fx.reason }
+  return {
+    frontend: {
+      url: frontendUrl((config && config.id) || '_', fx.entry),
+      entry: fx.entry,
+      title: fx.title || '',
+      height: fx.height,
+      dir: fx.root,
+      from: fromConfig ? 'config' : 'panel',
+    },
+    frontendError: '',
   }
 }
 
@@ -150,6 +268,22 @@ export function apply(ctx, config) {
   note('apply')
   const base = config && typeof config === 'object' ? config : {}
   let cache = null
+  let rootCache = null
+
+  /** Serve only the frontend directory a config names, never the skill root. */
+  const rootFor = (configId) => {
+    const id = configId === '_' ? '' : configId
+    const chosen = id ? (listConfigs().find((c) => c.id === id) || null) : resolveConfig()
+    const skillDir = base.skillDir || (chosen && chosen.skillDir)
+    const raw = (chosen && chosen.frontend) || panelFrontend(skillDir)
+    const key = id + '|' + (skillDir || '') + '|' + JSON.stringify(raw || null)
+    const now = Date.now()
+    if (rootCache && rootCache.key === key && now - rootCache.at < CACHE_MS) return rootCache.root
+    const fx = resolveFrontend(skillDir, raw)
+    const root = fx && fx.ok ? fx.root : ''
+    rootCache = { key, at: now, root }
+    return root
+  }
 
   const payload = (id) => {
     const chosen = resolveConfig(id)
@@ -167,6 +301,7 @@ export function apply(ctx, config) {
       corpus: corpusState.exists
         ? { ready: true, stale: corpusState.stale, segments: (loadCorpus(CORPUS_FILE) || { stats: {} }).stats.segments || 0 }
         : { ready: false, stale: corpusState.stale, segments: 0 },
+      ...frontendPayload(chosen, data, skillDir),
     }
     cache = { key, at: now, body }
     return body
@@ -256,6 +391,18 @@ export function apply(ctx, config) {
     path: CONFIGS_PATH,
     resource: async () => json({ configs: listConfigs() }),
   }), 'humanities-workbench: configs')
+
+  ctx.effect(() => ctx.webServer.register({
+    kind: 'prefix',
+    path: FRONTEND_PATH,
+    auth: 'anonymous',
+    resource: async (request) => {
+      const parts = new URL(request.url).pathname.slice(FRONTEND_PATH.length + 1).split('/')
+      let configId = ''
+      try { configId = decodeURIComponent(parts[1] || '') } catch { configId = '' }
+      return serveFrontend(request, { root: rootFor(configId) })
+    },
+  }), 'humanities-workbench: frontend')
 
   ctx.effect(() => ctx.tools.register({
     name: 'hw_corpus',

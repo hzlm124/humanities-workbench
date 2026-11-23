@@ -15,8 +15,11 @@
 
     GET /humanities-workbench/data.json?config=<id>
     GET /humanities-workbench/configs.json
+    GET /humanities-workbench/frontend/<token>/<config>/<path>
 
 只读、同源、每次请求重读磁盘（1.5 秒防抖）。改 profile.md 后点「刷新」即生效。
+
+前端那条是 `prefix` 路由、`auth: anonymous`——沙箱 iframe 不带凭据，只能这么放行；换来的是路径里的随机令牌加上目录围栏：只服务配置指向的那个前端目录，扩展名白名单之外的返回 403，越界 403，缺文件 404。
 
 ## 工具
 

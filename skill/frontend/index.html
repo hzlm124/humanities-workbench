@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>人文社科工作台 · 自定义前端</title>
+<style>
+  :root {
+    --ink: #111418;
+    --ink-2: #4a5361;
+    --ink-3: #7c8798;
+    --line: #e3e7ee;
+    --bg: #ffffff;
+    --bg-2: #f6f8fb;
+    --blue: #1f5fd0;
+    --blue-soft: #eaf1fd;
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Songti SC", "Noto Serif CJK SC", serif;
+    --sans: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink); }
+  body { font: 14px/1.75 var(--sans); -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 30px 32px 64px; }
+  header { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; flex-wrap: wrap; }
+  h1 { margin: 0; font: 600 22px/1.3 var(--serif); letter-spacing: .01em; }
+  .meta { margin-top: 6px; font-size: 12px; color: var(--ink-3); }
+  .tag { display: inline-block; margin-left: 8px; padding: 1px 7px; border-radius: 999px; background: var(--blue-soft); color: var(--blue); font-size: 11px; }
+  .tools { display: flex; align-items: center; gap: 12px; }
+  button { font: inherit; font-size: 12px; color: var(--ink-2); background: none; border: 1px solid var(--line); border-radius: 7px; padding: 4px 10px; cursor: pointer; }
+  button:hover { color: var(--blue); border-color: var(--blue); }
+  .kpi { display: flex; flex-wrap: wrap; gap: 30px; margin: 22px 0 0; padding: 16px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .kpi b { display: block; font: 600 21px/1.3 var(--serif); letter-spacing: .01em; }
+  .kpi span { font-size: 11.5px; color: var(--ink-3); }
+  .lede { margin: 26px 0 0; font: 400 15.5px/2 var(--serif); text-indent: 2em; }
+  h2 { margin: 38px 0 12px; font: 600 12.5px/1.6 var(--sans); letter-spacing: .12em; color: var(--ink-3); text-transform: none; }
+  h2::after { content: ""; display: block; width: 34px; height: 2px; margin-top: 7px; background: var(--blue); opacity: .85; }
+  .flow { display: grid; grid-template-columns: minmax(0, 1fr) 16rem; gap: 34px; align-items: start; }
+  @media (max-width: 900px) { .flow { grid-template-columns: 1fr; gap: 16px; } .wrap { padding: 22px 18px 48px; } }
+  ol.chain { list-style: none; counter-reset: c; margin: 0; padding: 0; }
+  ol.chain li { counter-increment: c; position: relative; padding: 9px 0 9px 30px; border-bottom: 1px solid var(--line); }
+  ol.chain li:last-child { border-bottom: none; }
+  ol.chain li::before { content: counter(c); position: absolute; left: 0; top: 9px; width: 17px; height: 17px; border: 1px solid var(--blue); border-radius: 50%; color: var(--blue); font-size: 10px; line-height: 15px; text-align: center; }
+  aside.bound { border-left: 2px solid var(--blue); padding-left: 14px; }
+  aside.bound h3 { margin: 0 0 8px; font: 600 10.5px/1.6 var(--sans); letter-spacing: .14em; color: var(--ink-3); }
+  aside.bound p { margin: 0 0 8px; font-size: 12.5px; color: var(--ink-2); }
+  blockquote { margin: 30px 0 0; padding: 14px 16px; background: var(--bg-2); border-left: 3px solid var(--blue); font: 400 13px/1.9 var(--serif); color: var(--ink-2); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0 34px; }
+  .item { padding: 11px 0; border-bottom: 1px solid var(--line); }
+  .item dt { font-size: 11.5px; color: var(--ink-3); }
+  .item dd { margin: 2px 0 0; font-size: 13.5px; }
+  .item .note { margin-top: 3px; font-size: 12px; color: var(--ink-3); }
+  .rule { display: flex; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--line); }
+  .rule code { flex: none; font: 600 11px/1.9 var(--sans); color: var(--blue); letter-spacing: .04em; }
+  .rule div { font-size: 13px; }
+  .rule .detail { margin-top: 2px; font-size: 12px; color: var(--ink-3); }
+  .search { display: flex; gap: 10px; margin-top: 8px; }
+  .search input { flex: 1; font: inherit; padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--ink); }
+  .search input:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-soft); }
+  .hits { margin-top: 12px; }
+  .hit { padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .hit .where { font-size: 11px; color: var(--blue); letter-spacing: .03em; }
+  .hit .what { margin-top: 3px; font-size: 13px; }
+  .hint { margin-top: 10px; font-size: 12px; color: var(--ink-3); }
+  footer { margin-top: 44px; padding-top: 14px; border-top: 1px solid var(--line); font-size: 11.5px; color: var(--ink-3); }
+  .empty { font-size: 12.5px; color: var(--ink-3); }
+  .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #c9d0db; margin-right: 6px; vertical-align: 1px; }
+  .dot.on { background: #1f9d55; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1 id="name">人文社科工作台</h1>
+      <div class="meta"><span id="status"><span class="dot"></span>等待数据</span><span id="subtitle"></span></div>
+    </div>
+    <div class="tools">
+      <button id="refresh" type="button">刷新</button>
+    </div>
+  </header>
+  <section class="kpi" id="kpi"></section>
+  <p class="lede" id="thesis"></p>
+  <h2 id="h-chain">条件链</h2>
+  <div class="flow">
+    <ol class="chain" id="chain"></ol>
+    <aside class="bound"><h3>边界条件</h3><div id="boundary"></div></aside>
+  </div>
+  <blockquote id="method"></blockquote>
+  <h2 id="h-facts">事实依赖结构</h2>
+  <dl class="grid" id="facts"></dl>
+  <h2 id="h-tensions">未解张力</h2>
+  <dl class="grid" id="tensions"></dl>
+  <h2 id="h-rules">执行规则</h2>
+  <div id="rules"></div>
+  <h2 id="h-redlines">红线</h2>
+  <dl class="grid" id="redlines"></dl>
+  <p class="hint" id="redline-note"></p>
+  <h2>字幕语料</h2>
+  <div class="search">
+    <input id="q" type="search" placeholder="输入一个说法，回车看它在语料里怎么讲" autocomplete="off">
+    <button id="run" type="button">检索</button>
+  </div>
+  <div class="hits" id="hits"></div>
+  <div class="hint" id="corpus-hint"></div>
+  <h2 id="h-refs">方法论参考册</h2>
+  <div id="refs"></div>
+  <footer id="foot"></footer>
+</div>
+<script>
+  var HW = 1;
+  var data = null;
+
+  function $(id) { return document.getElementById(id); }
+  function el(tag, cls, text) {
+    var node = document.createElement(tag);
+    if (cls) node.className = cls;
+    if (text != null) node.textContent = String(text);
+    return node;
+  }
+  function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
+  function send(op, extra) {
+    var msg = { hw: HW, op: op };
+    if (extra) for (var k in extra) msg[k] = extra[k];
+    parent.postMessage(msg, "*");
+  }
+
+  function pairRows(target, rows) {
+    clear(target);
+    (rows || []).forEach(function (row) {
+      var item = el("div", "item");
+      item.appendChild(el("dt", null, row[0]));
+      var dd = el("dd", null, row[1]);
+      item.appendChild(dd);
+      if (row[2]) item.appendChild(el("div", "note", row[2]));
+      target.appendChild(item);
+    });
+    if (!target.firstChild) target.appendChild(el("p", "empty", "这一节还是空的。"));
+  }
+
+  function render() {
+    if (!data) return;
+    var heads = (data.meta && data.meta.headings) || {};
+    var cfg = data.config || {};
+    $("name").textContent = cfg.name || "人文社科工作台";
+    $("subtitle").textContent = " · " + (data.meta ? data.meta.subtitle : "");
+    $("status").innerHTML = '<span class="dot on"></span>实时';
+    $("kpi").innerHTML = "";
+    (data.kpi || []).forEach(function (k) {
+      var box = el("div");
+      box.appendChild(el("b", null, k[0]));
+      box.appendChild(el("span", null, k[1]));
+      $("kpi").appendChild(box);
+    });
+    $("thesis").textContent = data.thesis || "";
+    $("h-chain").textContent = heads.chain || "条件链";
+    $("h-facts").textContent = heads.facts || "事实依赖结构";
+    $("h-tensions").textContent = heads.tensions || "未解张力";
+    $("h-rules").textContent = heads.rules || "执行规则";
+    $("h-redlines").textContent = heads.redlines || "红线";
+    $("h-refs").textContent = heads.refs || "方法论参考册";
+    clear($("chain"));
+    (data.chain || []).forEach(function (node) {
+      $("chain").appendChild(el("li", null, typeof node === "string" ? node : node[0]));
+    });
+    clear($("boundary"));
+    (data.boundary || []).forEach(function (line) { $("boundary").appendChild(el("p", null, line)); });
+    $("method").textContent = data.overdetermination || "";
+    pairRows($("facts"), data.facts);
+    pairRows($("tensions"), data.tensions);
+    pairRows($("redlines"), data.redlines);
+    $("redline-note").textContent = data.redlineNote || "";
+    clear($("rules"));
+    (data.rules || []).forEach(function (rule) {
+      var row = el("div", "rule");
+      row.appendChild(el("code", null, rule[0]));
+      var body = el("div");
+      body.appendChild(el("div", null, rule[1]));
+      if (rule[2]) body.appendChild(el("div", "detail", rule[2]));
+      row.appendChild(body);
+      $("rules").appendChild(row);
+    });
+    clear($("refs"));
+    (data.refs || []).forEach(function (ref) {
+      var item = el("div", "item");
+      item.appendChild(el("dt", null, ref[0]));
+      item.appendChild(el("dd", null, ref[1]));
+      if (ref[2]) item.appendChild(el("div", "note", ref[2]));
+      $("refs").appendChild(item);
+    });
+    var corpus = data.corpus || {};
+    $("corpus-hint").textContent = corpus.ready
+      ? "索引里共 " + corpus.segments + " 段语料" + (corpus.stale ? "（字幕目录有更新，下次检索会重建）" : "")
+      : "还没有语料索引：在配置里填 subsDir，然后跑一次 node _build/build_index.mjs。";
+    $("foot").textContent = (data.meta && data.meta.foot) || "";
+    fit();
+  }
+
+  function renderHits(msg) {
+    var box = $("hits");
+    clear(box);
+    if (!msg.ok) { box.appendChild(el("p", "empty", "检索失败：" + (msg.error || "未知原因"))); return; }
+    if (msg.error) { box.appendChild(el("p", "empty", msg.error)); return; }
+    var hits = msg.hits || [];
+    if (!hits.length) { box.appendChild(el("p", "empty", "语料里没有这个说法。")); return; }
+    hits.forEach(function (hit) {
+      var item = el("div", "hit");
+      item.appendChild(el("div", "where", hit.bvid + (hit.at ? " · " + hit.at : "") + " · 匹配度 " + hit.score));
+      item.appendChild(el("div", "what", hit.text));
+      box.appendChild(item);
+    });
+    $("corpus-hint").textContent = "命中 " + hits.length + " 条 / 共 " + msg.total + " 段";
+    fit();
+  }
+
+  function runSearch() {
+    var term = $("q").value.trim();
+    if (!term) return;
+    $("hits").innerHTML = "";
+    send("corpus", { query: term });
+  }
+
+  var fitTimer = null;
+  function fit() {
+    if (fitTimer) clearTimeout(fitTimer);
+    fitTimer = setTimeout(function () {
+      var h = Math.ceil(document.documentElement.scrollHeight);
+      if (h > 0) send("resize", { height: h + 8 });
+    }, 80);
+  }
+
+  window.addEventListener("message", function (event) {
+    var msg = event.data;
+    if (!msg || msg.hw !== HW) return;
+    if (msg.data && (msg.op === "panel" || msg.re === "hello")) { data = msg.data; render(); return; }
+    if (msg.re === "corpus") { renderHits(msg); }
+  });
+
+  $("run").addEventListener("click", runSearch);
+  $("q").addEventListener("keydown", function (e) { if (e.key === "Enter") runSearch(); });
+  $("refresh").addEventListener("click", function () { send("refresh"); send("hello"); });
+  if (window.ResizeObserver) new ResizeObserver(fit).observe(document.body);
+  send("hello");
+</script>
+</body>
+</html>

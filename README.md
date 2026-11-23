@@ -14,6 +14,8 @@
 
 **配置集** —— 一套配置 = 一个研究目录 + 一组栏目。默认只带一份通用方法论，你自己的版本另建一套，两套并行、互不影响。
 
+**自定义前端** —— 嫌面板排版不顺眼，就让它指向你自己写的 HTML：沙箱 iframe 里跑，数据经 `postMessage` 取。界面连同栏目一起换掉。
+
 **读取工具** —— 给模型四个能直接用的取数口：
 
 | 工具 | 用途 |
@@ -74,6 +76,8 @@ node _build/selftest.mjs
 node _build/test-tools.mjs
 # 语料索引回归：SRT 解析、时间码、排序、GBK
 node _build/test-knowledge.mjs
+# 自定义前端路由回归：路径围栏、扩展名白名单、令牌、ETag
+node _build/test-frontend.mjs
 ```
 
 ## 自定义
@@ -132,7 +136,26 @@ node _build/build_index.mjs "D:\path\to\subs"
 
 可用 `kind`：`heading` `lede` `prose` `quote` `list` `rows` `stats` `chain` `table` `cards` `cols`。完整示例见 `docs/sections-example.json`。
 
-0.2 会让配置指向自己的 HTML，在沙箱 iframe 里跑、数据经 `postMessage` 传入——那一步才是真正意义上的「一套独立前端」。
+## 自定义前端
+
+`panel.json` 或配置集里加一项 `frontend`，面板正文就换成你自己写的 HTML：
+
+```json
+{ "frontend": "frontend" }
+```
+
+也可以写全：`{ "dir": "frontend", "entry": "index.html", "title": "我的工作台", "height": 0 }`。相对路径按 `skillDir` 解析，绝对路径也行。写在配置集（`~/.dsh/humanities-workbench/configs/<id>.json`）里优先于 `panel.json`，所以同一套方法论可以配不同前端。
+
+页面跑在 `sandbox="allow-scripts"` 的 iframe 里——不透明来源，拿不到宿主的 cookie 和 localStorage。数据一律从 `postMessage` 进出：
+
+| 方向 | 消息 |
+| --- | --- |
+| 页面 → 宿主 | `{ hw: 1, op: "hello" \| "panel" \| "corpus" \| "configs" \| "refresh" \| "open-config" \| "resize" \| "notice" }` |
+| 宿主 → 页面 | `{ hw: 1, op, re, id, ok, data? }` |
+
+`hello` 直接拿到 `data.json` 的全部内容；`corpus` 带 `query` 就返回语料命中；`resize` 让框架跟着内容高度走。工具栏多一个「内置视图／自定义前端」开关，随时退回原来的排版；配置写了前端却找不到目录时，面板会直接说缺哪个路径，而不是默默回落。
+
+资源只从指定的前端目录里取：扩展名白名单（html / css / js / mjs / json / svg / 图片 / 字体），越界 403、缺失 404、路径里带一段每次启动随机生成的令牌，别的本地页面猜不到。现成的示例在 `skill/frontend/`——复制进自己的 skill 目录、加一行 `frontend` 就能看到效果。
 
 ## 仓库构成
 
@@ -154,6 +177,8 @@ node _build/build_index.mjs "D:\path\to\subs"
 | `_build/build_index.mjs` | 建语料索引，落到 `~/.dsh/humanities-workbench/corpus.json` |
 | `_build/test-knowledge.mjs` | 语料层回归 |
 | `docs/sections-example.json` | 区块自排的写法示例 |
+| `skill/frontend/` | 自定义前端的示例页面与协议说明（默认不启用） |
+| `_build/test-frontend.mjs` | 前端路由回归：围栏、白名单、令牌、ETag |
 
 ## Related work
 
