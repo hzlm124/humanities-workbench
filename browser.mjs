@@ -4,7 +4,7 @@
  * the logins the user chose to give it.
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync, statSync, rmSync } from 'node:fs'
-import { join } from 'node:path'
+import { join, dirname } from 'node:path'
 import { homedir } from 'node:os'
 import { spawn, spawnSync } from 'node:child_process'
 import { assertFetchable, isPrivateIp } from './tools.mjs'
@@ -13,6 +13,9 @@ export const PROFILE_DIR = join(homedir(), '.dsh', 'humanities-workbench', 'brow
 const DEFAULT_PORT = 9411
 const MARKER = '.hw-mode'
 const PID_FILE = '.hw.pid'
+const LOGIN_FILE = join(homedir(), '.dsh', 'humanities-workbench', 'logins.json')
+
+const loginPath = () => process.env.HW_LOGIN_FILE || LOGIN_FILE
 
 /** Sites with a known shape. Each entry is a starting point, never a promise. */
 export const SITES = {
@@ -150,11 +153,71 @@ function markerValue() {
   try { return readFileSync(join(profileDir(), MARKER), 'utf8').trim() } catch { return '' }
 }
 
+/** Last per-site login check, as written by probeLogins. */
+export function readLogins() {
+  try {
+    const parsed = JSON.parse(readFileSync(loginPath(), 'utf8'))
+    if (!parsed || !Array.isArray(parsed.sites)) return { checkedAt: '', sites: [] }
+    return { checkedAt: String(parsed.checkedAt || ''), sites: parsed.sites }
+  } catch {
+    return { checkedAt: '', sites: [] }
+  }
+}
+
+export function writeLogins(value) {
+  try {
+    mkdirSync(dirname(loginPath()), { recursive: true })
+    writeFileSync(loginPath(), JSON.stringify(value, null, 2) + '\n', 'utf8')
+    return true
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Open every known site once and record whether a login wall shows. One site at
+ * a time on purpose: the profile can only load so fast, and a clear failure is
+ * worth more than a fast wrong answer.
+ */
+export async function probeLogins() {
+  const started = await ensureBrowser({ headed: false })
+  if (!started.ok) return { ok: false, error: started.reason, checkedAt: '', sites: [] }
+  const rows = []
+  for (const id of SITE_ORDER) {
+    const site = SITES[id]
+    const row = { id, name: site.name, url: site.url, loginWall: null, title: '', error: '' }
+    let picked = null
+    let client = null
+    try {
+      picked = await grabTarget({ fresh: true })
+      if (!picked) throw new Error('没有可用的页面目标')
+      const socket = await openSocket(picked.target.webSocketDebuggerUrl, 8000)
+      client = makeClient(socket)
+      await navigate(client, site.url, 2200)
+      const check = { maxChars: 200, items: [], loginSelectors: site.loginSelectors }
+      const state = await evaluate(client, '(' + extractInPage.toString() + ')(' + JSON.stringify(check) + ')')
+      row.loginWall = state ? Boolean(state.loginWall) : null
+      row.title = state ? String(state.title || '') : ''
+    } catch (error) {
+      row.error = String((error && error.message) || error)
+    } finally {
+      if (client) client.close()
+      if (picked && picked.created) await closeTarget(picked.target.id)
+    }
+    rows.push(row)
+  }
+  const result = { ok: true, checkedAt: new Date().toISOString(), sites: rows }
+  writeLogins(result)
+  return result
+}
+
 /** What the panel and the tools report about the private profile. */
 export async function browserStatus() {
   const alive = await probeVersion()
   const profile = profileDir()
   const found = findBrowser()
+  const logins = readLogins()
+  const knownSite = new Map((logins.sites || []).map((row) => [String(row.id), row]))
   let targets = 0
   if (alive) targets = (await pageTargets()).length
   let lastUsed = ''
@@ -167,7 +230,16 @@ export async function browserStatus() {
     targets,
     profile: { dir: profile, exists: existsSync(profile), lastUsed },
     browser: found ? found.name : '',
-    sites: SITE_ORDER.map((id) => ({ id, name: SITES[id].name, url: SITES[id].url })),
+    loginCheckedAt: logins.checkedAt,
+    sites: SITE_ORDER.map((id) => {
+      const known = knownSite.get(id) || {}
+      return {
+        id, name: SITES[id].name, url: SITES[id].url,
+        loginWall: typeof known.loginWall === 'boolean' ? known.loginWall : null,
+        title: known.title || '',
+        error: known.error || '',
+      }
+    }),
   }
 }
 
@@ -207,7 +279,7 @@ export async function shutdown() {
  * Start the private browser when it is not already up. Headed is only used for
  * a login, because a visible window is the whole point of that step.
  */
-export async function ensureBrowser(options = {}) {
+async function startBrowser(options = {}) {
   const want = options.headed ? 'headed' : 'headless'
   const live = await probeVersion()
   if (live) {
@@ -252,6 +324,15 @@ export async function ensureBrowser(options = {}) {
   }
   const info = await probeVersion()
   return { ok: true, reused: false, mode: want, version: info ? info.version : '', browser: found.name }
+}
+
+/** One start at a time: two callers must not race for the same profile. */
+let starting = null
+
+export function ensureBrowser(options = {}) {
+  if (starting) return starting
+  starting = startBrowser(options).finally(() => { starting = null })
+  return starting
 }
 
 function openSocket(url, timeoutMs) {

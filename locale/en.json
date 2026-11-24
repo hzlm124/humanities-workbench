@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "Humanities desk",
-    "description": "A global panel with the research profile, six-fact structure, seven tensions, execution rules and red lines, plus three reader tools: page text, Wikipedia extracts, Bilibili subtitles.",
+    "description": "A global panel with the research profile, six-fact structure, seven tensions, execution rules and red lines, plus eleven tools: page text, Wikipedia extracts, Bilibili subtitles, corpus search, term cards, a logged-in browser, a research-directory audit and an optional research graph.",
     "detail": "docs/DETAIL.md"
   }
 }

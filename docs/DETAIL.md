@@ -1,6 +1,6 @@
 # 人文社科工作台
 
-左侧栏全局面板：规范画像与执行规则的可视化，外加九个取数工具，其中一个走登录态。
+左侧栏全局面板：规范画像与执行规则的可视化，外加十一个取数工具，其中三个走登录态。
 
 ## 页面
 
@@ -9,6 +9,10 @@
 `panel.json` 里写了 `sections`，正文就换成你给的区块；配置里写了 `frontend`，正文换成你自己的 HTML，工具栏多一个内置视图与自定义前端的开关。两条路都不写时是默认排版。
 
 术语栏把 `profile/terms.json` 的每一张卡摊开：中文名、年代、原文、又译、歧义提示；搜索框同时过滤这几个字段。
+
+「登录与抓取」是从页头进入的独立页面，不在栏目条上：顶部是运行状态与启动、关闭、检测三个动作，下面一张表列出七个站点、地址、登录状态与登录按钮。状态来自最后一次检测，带时间戳。
+
+页头右侧的顺序是：登录与抓取、刷新、新建配置、导入、导出、完善配置。新建配置走问卷建档，先问五件事再生成配置与前端；完善配置只改当前这一套，读现有内容与最近使用，提三到五条增量。
 
 ## 配置集
 
@@ -22,9 +26,10 @@
     GET  /humanities-workbench/configs.json
     GET  /humanities-workbench/corpus.json?q=<词>
     POST /humanities-workbench/import
+    POST /humanities-workbench/browser
     GET  /humanities-workbench/frontend/<token>/<config>/<path>
 
-前四条只读同源，每次请求重读磁盘（1.5 秒防抖）；导入那条收 JSON，超过 2 MB 直接中止。改 profile.md 后点「刷新」即生效。
+前四条只读同源，每次请求重读磁盘（1.5 秒防抖）；导入那条收 JSON，超过 2 MB 直接中止。browser 那条收 POST，动作是 start、stop、probe、login，只给面板用。改 profile.md 后点「刷新」即生效。
 
 前端那条是 `prefix` 路由、`auth: anonymous`，因为沙箱 iframe 不带凭据，只能这么放行；换来的是路径里的随机令牌加目录围栏：只服务配置指向的那个前端目录，白名单之外的扩展名返回 403，越界 403，缺文件 404，ETag 命中 304。
 
@@ -38,6 +43,8 @@
 | `hw_bilibili` | 按 BV 号取 B 站 CC 字幕 | 本地字幕库 subsDir |
 | `hw_corpus` | 字幕语料检索，返回片段、BV 号与时间码 | 语料索引 |
 | `hw_term` | 术语卡查询：译名沿革、年代、出处、同词异指 | skillDir 下的 `profile/terms.json` |
+| `hw_audit` | 研究目录审计：步骤、账本字段、定位符与反证 | 无 |
+| `hw_graph` | 可开关的研究图：分叉、去重、收敛、参数 | 无；不调用就不产生文件 |
 | `hw_browse` | 登录态页面读取：正文加条目列表，可滚动、可传选择器 | 插件自带浏览器 |
 | `hw_login` | 开一个可见窗口，让用户对某个站点登录一次 | 同上 |
 | `hw_browser_state` | 查状态、启动或关掉抓取浏览器 | 同上 |
@@ -65,11 +72,12 @@
 
 ## 自测
 
-    node _build/selftest.mjs       # 解析、路由、九个工具的形态、术语查询、payload 含浏览器状态
+    node _build/selftest.mjs       # 解析、六条路由、九个工具的形态、术语查询、浏览器动作路由与登录记录
     node _build/test-tools.mjs     # 抓取：内网拦截、结果顺序、GBK 解码
     node _build/test-knowledge.mjs # 语料：SRT 解析、时间码、排序
     node _build/test-frontend.mjs  # 前端路由：围栏、白名单、令牌、ETag
     node _build/test-browser.mjs   # 抓取层：真的拉起无头 Edge，验提取、登录墙、内网拦截、关停
     node _build/test-client.mjs    # 面板渲染：术语页、抓取状态、无术语表时不出页签
+    node _build/test-audit.mjs     # 审计与图，外加 skill/scripts 下两个脚本的实跑
 
 前五个不需要人看着；`test-browser.mjs` 会占十秒左右并起一个无头进程，结束时自己关掉。

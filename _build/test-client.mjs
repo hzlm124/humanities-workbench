@@ -94,11 +94,22 @@ function render(payload, view) {
   hookIndex = 0
   const tree = Page({ t: function (key) { return key }, openWizard() { return 'copied' }, exportMd() {} })
   const collected = []
+  let depth = 0
   const walk = function (node) {
     if (node === null || node === undefined || node === false) return
+    if (depth > 40) return
     if (typeof node === 'string' || typeof node === 'number') { collected.push(String(node)); return }
     if (Array.isArray(node)) { node.forEach(walk); return }
-    if (typeof node === 'object' && node.props) walk(node.props.children)
+    if (typeof node !== 'object' || !node.type) return
+    if (typeof node.type === 'function') {
+      depth++
+      let rendered = null
+      try { rendered = node.type(node.props) } catch (error) { rendered = null }
+      walk(rendered)
+      depth--
+      return
+    }
+    walk(node.props.children)
   }
   walk(tree)
   return { nodes: collected.length, text: collected.join('\n') }
@@ -113,7 +124,12 @@ check('terms tab present', termsView.text.indexOf('术语与译名') >= 0)
 check('term card rendered', termsView.text.indexOf('长时段') >= 0 && termsView.text.indexOf('longue durée') >= 0)
 check('alternate names shown', termsView.text.indexOf('又译') >= 0)
 check('term count note', /共 16 条/.test(termsView.text))
-check('browser indicator', termsView.text.indexOf('抓取在线') >= 0)
+const order = ['刷新', '新建配置', '导入', '导出'];
+const at = order.map(function (label) { return termsView.text.indexOf('\n' + label + '\n'); });
+check('header order starts 刷新', at[0] >= 0 && at[1] > at[0] && at[2] > at[1] && at[3] > at[2], at.join(','));
+check('login page entry', termsView.text.indexOf('登录与抓取') >= 0)
+check('refine entry', termsView.text.indexOf('完善配置') >= 0)
+check('no old checkbox', termsView.text.indexOf('对话改配置') < 0)
 
 const overview = render(payload, 'overview')
 check('overview still renders', overview.nodes > 40 && overview.text.indexOf('边界条件') >= 0, overview.nodes + ' nodes')
@@ -124,8 +140,29 @@ const bareView = render(bare, 'overview')
 check('no terms tab without a table', bareView.text.indexOf('术语与译名') < 0)
 check('no empty term tab label', bareView.text.indexOf('\n术语\n') < 0)
 
+const browserPage = render(payload, 'browser')
+check('browser page heading', browserPage.text.indexOf('登录状态') >= 0 && browserPage.text.indexOf('操作') >= 0)
+check('browser page actions', browserPage.text.indexOf('检测登录状态') >= 0 && browserPage.text.indexOf('关闭') >= 0)
+check('browser page lists sites', browserPage.text.indexOf('B站') >= 0 && browserPage.text.indexOf('x.com') >= 0)
+check('browser page states', browserPage.text.indexOf('未检测') >= 0)
+check('browser page running pill', browserPage.text.indexOf('后台运行中') >= 0)
+
 const idle = Object.assign({}, payload, { browser: Object.assign({}, payload.browser, { running: false, mode: '' }) })
-check('browser idle state', render(idle, 'overview').text.indexOf('抓取待启') >= 0)
+const idlePage = render(idle, 'browser')
+check('browser page idle', idlePage.text.indexOf('未启动') >= 0)
+
+const logged = Object.assign({}, payload, {
+  browser: Object.assign({}, payload.browser, {
+    loginCheckedAt: '2026-11-24T05:00:00.000Z',
+    sites: [
+      { id: 'bilibili', name: 'B站', url: 'https://www.bilibili.com/', loginWall: false, error: '' },
+      { id: 'x', name: 'X', url: 'https://x.com/', loginWall: true, error: '' },
+    ],
+  }),
+})
+const loggedPage = render(logged, 'browser')
+check('logged state shown', loggedPage.text.indexOf('已登录') >= 0 && loggedPage.text.indexOf('未登录') >= 0)
+check('checked time shown', loggedPage.text.indexOf('上次检测') >= 0)
 
 check('no arrow glyphs', termsView.text.indexOf('\u2192') < 0 && termsView.text.indexOf('\u21d2') < 0)
 

@@ -11,7 +11,7 @@
 ## 短答
 <3–5 句。带强度：established / probable / contested / inferred / unknown>
 ## 依据
-1. <claim> —— <来源 + 定位符>（strength）
+1. <claim>：<来源：作者/题名/版本>，<定位符：p.123 / 第 4 段 / §2 / t=12:30 / URL 与访问日期>（strength）
 2. …
 ## 反证与竞争解释
 <什么材料反对这个答案；最强的替代解释是什么>
@@ -20,6 +20,21 @@
 ## 如果你要更确定，下一步查这里
 <2–3 条具体动作>
 ```
+
+### 定位符的四条硬规定
+
+1. 每条 fact 必须落到页、段、节、行、时间码，或带访问日期的链接。四样都没有的，只能写 inference，并在句中说明依据的是哪份材料。
+2. 统计数字必须带口径：分母是什么、范围是什么、谁统计的。
+3. 转述标 `cited-in`，写清转引自谁；不把转述写成原话。
+4. 同一实体跨语言时，第一次出现给原文与语种。
+
+账本写完跑一遍校验（脚本随插件发布）：
+
+```powershell
+python <skill>/scripts/check_ledger.py sources.jsonl --findings 02-findings
+```
+
+退出码 0 才算过；`--json` 给机器读的报告。
 
 ## B · 设定档案（setting dossier）
 
@@ -49,7 +64,7 @@
 
 ## D · 来源账本（sources.jsonl）
 
-一行一条来源，机器可校验（`scripts/check_ledger.py`）。
+一行一条来源，机器可校验（`<skill>/scripts/check_ledger.py`）。
 
 ```json
 {"id":"S001","title":"...","author":"...","year":"...","kind":"archive|book|article|newspaper|statistics|map|oral|web","archive":"全宗/系列/盒/件","locator":"p.123 / FO 371/12345 / https://...","accessed":"2026-11-22","availability":"open|open-index|subscription|physical|surrogate|unobtainable","read_level":"full|partial|index-only|quoted","note":"..."}
@@ -70,7 +85,7 @@
 
 ## 交付前自检（五问）
 
-1. 每条 `fact` 都有定位符吗？每条 `inference` 都标明是推断吗？
+1. 每条 `fact` 都有定位符吗（页、段、节、时间码、带日期的链接）？每条 `inference` 都标明是推断吗？统计数字带口径了吗？
 2. 有没有把 L2 的转述写成 L0 的原话？
 3. 反证栏是空的吗？空的话，写清你搜过哪里。
 4. 正文里还有没有「节点/卡片/红队/处置/轮次」这类流程词？

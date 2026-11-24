@@ -99,6 +99,12 @@ window.__ModuleLoader__.load({
       '.hw-iframe{width:100%;height:calc(100vh - 240px);min-height:520px;border:1px solid var(--dsw-alias-border-l1);border-radius:10px;background:#fff;display:block}',
       '.hw-framebar{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px;font-size:11.5px;color:var(--dsw-alias-label-secondary);margin-top:2px}',
       '.hw-framebar code{font:inherit;font-size:11px;opacity:.85;word-break:break-all}',
+      '.hw-link.on{color:var(--dsw-alias-brand-primary);border-bottom-color:var(--dsw-alias-brand-primary)}',
+      '.hw-pill{font-size:11px;line-height:1.7;padding:0 7px;border-radius:9px;border:1px solid var(--dsw-alias-border-l1);color:var(--dsw-alias-label-secondary);white-space:nowrap}',
+      '.hw-pill.live{color:var(--dsw-alias-state-success-primary);border-color:var(--dsw-alias-state-success-primary)}',
+      '.hw-pill.bad{color:var(--dsw-alias-state-error-primary);border-color:var(--dsw-alias-state-error-primary)}',
+      '.hw-panehead{display:flex;flex-wrap:wrap;align-items:baseline;gap:14px;margin:0 0 8px}',
+      '.hw-paneaction{display:flex;flex-wrap:wrap;align-items:baseline;gap:16px;margin:14px 0 4px}',
     ].join('\n');
 
     function read(key, fallback) {
@@ -151,6 +157,74 @@ window.__ModuleLoader__.load({
               h('div', { className: 'hw-note' }, '匹配度 ' + hit.score + '，' + hit.file))
           );
         })
+      );
+    }
+
+    /**
+     * The login and reading page: what the private browser is doing, which sites
+     * it can read, and the two actions that change that.
+     */
+    function BrowserPane(props) {
+      const [state, setState] = React.useState({ busy: '', error: '', data: props.browser || null });
+      const data = state.data || props.browser || null;
+      const run = function (action, site) {
+        setState(function (prev) { return Object.assign({}, prev, { busy: action + (site ? ':' + site : ''), error: '' }); });
+        window.fetch('/humanities-workbench/browser', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ action: action, site: site || '' }),
+        })
+          .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+          .then(function (json) {
+            const opened = json.opened || {};
+            setState({ busy: '', error: json.error || opened.error || '', data: json.browser || data });
+            if (props.onChanged) props.onChanged();
+          })
+          .catch(function (e) { setState(function (prev) { return Object.assign({}, prev, { busy: '', error: String((e && e.message) || e) }); }); });
+      };
+      const running = Boolean(data && data.running);
+      const sites = (data && data.sites) || [];
+      const statusOf = function (site) {
+        if (site.error) return '检测失败';
+        if (site.loginWall === true) return '未登录';
+        if (site.loginWall === false) return '已登录';
+        return '未检测';
+      };
+      const pillOf = function (site) {
+        if (site.error || site.loginWall === true) return 'hw-pill bad';
+        if (site.loginWall === false) return 'hw-pill live';
+        return 'hw-pill';
+      };
+      const checked = data && data.loginCheckedAt ? new Date(data.loginCheckedAt).toLocaleString('zh-CN', { hour12: false }) : '';
+      return h('div', null,
+        h('div', { className: 'hw-panehead' },
+          h('h2', { className: 'hw-h2', style: { margin: 0 } }, '登录与抓取'),
+          h('span', { className: 'hw-pill' + (running ? ' live' : '') }, running ? '后台运行中' : '未启动'),
+          props.onBack ? h('button', { type: 'button', className: 'hw-link', onClick: props.onBack }, '返回') : null
+        ),
+        h('p', { className: 'hw-lede', style: { textIndent: 0 } }, '评论区、个人动态、视频下方这些内容要执行脚本并滚动才看得到，所以插件另起一个浏览器去读。它只用自己那份配置目录，不碰你日常用的浏览器。到某个站点登录一次，之后抓取在后台复用这份登录状态。'),
+        h('div', { className: 'hw-note' }, (running ? '运行中，' + (data.mode === 'headless' ? '无头窗口' : '可见窗口') : '未启动，第一次抓取时自动打开') +
+          '；' + (data && data.browser ? data.browser : '没找到浏览器') + (data && data.version ? ' ' + data.version : '') +
+          '；调试端口 ' + ((data && data.port) || '') + '；配置目录 ' + ((data && data.profile && data.profile.dir) || '')),
+        h('div', { className: 'hw-paneaction' },
+          h('button', { type: 'button', className: 'hw-link', disabled: Boolean(state.busy) || running, onClick: function () { run('start'); } }, state.busy === 'start' ? '启动中' : '启动'),
+          h('button', { type: 'button', className: 'hw-link', disabled: Boolean(state.busy) || !running, onClick: function () { run('stop'); } }, state.busy === 'stop' ? '关闭中' : '关闭'),
+          h('button', { type: 'button', className: 'hw-link', disabled: Boolean(state.busy), onClick: function () { run('probe'); } }, state.busy === 'probe' ? '检测中，逐站打开，约三十秒' : '检测登录状态'),
+          checked ? h('span', { className: 'hw-note' }, '上次检测 ' + checked) : null
+        ),
+        state.error ? h('div', { className: 'hw-err' }, state.error) : null,
+        h('table', { className: 'hw-tbl' },
+          h('thead', null, h('tr', null, ['站点', '地址', '登录状态', '操作'].map(function (c) { return h('th', { key: c }, c); }))),
+          h('tbody', null, sites.map(function (site) {
+            return h('tr', { key: site.id },
+              h('td', null, site.name),
+              h('td', null, h('a', { className: 'hw-credit', href: site.url, target: '_blank', rel: 'noopener noreferrer' }, String(site.url || '').replace(/^https?:\/\//, '').replace(/\/$/, ''))),
+              h('td', null, h('span', { className: pillOf(site), title: site.error || '' }, statusOf(site))),
+              h('td', null, h('button', { type: 'button', className: 'hw-link', disabled: Boolean(state.busy), onClick: function () { run('login', site.id); } }, state.busy === 'login:' + site.id ? '已开窗口' : '登录'))
+            );
+          }))
+        ),
+        h('p', { className: 'hw-note' }, '「登录」会打开一个可见窗口，在里面登录一次即可。登录状态由「检测登录状态」逐站打开首页判断，标的是那一刻的结果，不是实时的。')
       );
     }
 
@@ -264,8 +338,8 @@ window.__ModuleLoader__.load({
       const [data, setData] = React.useState(null);
       const [state, setState] = React.useState({ busy: true, live: false, message: '' });
       const [view, setView] = React.useState(function () { return read(VIEW_KEY, 'overview'); });
+      const [prevView, setPrevView] = React.useState('overview');
       const [q, setQ] = React.useState('');
-      const [autoWizard, setAutoWizard] = React.useState(function () { return read('humanitiesWorkbench.autoWizard', '1') === '1'; });
       const [notice, setNotice] = React.useState('');
       const [mode, setMode] = React.useState(function () { return read(MODE_KEY, 'custom'); });
       const hit = function (text) {
@@ -328,6 +402,12 @@ window.__ModuleLoader__.load({
         write(MODE_KEY, next);
       };
       const counts = { facts: D.facts.length, tensions: D.tensions.length, rules: D.rules.length, redlines: D.redlines.length, refs: D.refs.length };
+
+      const askWizard = function (kind, config) {
+        const r = props.openWizard && props.openWizard(kind, config || null);
+        if (r === 'copied') setNotice('提示词已复制，粘到新对话即可');
+        if (r === 'failed') setNotice('无法打开新对话，也无法复制');
+      };
 
       const doImport = function (file) {
         if (!file) return;
@@ -482,7 +562,14 @@ window.__ModuleLoader__.load({
         return null;
       }
 
-      const body = showCustom
+      const showBrowserPage = view === 'browser';
+      const body = showBrowserPage
+        ? h(BrowserPane, {
+            browser: D.browser,
+            onChanged: function () { load(configId); },
+            onBack: function () { setView(prevView); },
+          })
+        : showCustom
         ? h(CustomFrame, {
             url: fx.url, title: fx.title, dir: fx.dir, height: fx.height,
             data: D, configs: configs,
@@ -501,13 +588,6 @@ window.__ModuleLoader__.load({
         : current === 'terms' ? termCards()
         : overview();
 
-      const browserLine = function (b) {
-        const sites = (b.sites || []).map(function (s) { return s.name; }).join('、');
-        const where = b.running ? '后台运行中（' + (b.mode === 'headless' ? '无头' : '可见窗口') + '）' : '未启动，第一次抓取时自动打开';
-        return '插件自带浏览器：' + where + '；' + (b.browser || '没找到浏览器') + (b.version ? ' ' + b.version : '') +
-          '；配置目录 ' + ((b.profile && b.profile.dir) || '') + '；可登录 ' + sites;
-      };
-
       const status = state.busy ? '' : state.live ? ' live' : ' bad';
       const statusText = state.busy ? '读取中' : state.live ? '实时' : '快照';
 
@@ -525,10 +605,11 @@ window.__ModuleLoader__.load({
                 onChange: function (id) { load(id); },
               }) : null,
               h('span', { title: state.message || '' }, h('span', { className: 'hw-dot' + status }), statusText + (readAt && state.live ? ' ' + readAt : '')),
-              D.browser ? h('button', {
-                type: 'button', className: 'hw-link', title: browserLine(D.browser),
-                onClick: function () { setNotice(browserLine(D.browser)); },
-              }, '抓取' + (D.browser.running ? '在线' : '待启')) : null,
+              h('button', {
+                type: 'button', className: 'hw-link' + (showBrowserPage ? ' on' : ''),
+                title: '登录与抓取：插件自带浏览器的状态、可登录的站点与检测',
+                onClick: function () { if (!showBrowserPage) { setPrevView(current); } setView('browser'); },
+              }, '登录与抓取'),
               h('input', {
                 className: 'hw-search', type: 'search', value: q, placeholder: '搜索',
                 onChange: function (e) { setQ(e.target.value); },
@@ -538,6 +619,11 @@ window.__ModuleLoader__.load({
                 onClick: toggleMode,
               }, showCustom ? '内置视图' : '自定义前端') : null,
               h('button', { type: 'button', className: 'hw-link', onClick: function () { load(configId); }, disabled: state.busy }, '刷新'),
+              h('button', {
+                type: 'button', className: 'hw-link',
+                title: '新建配置：先问一组问题，再按回答生成一套配置与配套前端',
+                onClick: function () { askWizard('new', D.config); },
+              }, '新建配置'),
               h('label', { className: 'hw-link' }, '导入',
                 h('input', {
                   type: 'file', accept: '.json,.md,.txt,.markdown', style: { display: 'none' },
@@ -547,19 +633,9 @@ window.__ModuleLoader__.load({
               h('button', { type: 'button', className: 'hw-link', onClick: function () { props.exportMd && props.exportMd(D, current); } }, '导出'),
               h('button', {
                 type: 'button', className: 'hw-link',
-                onClick: function () {
-                  const r = props.openWizard && props.openWizard(D.config ? D.config.name : '', autoWizard);
-                  if (r === 'copied') setNotice('提示词已复制，粘到新对话即可');
-                  if (r === 'failed') setNotice('无法打开新对话，也无法复制');
-                },
-              }, '新建配置'),
-              h('label', { className: 'hw-check', title: '开启后「新建配置」直接开一个新对话；关闭则只复制提示词' },
-                h('input', {
-                  type: 'checkbox', checked: autoWizard,
-                  onChange: function (e) { setAutoWizard(e.target.checked); write('humanitiesWorkbench.autoWizard', e.target.checked ? '1' : '0'); },
-                }),
-                '对话改配置'
-              )
+                title: '完善配置：读当前这套配置与最近的使用，提出增量改动，只改这一套',
+                onClick: function () { askWizard('refine', D.config); },
+              }, '完善配置')
             )
           ),
           (hasSections || showCustom) ? null : h('div', { className: 'hw-tabs', role: 'tablist' }, tabs.map(function (key) {
@@ -583,16 +659,34 @@ window.__ModuleLoader__.load({
         ctx.effect(function () { return ctx.locale.register(NS, DICTS); }, 'humanities-workbench: dictionaries');
         const t = ctx.locale.bind(NS);
 
-        const openWizard = function (name, auto) {
-          const text = [
-            '新建或修改一套「人文社科工作台」配置。',
-            '配置目录：~/.dsh/humanities-workbench/configs/，当前：' + (name || '默认配置'),
-            '字段：id、name、skillDir、subsDir、tabs、note。',
-            '步骤：1 问我要不要独立画像目录（要就复制 humanities-research）；2 写 <id>.json；',
-            '3 用 data.json 带 config 参数校验规则与参考册数量；4 报告改动。不要动其它插件。',
-          ].join('\n');
+        /**
+         * Two different jobs, two different prompts. Building a set starts from
+         * the user's answers; refining one starts from what this set already is.
+         */
+        const openWizard = function (kind, config) {
+          const name = (config && config.name) || '默认配置';
+          const id = (config && config.id) || 'default';
+          const text = kind === 'refine'
+            ? [
+                '完善当前这套「人文社科工作台」配置，只改这一套。',
+                '配置：' + name + '，文件：~/.dsh/humanities-workbench/configs/' + id + '.json',
+                '步骤：',
+                '1 先读这个 JSON 与它 skillDir 下的 profile.md、rules.md、panel.json、terms.json，指出与最近使用不符的地方：没人看的栏目、没被用到的规则、缺词的术语表。',
+                '2 每次只提三到五条改动，逐条说明依据，等我点头再改。',
+                '3 只动这一套配置和它指向的目录，不动其它配置，也不动别的插件。',
+                '4 改完用 data.json 带 config 参数验证，再报告改了什么。',
+              ].join('\n')
+            : [
+                '新建一套「人文社科工作台」配置。配置目录：~/.dsh/humanities-workbench/configs/，当前是：' + name,
+                '步骤：',
+                '1 先问我五件事：研究领域与时段；常用材料类型（档案、报刊、论文、影像）；判断框架与要避开的立场；需要哪些栏目；前端怎么做（用内置排版，还是自己写一份 HTML）。',
+                '2 按回答写 <id>.json，字段 id、name、skillDir、subsDir、tabs、note。要独立画像时把 humanities-research 复制到新目录，不要覆盖已有目录。',
+                '3 要自定义前端就在该目录放 frontend/index.html，并在配置里写 frontend 字段；不同配置可以各自指向不同的前端。',
+                '4 用 data.json 带 config 参数校验规则与参考册数量。',
+                '5 报告新建了什么，不动其它配置，也不动别的插件。',
+              ].join('\n');
           const ui = ctx.get('uiWorkspace');
-          if (auto !== false && ui && typeof ui.startSession === 'function') {
+          if (ui && typeof ui.startSession === 'function') {
             ui.startSession(undefined, { prompt: text, whenDraftExists: 'replace' });
             return 'opened';
           }

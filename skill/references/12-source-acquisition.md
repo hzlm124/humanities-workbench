@@ -19,7 +19,7 @@
 ## 2. 下载后的校验（三步，缺一不可）
 
 1. **完整性**：页数是否与版权页/目录一致；EPUB 是否能解压；PDF 是否加密或只有前几页预览。
-2. **文本层**：随机翻三页，能否选中文字。扫描件无文本层 → 跑 `scripts/book_ingest.py` 会报 `needs_ocr: true`，
+2. **文本层**：随机翻三页，能否选中文字。扫描件无文本层 → 跑 `<skill>/scripts/book_ingest.py` 会报 `needs_ocr: true`，
    此时要么 OCR，要么只能按「目录级引用」使用（`read_level: index-only`）。
 3. **版次与删节**：中文书尤其要查。港版/台版与内地版常有整章删节或改写；同一论点在两版里页码与措辞都可能不同。
    **引用时必须写明用的是哪一版**，否则复核者永远找不到那一页。
@@ -36,7 +36,7 @@ books/
 跑：
 
 ```bash
-python scripts/book_ingest.py "books/沈志华 - 冷战的再转型 (2012).epub" \
+python <skill>/scripts/book_ingest.py "books/沈志华 - 冷战的再转型 (2012).epub" \
   --out "books/沈志华 - 冷战的再转型 (2012)" --index
 ```
 
