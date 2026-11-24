@@ -1,0 +1,214 @@
+{
+ "version": 1,
+ "updated": "2026-11-24",
+ "note": "术语卡：zh 中文常用名，original 原文，lang 语种，translations 异译（按年代），period 进入讨论的年代，source 出处，note 歧义提示。查不到的词按 21 册在线查证后回填。",
+ "terms": [
+  {
+   "id": "longue-duree",
+   "zh": "长时段",
+   "original": "longue durée",
+   "lang": "fr",
+   "translations": [
+    "长时段",
+    "长时期"
+   ],
+   "period": "1958",
+   "source": "Braudel, « Histoire et sciences sociales : la longue durée », Annales, 1958",
+   "note": "与「事件史」「情势」构成三层时间。中文常译「长时段」，不宜译「长期」。"
+  },
+  {
+   "id": "ideal-type",
+   "zh": "理想型",
+   "original": "Idealtypus",
+   "lang": "de",
+   "translations": [
+    "理想型",
+    "理想类型"
+   ],
+   "period": "1904",
+   "source": "Weber, »Die »Objektivität« sozialwissenschaftlicher und sozialpolitischer Erkenntnis », 1904",
+   "note": "是分析工具，不是应然目标。中文「理想类型」易被读成「理想的类型」。"
+  },
+  {
+   "id": "path-dependence",
+   "zh": "路径依赖",
+   "original": "path dependence",
+   "lang": "en",
+   "translations": [
+    "路径依赖"
+   ],
+   "period": "1985",
+   "source": "David, « Clio and the Economics of QWERTY », 1985；Arthur, 1989",
+   "note": "原指技术锁定的报酬递增机制，后泛化为「历史有影响」。泛化后几乎不可证伪，慎用。"
+  },
+  {
+   "id": "overdetermination",
+   "zh": "过度决定",
+   "original": "surdétermination",
+   "lang": "fr",
+   "translations": [
+    "过度决定",
+    "多元决定"
+   ],
+   "period": "1965",
+   "source": "Althusser, Pour Marx, 1965",
+   "note": "词源在弗洛伊德。指多重结构同时作用于同一结果，与「多个原因叠加」不同。"
+  },
+  {
+   "id": "symptomatic-reading",
+   "zh": "症候阅读",
+   "original": "lecture symptomale",
+   "lang": "fr",
+   "translations": [
+    "症候阅读",
+    "征候阅读"
+   ],
+   "period": "1965",
+   "source": "Althusser & Balibar, Lire le Capital, 1965",
+   "note": "读文本的沉默处与概念缺位，不是找作者的隐微意图。"
+  },
+  {
+   "id": "begriffsgeschichte",
+   "zh": "概念史",
+   "original": "Begriffsgeschichte",
+   "lang": "de",
+   "translations": [
+    "概念史"
+   ],
+   "period": "1972",
+   "source": "Koselleck 主编, Geschichtliche Grundbegriffe, 1972–1997",
+   "note": "关注概念与社会的同步变迁，方法上要求给出词义的时间切片。"
+  },
+  {
+   "id": "counterfactual",
+   "zh": "反事实",
+   "original": "counterfactual",
+   "lang": "en",
+   "translations": [
+    "反事实",
+    "逆事实"
+   ],
+   "period": "1905 起",
+   "source": "Weber 的客观可能性学说；Hawthorn, Plausible Worlds, 1991",
+   "note": "必须写明改动的变量与替代路径，否则只是想象。"
+  },
+  {
+   "id": "involution",
+   "zh": "内卷化",
+   "original": "involution",
+   "lang": "en",
+   "translations": [
+    "内卷化",
+    "过密化"
+   ],
+   "period": "1963",
+   "source": "Geertz, Agricultural Involution, 1963",
+   "note": "原指劳动密集化而无效率跃升。日常用语已泛化为「无意义竞争」，学术写作需回到原义。"
+  },
+  {
+   "id": "relative-autonomy",
+   "zh": "相对自主",
+   "original": "relative autonomy",
+   "lang": "en",
+   "translations": [
+    "相对自主",
+    "相对独立性"
+   ],
+   "period": "1968",
+   "source": "Poulantzas, Pouvoir politique et classes sociales, 1968",
+   "note": "指国家或文化领域不完全还原为经济关系，不等于「独立」。"
+  },
+  {
+   "id": "world-system",
+   "zh": "世界体系",
+   "original": "world-system",
+   "lang": "en",
+   "translations": [
+    "世界体系",
+    "世界系统"
+   ],
+   "period": "1974",
+   "source": "Wallerstein, The Modern World-System, 1974",
+   "note": "核心、半边缘、边缘是结构位置，不是发展阶段的标签。"
+  },
+  {
+   "id": "governmentality",
+   "zh": "治理术",
+   "original": "gouvernementalité",
+   "lang": "fr",
+   "translations": [
+    "治理术",
+    "治理性"
+   ],
+   "period": "1978",
+   "source": "Foucault, 法兰西学院讲座 1977–1978",
+   "note": "指引导他人行为的技艺与理性，与公共管理里的「治理」不是一回事。"
+  },
+  {
+   "id": "hegemony",
+   "zh": "霸权",
+   "original": "egemonia",
+   "lang": "it",
+   "translations": [
+    "霸权",
+    "领导权"
+   ],
+   "period": "1929–1935",
+   "source": "Gramsci, Quaderni del carcere",
+   "note": "含同意与强制两层。中译「霸权」偏重强制，读 Gramsci 时注意「领导权」一译。"
+  },
+  {
+   "id": "field",
+   "zh": "场域",
+   "original": "champ",
+   "lang": "fr",
+   "translations": [
+    "场域",
+    "场"
+   ],
+   "period": "1966 起",
+   "source": "Bourdieu, « Champ intellectuel et projet créateur », 1966",
+   "note": "是关系构型，不是空间比喻。与「领域」「行业」不同。"
+  },
+  {
+   "id": "habitus",
+   "zh": "惯习",
+   "original": "habitus",
+   "lang": "fr",
+   "translations": [
+    "惯习",
+    "习性"
+   ],
+   "period": "1972",
+   "source": "Bourdieu, Esquisse d’une théorie de la pratique, 1972",
+   "note": "被结构塑造又生成实践，与「习惯」不同：习惯是重复，惯习是生成规则。"
+  },
+  {
+   "id": "embeddedness",
+   "zh": "镶嵌",
+   "original": "embeddedness",
+   "lang": "en",
+   "translations": [
+    "镶嵌",
+    "嵌入",
+    "嵌含"
+   ],
+   "period": "1944 / 1985",
+   "source": "Polanyi, The Great Transformation, 1944；Granovetter, « Economic Action and Social Structure », 1985",
+   "note": "两人所指不同：波兰尼讲经济从属于社会，格兰诺维特讲交易发生在关系网络中。混用会把两个论证合并。"
+  },
+  {
+   "id": "state-capacity",
+   "zh": "国家能力",
+   "original": "state capacity",
+   "lang": "en",
+   "translations": [
+    "国家能力",
+    "国家治理能力"
+   ],
+   "period": "1985",
+   "source": "Evans, Rueschemeyer & Skocpol, Bringing the State Back In, 1985",
+   "note": "通常拆成抽取、执行、合法化三类能力，笼统说「强」没有信息量。"
+  }
+ ]
+}

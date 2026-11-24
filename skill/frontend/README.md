@@ -41,7 +41,7 @@
 
 页面跑在 `sandbox="allow-scripts"` 的 iframe 里，是一个独立（不透明）来源，拿不到宿主的 cookie 与 localStorage。数据一律走 `postMessage`：
 
-**页面 → 宿主**
+**页面发给宿主**
 
 ```js
 parent.postMessage({ hw: 1, id: 7, op: "hello" }, "*");
@@ -57,7 +57,7 @@ parent.postMessage({ hw: 1, id: 7, op: "hello" }, "*");
 | `resize` | `height` | `{ ok }`，把 iframe 高度设成这个像素值（320–8000） |
 | `notice` | `text` | `{ ok }`，在面板底部弹一条提示 |
 
-**宿主 → 页面**
+**宿主发给页面**
 
 `{ hw: 1, op, re, id, ok, ... }`。`re` 是回应的请求名，`id` 原样带回，`data` 变化时宿主会主动推一次 `panel`。
 

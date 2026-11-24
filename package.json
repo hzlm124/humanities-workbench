@@ -1,6 +1,6 @@
 {
   "name": "@local/humanities-workbench",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "private": true,
   "license": "AGPL-3.0-or-later",
   "type": "module",
@@ -13,9 +13,23 @@
     "./locale/*.json": "./locale/*.json",
     "./icon": "./icon.svg"
   },
-  "files": ["index.js", "client.js", "data.mjs", "configs.mjs", "tools.mjs", "cordis.patch.yml", "locale/*.json", "skill", "icon.svg"],
+  "files": [
+    "index.js",
+    "client.js",
+    "data.mjs",
+    "configs.mjs",
+    "tools.mjs",
+    "browser.mjs",
+    "knowledge.mjs",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "skill",
+    "icon.svg"
+  ],
   "dsh": {
-    "bundle": { "patch": "./cordis.patch.yml" },
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
     "client": {
       "platform": "web",
       "immediately": true,

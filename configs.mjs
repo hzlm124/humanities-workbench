@@ -10,7 +10,7 @@ import { defaultSkillDir, defaultSubsDir, neutralSkillDir } from './data.mjs'
 export const ROOT = join(homedir(), '.dsh', 'humanities-workbench')
 export const CONFIG_DIR = join(ROOT, 'configs')
 
-export const ALL_TABS = ['overview', 'facts', 'tensions', 'rules', 'redlines', 'refs']
+export const ALL_TABS = ['overview', 'facts', 'tensions', 'rules', 'redlines', 'refs', 'terms']
 
 const seed = (id, name, skillDir, note, tabs = ALL_TABS) => ({
   id, name, skillDir, subsDir: defaultSubsDir(), tabs, note,

@@ -146,9 +146,9 @@ window.__ModuleLoader__.load({
         state.hits.length ? h('p', { className: 'hw-note' }, '共 ' + state.total + ' 段语料，命中 ' + state.hits.length + ' 条') : null,
         state.hits.map(function (hit, i) {
           return h('div', { key: i, className: 'hw-row' },
-            h('div', { className: 'hw-k' }, hit.bvid + (hit.at ? ' · ' + hit.at : '')),
+            h('div', { className: 'hw-k' }, hit.bvid + (hit.at ? '，' + hit.at : '')),
             h('div', { className: 'hw-v' }, hit.text,
-              h('div', { className: 'hw-note' }, '匹配度 ' + hit.score + ' · ' + hit.file))
+              h('div', { className: 'hw-note' }, '匹配度 ' + hit.score + '，' + hit.file))
           );
         })
       );
@@ -221,7 +221,7 @@ window.__ModuleLoader__.load({
 
       return h('div', { className: 'hw-framewrap' },
         h('div', { className: 'hw-framebar' },
-          h('span', null, '自定义前端' + (props.title ? ' · ' + props.title : '') + '（沙箱隔离，数据经 postMessage 传入）'),
+          h('span', null, '自定义前端' + (props.title ? '：' + props.title : '') + '（沙箱隔离，数据经 postMessage 传入）'),
           h('code', null, props.dir || '')
         ),
         h('div', { className: 'hw-frame' },
@@ -306,17 +306,18 @@ window.__ModuleLoader__.load({
         readAt = new Date(D.generatedAt).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', hour12: false });
       } catch (e) { readAt = ''; }
 
-      const all = ['overview', 'facts', 'tensions', 'rules', 'redlines', 'refs', 'corpus'];
+      const all = ['overview', 'facts', 'tensions', 'rules', 'redlines', 'refs', 'terms', 'corpus'];
       const allowed = (D.config && D.config.tabs && D.config.tabs.length) ? D.config.tabs : all;
-      const counts0 = { facts: D.facts.length, tensions: D.tensions.length, rules: D.rules.length, redlines: D.redlines.length, refs: D.refs.length, corpus: (D.corpus && D.corpus.ready) ? 1 : 0 };
+      const counts0 = { facts: D.facts.length, tensions: D.tensions.length, rules: D.rules.length, redlines: D.redlines.length, refs: D.refs.length, terms: (D.terms && D.terms.total) || 0, corpus: (D.corpus && D.corpus.ready) ? 1 : 0 };
       const tabs = all.filter(function (k) {
         if (k === 'overview') return true;
         if (k === 'corpus') return Boolean(D.corpus && D.corpus.ready);
+        if (k === 'terms') return Boolean(D.terms && D.terms.total > 0);
         if (allowed.indexOf(k) < 0) return false;
         return (counts0[k] || 0) > 0;
       });
       const current = tabs.indexOf(view) >= 0 ? view : tabs[0];
-      const labels = { overview: t('overview'), facts: t('facts'), tensions: t('tensions'), rules: t('rules'), redlines: t('redlines'), refs: t('refs'), corpus: '语料' };
+      const labels = { overview: t('overview'), facts: t('facts'), tensions: t('tensions'), rules: t('rules'), redlines: t('redlines'), refs: t('refs'), terms: '术语', corpus: '语料' };
       const sections = Array.isArray(D.sections) ? D.sections : [];
       const hasSections = sections.length > 0;
       const fx = D.frontend || null;
@@ -427,6 +428,23 @@ window.__ModuleLoader__.load({
         );
       }
 
+      function termCards() {
+        const list = (D.terms && D.terms.list) || [];
+        const shown = list.filter(function (t) { return hit(t[0]) || hit(t[1]) || hit(t[3]) || hit(t[4]); });
+        return h('div', null,
+          h('h2', { className: 'hw-h2' }, '术语与译名'),
+          h('p', { className: 'hw-note' }, '共 ' + list.length + ' 条。中文名、原文与异译都能查；词表外的词按第 21 册四步查证，不要临时造一个顺口的译名。'),
+          h('div', { className: 'hw-cols' }, shown.map(function (t, i) {
+            return h('div', { key: i, className: 'hw-row' },
+              h('div', { className: 'hw-k' }, t[0], t[2] ? h('div', { className: 'hw-note' }, t[2]) : null),
+              h('div', { className: 'hw-v' }, t[1],
+                t[3] ? h('div', { className: 'hw-note' }, '又译 ' + t[3]) : null,
+                t[4] ? h('div', { className: 'hw-note' }, t[4]) : null)
+            );
+          }))
+        );
+      }
+
       function blockOf(spec, index) {
         if (!spec || !spec.kind) return null;
         const items = spec.items || [];
@@ -480,7 +498,15 @@ window.__ModuleLoader__.load({
         : current === 'rules' ? rules()
         : current === 'redlines' ? redlines()
         : current === 'refs' ? refs()
+        : current === 'terms' ? termCards()
         : overview();
+
+      const browserLine = function (b) {
+        const sites = (b.sites || []).map(function (s) { return s.name; }).join('、');
+        const where = b.running ? '后台运行中（' + (b.mode === 'headless' ? '无头' : '可见窗口') + '）' : '未启动，第一次抓取时自动打开';
+        return '插件自带浏览器：' + where + '；' + (b.browser || '没找到浏览器') + (b.version ? ' ' + b.version : '') +
+          '；配置目录 ' + ((b.profile && b.profile.dir) || '') + '；可登录 ' + sites;
+      };
 
       const status = state.busy ? '' : state.live ? ' live' : ' bad';
       const statusText = state.busy ? '读取中' : state.live ? '实时' : '快照';
@@ -499,6 +525,10 @@ window.__ModuleLoader__.load({
                 onChange: function (id) { load(id); },
               }) : null,
               h('span', { title: state.message || '' }, h('span', { className: 'hw-dot' + status }), statusText + (readAt && state.live ? ' ' + readAt : '')),
+              D.browser ? h('button', {
+                type: 'button', className: 'hw-link', title: browserLine(D.browser),
+                onClick: function () { setNotice(browserLine(D.browser)); },
+              }, '抓取' + (D.browser.running ? '在线' : '待启')) : null,
               h('input', {
                 className: 'hw-search', type: 'search', value: q, placeholder: '搜索',
                 onChange: function (e) { setQ(e.target.value); },
@@ -557,9 +587,9 @@ window.__ModuleLoader__.load({
           const text = [
             '新建或修改一套「人文社科工作台」配置。',
             '配置目录：~/.dsh/humanities-workbench/configs/，当前：' + (name || '默认配置'),
-            '字段：id / name / skillDir / subsDir / tabs / note。',
+            '字段：id、name、skillDir、subsDir、tabs、note。',
             '步骤：1 问我要不要独立画像目录（要就复制 humanities-research）；2 写 <id>.json；',
-            '3 用 data.json?config=<id> 校验规则 21、参考册 16；4 报告改动。不要动其它插件。',
+            '3 用 data.json 带 config 参数校验规则与参考册数量；4 报告改动。不要动其它插件。',
           ].join('\n');
           const ui = ctx.get('uiWorkspace');
           if (auto !== false && ui && typeof ui.startSession === 'function') {
@@ -572,7 +602,7 @@ window.__ModuleLoader__.load({
         const exportMd = function (D, tab) {
           const out = [];
           const push = function (s) { out.push(s); };
-          push('# ' + ((D.config && D.config.name) || 'humanities') + ' · ' + tab);
+          push('# ' + ((D.config && D.config.name) || 'humanities') + '（' + tab + '）');
           push('');
           if (tab === 'overview') {
             push(D.thesis || '');
@@ -584,9 +614,9 @@ window.__ModuleLoader__.load({
           } else if (tab === 'rules') {
             (D.rules || []).forEach(function (r) { push('## ' + r[0] + ' ' + r[1]); push(''); push(r[2] || ''); push(''); });
           } else if (tab === 'refs') {
-            (D.refs || []).forEach(function (r) { push('- **' + r[0] + '** ' + r[1] + ' — ' + (r[2] || '')); });
+            (D.refs || []).forEach(function (r) { push('- **' + r[0] + '** ' + r[1] + '：' + (r[2] || '')); });
           } else {
-            (D[tab] || []).forEach(function (r) { push('- ' + [].concat(r).filter(Boolean).join(' · ')); });
+            (D[tab] || []).forEach(function (r) { push('- ' + [].concat(r).filter(Boolean).join('，')); });
           }
           const blob = new Blob([out.join('\n')], { type: 'text/markdown;charset=utf-8' });
           const a = document.createElement('a');

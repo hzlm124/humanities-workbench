@@ -58,6 +58,38 @@ function readPanel(skillDir) {
   }
 }
 
+/** Term cards shipped with a skill set: 译名沿革与出处，供 hw_term 查询。 */
+export function readTerms(skillDir) {
+  try {
+    const parsed = JSON.parse(readFileSync(join(skillDir, 'profile', 'terms.json'), 'utf8'))
+    return Array.isArray(parsed.terms) ? parsed.terms : []
+  } catch {
+    return []
+  }
+}
+
+export function lookupTerms(skillDir, query, limit = 8) {
+  const terms = readTerms(skillDir)
+  const q = String(query || '').trim().toLowerCase()
+  if (!q) return { total: terms.length, hits: [] }
+  const words = q.split(/\s+/).filter(Boolean)
+  const scored = []
+  for (const term of terms) {
+    const fields = [term.zh, term.original, term.id, term.note, ...(term.translations || [])]
+      .map((x) => String(x || '').toLowerCase())
+    let best = 0
+    for (const field of fields) {
+      if (!field) continue
+      if (field === q) best = Math.max(best, 3)
+      else if (field.includes(q) || q.includes(field)) best = Math.max(best, 2)
+      else if (words.some((w) => w.length > 1 && field.includes(w))) best = Math.max(best, 1)
+    }
+    if (best > 0) scored.push([best, term])
+  }
+  scored.sort((a, b) => b[0] - a[0] || String(a[1].zh).localeCompare(String(b[1].zh)))
+  return { total: terms.length, hits: scored.slice(0, limit).map((x) => x[1]) }
+}
+
 /** The optional custom-frontend block a skill set may carry. */
 export function panelFrontend(skillDir) {
   const panel = readPanel(skillDir)
@@ -109,6 +141,7 @@ export function buildData(options = {}) {
   const rules = readText(join(skillDir, 'profile', 'rules.md'))
   const parsedRules = parseRules(rules)
   const refs = parseRefs(join(skillDir, 'references'))
+  const terms = readTerms(skillDir)
   const now = new Date()
 
   const heads = { ...DEFAULT_HEADINGS, ...(panel.headings || {}) }
@@ -123,8 +156,8 @@ export function buildData(options = {}) {
     source: 'live',
     generatedAt: now.toISOString(),
     meta: {
-      subtitle: '实时数据 · 规则 ' + parsedRules.length + ' 条 · 红线 ' + panel.redlines.length + ' 条 · 参考册 ' + refs.length +
-        ' · 读取于 ' + now.toLocaleString('zh-CN', { hour12: false }),
+      subtitle: '实时数据，规则 ' + parsedRules.length + ' 条，红线 ' + panel.redlines.length + ' 条，参考册 ' + refs.length +
+        ' 册，读取于 ' + now.toLocaleString('zh-CN', { hour12: false }),
       foot: '本页每次打开（或点「刷新」）都直接读取 ' + skillDir + ' 与字幕目录，不再需要重新构建。' +
         '页面不写会话日志，也不改动任何 profile 状态。',
       headings: {
@@ -155,7 +188,11 @@ export function buildData(options = {}) {
     redlineNote: panel.redlineNote,
     sections: Array.isArray(panel.sections) ? panel.sections : [],
     frontend: panel.frontend || null,
-    materials: [[String(subs), '字幕文件'], [String(refs.length), '参考册']],
+    terms: {
+      total: terms.length,
+      list: terms.map((t) => [t.zh, t.original, t.period || '', (t.translations || []).join('、'), t.note || '']),
+    },
+    materials: [[String(subs), '字幕文件'], [String(refs.length), '参考册'], [String(terms.length), '术语']],
     refs,
     profileBytes: profile.length,
   }

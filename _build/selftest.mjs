@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url'
 import { buildData } from '../data.mjs'
 import { apply, DATA_PATH, CONFIGS_PATH, FRONTEND_PATH, frontendPayload } from '../index.js'
 
@@ -32,6 +33,31 @@ console.log('frontend_route=' + (front ? front.kind + '/' + front.auth : 'MISSIN
 console.log('frontend_payload_none=' + JSON.stringify(frontendPayload(null, data, '')))
 console.log('frontend_payload_bad=' + JSON.stringify(frontendPayload(null, { frontend: 'nope' }, repoRoot)))
 
+// hw_term 跟的是配置里的 skillDir，所以单开一个上下文指向内置目录
+const bundledDir = fileURLToPath(new URL('../skill/', import.meta.url)).replace(/[\\/]+$/, '')
+const termTools = new Map()
+const termCtx = {
+  webServer: { register() { return () => {} } },
+  tools: { register(d) { termTools.set(d.name, d); return () => {} } },
+  effect(fn) { return fn() },
+}
+apply(termCtx, { skillDir: bundledDir })
+const termTool = termTools.get('hw_term')
+const termHit = JSON.parse(await termTool.execute({ query: 'longue' }))
+const termMiss = JSON.parse(await termTool.execute({ query: 'zzz-not-a-term' }))
+const termAll = JSON.parse(await termTool.execute({ query: '', all: true }))
+console.log('terms=' + data.terms.total + ' lookup=' + termHit.hits.length + ' first=' + (termHit.hits[0] && termHit.hits[0].zh) +
+  ' miss=' + termMiss.hits.length + ' hint=' + Boolean(termMiss.hint) + ' all=' + termAll.total)
+
+const browserNames = ['hw_browse', 'hw_login', 'hw_browser_state']
+const browserTools = browserNames.map((name) => tools.get(name))
+const dataRoute = await call(DATA_PATH)
+console.log('browser_tools=' + browserTools.filter(Boolean).length + ' browser_in_payload=' + Object.prototype.hasOwnProperty.call(dataRoute.body, 'browser') +
+  ' browser_sites=' + ((dataRoute.body.browser && dataRoute.body.browser.sites && dataRoute.body.browser.sites.length) || 0))
+
 const bad = Array.from(tools.values()).filter((d) => !d.description || !d.parameters || typeof d.execute !== 'function')
+const termOk = data.terms.total === 16 && termHit.hits.length === 1 && termHit.hits[0].zh === '长时段' &&
+  termMiss.hits.length === 0 && termMiss.hint && termAll.total === 16
+console.log('term_checks=' + (termOk ? 'OK' : 'FAIL'))
 console.log('tool_shape_bad=' + bad.length)
 console.log('OK')

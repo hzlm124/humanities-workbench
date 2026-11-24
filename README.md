@@ -4,19 +4,21 @@
 
 因为嫌历史资料和相关研究太麻烦，做了这个东西：一个能按自己的研究习惯定制的人文社科研究插件。
 
-面板、取证工具、方法手册三件套。日常查资料、读文献、写东西够用；不高兴了可以整套换掉——它不预设你该怎么研究。
+面板、取证工具、方法手册三件套。日常查资料、读文献、写东西够用；不高兴了可以整套换掉。它不预设你该怎么研究。
 
 思路参考过 [Misaka-Agent](https://github.com/Luciole-Studio/Misaka-Agent) 的研究编排结构；实现方式、方法框架和规则来自与作者的反复讨论与打磨。代码由 AI 编写，规范由人确定。开源出来，供学习参考。
 
 ## 能做什么
 
-**面板** —— 左侧栏一个全局页面，六个栏目：概览（条件链流程图）、事实结构、未解张力、执行规则、红线、方法手册。支持全文搜索，可一键导出 Markdown。
+**面板**：左侧栏一个全局页面，六个固定栏目：概览（条件链流程图）、事实结构、未解张力、执行规则、红线、方法手册。另有「语料」与「术语」两栏，按数据在不在自动出现。支持全文搜索，可一键导出 Markdown。
 
-**配置集** —— 一套配置 = 一个研究目录 + 一组栏目。默认只带一份通用方法论，你自己的版本另建一套，两套并行、互不影响。
+**配置集**：一套配置 = 一个研究目录 + 一组栏目。默认只带一份通用方法论，你自己的版本另建一套，两套并行、互不影响。
 
-**自定义前端** —— 嫌面板排版不顺眼，就让它指向你自己写的 HTML：沙箱 iframe 里跑，数据经 `postMessage` 取。界面连同栏目一起换掉。
+**自定义前端**：嫌面板排版不顺眼，就让它指向你自己写的 HTML：沙箱 iframe 里跑，数据经 `postMessage` 取。界面连同栏目一起换掉。
 
-**读取工具** —— 给模型四个能直接用的取数口：
+**读取工具**：给模型九个能直接用的取数口。
+
+先说不带登录的那四个：普通网页正文、批量抓取、维基摘要、本地字幕；再说数据层的三个；最后两个是登录态抓取，见下一节。
 
 | 工具 | 用途 |
 |---|---|
@@ -25,12 +27,16 @@
 | `hw_wiki` | 维基百科纯文本摘要 |
 | `hw_bilibili` | 按 BV 号取本地字幕库的 CC 字幕 |
 | `hw_corpus` | 在字幕语料里检索，返回片段、BV 号与时间码 |
+| `hw_term` | 查术语卡：译名沿革、年代、出处、同词异指提示 |
+| `hw_browse` | 用插件自己的浏览器打开登录后的页面，取正文与评论区，可滚动加载、可传 CSS 选择器 |
+| `hw_login` | 打开一个可见窗口，让用户对某个站点登录一次 |
+| `hw_browser_state` | 看抓取浏览器的状态，或启动、关掉它 |
 
-知乎、Z-Library 这类要登录的站，把 cookie 放进 `~/.dsh/humanities-workbench/cookies.json`，`hw_page` 会自动带上——只对 https 发送，http 链接一律不带。取址会拒绝本机、局域网与云元数据地址（含重定向的每一跳），避免被网页内容引去读内网。
+知乎、Z-Library 这类要登录的站，把 cookie 放进 `~/.dsh/humanities-workbench/cookies.json`，`hw_page` 会自动带上，但只对 https 发送，http 链接一律不带。取址会拒绝本机、局域网与云元数据地址（含重定向的每一跳），避免被网页内容引去读内网。
 
-**方法手册** —— 16 册：证据分级与来源路由、精读、编排、红队、分歧审查、反事实、设定审计、覆盖表、交付物、画像方法、藏书获取、概念史、影像作为史料、概念分析、研究协议。随插件发布在 `skill/` 下，装好即用。
+**方法手册**：19 册，证据分级与来源路由、精读、编排、红队、分歧审查、反事实、设定审计、覆盖表、交付物、画像方法、藏书获取、概念史、影像作为史料、概念分析、研究协议，另加文风（去 AI 味与禁例）、三类需求的操作路径、术语与译名沿革。随插件发布在 `skill/` 下，装好即用。
 
-**离线可用** —— 路由不可用时回落到内置快照，面板不会开天窗。
+**离线可用**：路由不可用时回落到内置快照，面板不会开天窗。
 
 ## 部署
 
@@ -46,7 +52,7 @@ git clone https://github.com/hzlm124/humanities-workbench.git
 
 **方式一（推荐）**
 
-左侧栏 → **Plugins** → **Add plugin** → 选择本目录 → 重启 DSH。
+左侧栏打开 **Plugins**，点 **Add plugin**，选中本目录，然后重启 DSH。
 
 **方式二（手工）**
 
@@ -63,7 +69,7 @@ git clone https://github.com/hzlm124/humanities-workbench.git
 
 - 自动生成 `~/.dsh/humanities-workbench/configs/default.json`，指向自带的通用方法论目录；
 - 面板出现「人文社科工作台」入口；
-- 四个工具注册为 `hw_*`。
+- 九个工具注册为 `hw_*`。
 
 **验证**
 
@@ -78,6 +84,10 @@ node _build/test-tools.mjs
 node _build/test-knowledge.mjs
 # 自定义前端路由回归：路径围栏、扩展名白名单、令牌、ETag
 node _build/test-frontend.mjs
+# 登录态抓取回归：会真的拉起一个无头 Edge，约 10 秒
+node _build/test-browser.mjs
+# 面板渲染回归：不需要浏览器
+node _build/test-client.mjs
 ```
 
 ## 自定义
@@ -102,9 +112,10 @@ node _build/test-frontend.mjs
 | `profile/profile.md` | 研究画像：你的判断框架、优先级、未解张力 |
 | `profile/rules.md` | 执行规则，写成 if-then |
 | `profile/panel.json` | 面板正文：条件链、事实结构、张力、红线 |
+| `profile/terms.json` | 术语卡：中文名、原文、异译、年代、出处 |
 | `references/*.md` | 方法手册，一册一个主题 |
 
-不填 `skillDir` 时用插件自带的 `skill/`（16 册通用方法论 + 空白画像模板）。想换整套内容，复制一份改 `skillDir` 指过去即可。
+不填 `skillDir` 时用插件自带的 `skill/`（19 册通用方法论 + 空白画像模板 + 16 条术语卡）。想换整套内容，复制一份改 `skillDir` 指过去即可。
 
 `panel.json` 里除了面板正文，还可以覆盖界面用词：`headings`（各分区标题，`rules` 支持 `{n}` 占位）与 `overdetermination`（方法提示那一行）。
 
@@ -118,7 +129,7 @@ node _build/test-frontend.mjs
 node _build/build_index.mjs "D:\path\to\subs"
 ```
 
-索引落在 `~/.dsh/humanities-workbench/corpus.json`——本机 82 个视频得到 1444 段、764 KB，属于派生数据：不进仓库，也不进模型上下文。之后有三处可用：
+索引落在 `~/.dsh/humanities-workbench/corpus.json`。本机 82 个视频得到 1444 段、764 KB，属于派生数据：不进仓库，也不进模型上下文。之后有三处可用：
 
 - 面板多出「语料」栏，输入词回车即检索，命中的每一条给出 BV 号、时间码与匹配度
 - 工具 `hw_corpus` 给模型用：`{ query, limit }`，返回片段与出处，用来核对某个概念在语料里究竟怎么讲
@@ -146,22 +157,48 @@ node _build/build_index.mjs "D:\path\to\subs"
 
 也可以写全：`{ "dir": "frontend", "entry": "index.html", "title": "我的工作台", "height": 0 }`。相对路径按 `skillDir` 解析，绝对路径也行。写在配置集（`~/.dsh/humanities-workbench/configs/<id>.json`）里优先于 `panel.json`，所以同一套方法论可以配不同前端。
 
-页面跑在 `sandbox="allow-scripts"` 的 iframe 里——不透明来源，拿不到宿主的 cookie 和 localStorage。数据一律从 `postMessage` 进出：
+页面跑在 `sandbox="allow-scripts"` 的 iframe 里，属于不透明来源，拿不到宿主的 cookie 和 localStorage。数据一律从 `postMessage` 进出：
 
 | 方向 | 消息 |
 | --- | --- |
-| 页面 → 宿主 | `{ hw: 1, op: "hello" \| "panel" \| "corpus" \| "configs" \| "refresh" \| "open-config" \| "resize" \| "notice" }` |
-| 宿主 → 页面 | `{ hw: 1, op, re, id, ok, data? }` |
+| 页面发给宿主 | `{ hw: 1, op: "hello" \| "panel" \| "corpus" \| "configs" \| "refresh" \| "open-config" \| "resize" \| "notice" }` |
+| 宿主发给页面 | `{ hw: 1, op, re, id, ok, data? }` |
 
 `hello` 直接拿到 `data.json` 的全部内容；`corpus` 带 `query` 就返回语料命中；`resize` 让框架跟着内容高度走。工具栏多一个「内置视图／自定义前端」开关，随时退回原来的排版；配置写了前端却找不到目录时，面板会直接说缺哪个路径，而不是默默回落。
 
-资源只从指定的前端目录里取：扩展名白名单（html / css / js / mjs / json / svg / 图片 / 字体），越界 403、缺失 404、路径里带一段每次启动随机生成的令牌，别的本地页面猜不到。现成的示例在 `skill/frontend/`——复制进自己的 skill 目录、加一行 `frontend` 就能看到效果。
+资源只从指定的前端目录里取：扩展名白名单（html / css / js / mjs / json / svg / 图片 / 字体），越界 403、缺失 404、路径里带一段每次启动随机生成的令牌，别的本地页面猜不到。现成的示例在 `skill/frontend/`，复制进自己的 skill 目录、加一行 `frontend` 就能看到效果。
 
+## 登录态抓取
+
+评论区、个人动态、超话这些内容要执行页面脚本、滚动加载，纯 HTTP 取不到。所以另起一个浏览器，用调试协议去读。
+
+做法是插件自带一份浏览器配置目录 `~/.dsh/humanities-workbench/browser`，只给它用。第一次到某个站点，先开一个可见窗口登录一次：
+
+```text
+hw_login { site: "bilibili" }
+```
+
+登录状态存在这份配置里，浏览器自己的加密库保管，插件不读也不转发。之后抓取在后台进行，不需要窗口：
+
+```text
+hw_browse { url: "https://www.bilibili.com/video/BV...", scroll: 3 }
+```
+
+`scroll` 是向下滚动的次数，用来把评论区加载出来；`items` 可以传 CSS 选择器，抓适配表里没有的站点。适配表里有 X、YouTube、B站、知乎、微博、豆瓣、小红书，走的是各站自己的条目选择器；没有适配的站点回落到正文提取。
+
+几点边界：
+
+- 不碰你日常那个浏览器。配置目录独立，调试口只绑 `127.0.0.1`，端口默认 9411，可用环境变量 `HW_CDP_PORT` 改。
+- 初始地址照样过内网拦截：本机、局域网、云元数据地址一律拒绝，重定向的每一跳都查。
+- 只读。工具不点按钮、不发帖、不改设置，也不读密码。
+- 代价有两个：每个站点首次要登录一次；抓取时那个实例要在跑（无头，占一个进程）。不用了可以 `hw_browser_state { action: "stop" }` 关掉。
+- 配置目录里有登录凭据，不要提交进仓库，也不要外传。
 ## 仓库构成
 
 | 文件 | 作用 |
 |---|---|
-| `index.js` | 两条 HTTP 路由 + 四个工具注册 |
+| `index.js` | 五条 HTTP 路由与九个工具注册 |
+| `browser.mjs` | 登录态抓取：独立配置目录、调试协议会话、站点适配、页面提取 |
 | `data.mjs` | 读 skill 目录，产出面板数据 |
 | `configs.mjs` | 配置集读写与播种 |
 | `tools.mjs` | 抓取与解析（网页 / 维基 / 字幕） |
@@ -179,6 +216,8 @@ node _build/build_index.mjs "D:\path\to\subs"
 | `docs/sections-example.json` | 区块自排的写法示例 |
 | `skill/frontend/` | 自定义前端的示例页面与协议说明（默认不启用） |
 | `_build/test-frontend.mjs` | 前端路由回归：围栏、白名单、令牌、ETag |
+| `_build/test-browser.mjs` | 抓取层回归：真实无头浏览器、页面提取、登录墙、内网拦截 |
+| `_build/test-client.mjs` | 面板渲染回归：术语页、抓取状态、无术语表时不出页签 |
 
 ## Related work
 
