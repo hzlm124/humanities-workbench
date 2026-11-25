@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url'
 import { buildData } from '../data.mjs'
-import { apply, DATA_PATH, CONFIGS_PATH, FRONTEND_PATH, BROWSER_PATH, browserAction, frontendPayload } from '../index.js'
+import { apply, DATA_PATH, CONFIGS_PATH, FRONTEND_PATH, BROWSER_PATH, STATE_PATH, browserAction, frontendPayload } from '../index.js'
 
 const repoRoot = new URL('..', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1')
 const data = buildData()
@@ -8,10 +8,21 @@ console.log('parser: rules=' + data.rules.length + ' refs=' + data.refs.length)
 
 const routes = new Map()
 const tools = new Map()
+const promptContexts = new Map()
+const services = {
+  systemPrompt: { context(definition) { promptContexts.set(definition.name, definition); return () => {} } },
+}
 const ctx = {
   webServer: { register(r) { routes.set(r.path, r); return () => {} } },
   tools: { register(d) { tools.set(d.name, d); return () => {} } },
   effect(fn) { return fn() },
+  inject(names, callback) {
+    const child = { effect(fn) { return fn() } }
+    let found = false
+    for (const name of names) if (services[name]) { child[name] = services[name]; found = true }
+    if (found) callback(child)
+    return () => {}
+  },
 }
 apply(ctx, {})
 
@@ -40,6 +51,7 @@ const termCtx = {
   webServer: { register() { return () => {} } },
   tools: { register(d) { termTools.set(d.name, d); return () => {} } },
   effect(fn) { return fn() },
+  inject() { return () => {} },
 }
 apply(termCtx, { skillDir: bundledDir })
 const termTool = termTools.get('hw_term')
@@ -111,8 +123,60 @@ await postDone
 const postBody = JSON.parse(postRes.body || '{}')
 console.log('browser_post status=' + postRes.statusCode + ' sites=' + ((postBody.browser && postBody.browser.sites.length) || 0))
 
-const toolsOk = tools.size === 11 && Boolean(auditShape) && Boolean(graphShape)
-const browserOk = routes.has(BROWSER_PATH) && getStatus === 405 && Boolean(browserRoute.handler) &&
+// A2: the digest reaches the prompt, and the red light removes it entirely
+const stateFile = new URL('./tmp-state.json', import.meta.url)
+process.env.HW_STATE_FILE = stateFile.pathname.replace(/^\/([A-Za-z]:)/, '$1')
+const { writeState } = await import('../state.mjs')
+const hwContext = promptContexts.get('humanities-workbench')
+let digestOn = ''
+let digestOff = 'x'
+try {
+  writeState({ method: true, corpus: false })
+  digestOn = String(hwContext ? hwContext.text({ session: null }) : '')
+  writeState({ method: false, corpus: false })
+  digestOff = String(hwContext ? hwContext.text({ session: null }) : 'x')
+} finally {
+  try { (await import('node:fs')).unlinkSync(stateFile) } catch { /* already gone */ }
+}
+let digestFollows = true
+const named = configs.body.configs.find(function (c) { return c.id === 'tiehong' }) || null
+if (named) {
+  writeState({ method: true, corpus: false, config: named.id })
+  const followed = String(hwContext.text({ session: null }))
+  digestFollows = followed.indexOf(named.name) >= 0
+  try { (await import('node:fs')).unlinkSync(stateFile) } catch { /* already gone */ }
+}
+console.log('digest_follows_config=' + digestFollows + (named ? ' :: ' + named.name : ' :: no second config'))
+const digestOk = Boolean(hwContext) && digestOn.length > 60 && digestOn.indexOf('humanities-research') >= 0 && digestOff === '' && digestFollows
+console.log('prompt_context=' + promptContexts.size + ' order=' + (hwContext && hwContext.order) + ' digest_on=' + digestOn.length + ' digest_off=' + digestOff.length + ' digest_ok=' + digestOk)
+
+// the switch route: POST writes, GET is refused, and the reply carries both lamps
+const stateRoute = routes.get(STATE_PATH)
+const stGet = { statusCode: 0, setHeader() {}, end() {} }
+stateRoute.handler({ method: 'GET' }, stGet)
+const stReq = new EventEmitter()
+stReq.method = 'POST'
+const stRes = { statusCode: 0, body: '', setHeader() {}, end(body) { this.body = String(body || '') } }
+const stDone = new Promise((resolve) => { const done = stRes.end.bind(stRes); stRes.end = function (body) { done(body); resolve() } })
+stateRoute.handler(stReq, stRes)
+stReq.emit('data', Buffer.from(JSON.stringify({ switches: { method: true, corpus: true }, config: 'default' })))
+stReq.emit('end')
+await stDone
+const stBody = JSON.parse(stRes.body || '{}')
+try { (await import('node:fs')).unlinkSync(stateFile) } catch { /* already gone */ }
+const switchOk = Boolean(stateRoute) && stGet.statusCode === 405 && stRes.statusCode === 200 &&
+  stBody.switches && stBody.switches.method === true && stBody.switches.corpus === true && stBody.switches.config === 'default'
+console.log('state_route get=' + stGet.statusCode + ' post=' + stRes.statusCode + ' switches=' + JSON.stringify(stBody.switches) + ' ok=' + switchOk)
+
+const grabTool = tools.get('hw_grab')
+const searchTool = tools.get('hw_search')
+const grabShape = grabTool && grabTool.parameters.properties.mode && Array.isArray(grabTool.parameters.properties.mode.enum)
+const searchShape = searchTool && searchTool.parameters.properties.engine && Array.isArray(searchTool.parameters.properties.engine.enum)
+
+const toolsOk = tools.size === 13 && Boolean(auditShape) && Boolean(graphShape) && Boolean(grabShape) && Boolean(searchShape)
+const redacted = Boolean(statusBody.browser) && !('port' in statusBody.browser) && !('profile' in statusBody.browser) && !('version' in statusBody.browser)
+console.log('browser_redacted=' + redacted)
+const browserOk = routes.has(BROWSER_PATH) && getStatus === 405 && Boolean(browserRoute.handler) && redacted &&
   postRes.statusCode === 200 && (postBody.browser && postBody.browser.sites.length === 7) &&
   statusBody.browser.sites.length === 7 &&
   wroteLogins && readBack.sites.length === 1 && readBack.checkedAt === '2026-11-24T00:00:00.000Z'
@@ -121,6 +185,6 @@ const termOk = data.terms.total === 16 && termHit.hits.length === 1 && termHit.h
   termMiss.hits.length === 0 && termMiss.hint && termAll.total === 16
 console.log('term_checks=' + (termOk ? 'OK' : 'FAIL'))
 console.log('tool_shape_bad=' + bad.length)
-const pass = toolsOk && toolChecks && bad.length === 0 && browserOk && termOk
+const pass = toolsOk && toolChecks && bad.length === 0 && browserOk && termOk && digestOk && switchOk && routes.size === 7
 console.log(pass ? 'OK' : 'FAIL')
 process.exit(pass ? 0 : 1)

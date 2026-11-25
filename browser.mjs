@@ -22,6 +22,7 @@ export const SITES = {
   x: {
     name: 'X',
     url: 'https://x.com/',
+    loginUrl: 'https://x.com/i/flow/login',
     hosts: ['x.com', 'twitter.com'],
     items: ['[data-testid="tweetText"]', 'article div[lang]'],
     loginSelectors: ['[data-testid="loginButton"]', 'a[href="/i/flow/login"]'],
@@ -29,6 +30,7 @@ export const SITES = {
   youtube: {
     name: 'YouTube',
     url: 'https://www.youtube.com/',
+    loginUrl: 'https://accounts.google.com/ServiceLogin?service=youtube',
     hosts: ['youtube.com', 'youtu.be'],
     items: ['#description-inline-expander', 'ytd-comment-thread-renderer #content-text', '#content-text'],
     loginSelectors: ['a[href*="accounts.google.com/ServiceLogin"]', 'ytd-consent-bump-v2-lightbox'],
@@ -36,6 +38,7 @@ export const SITES = {
   bilibili: {
     name: 'B站',
     url: 'https://www.bilibili.com/',
+    loginUrl: 'https://passport.bilibili.com/login',
     hosts: ['bilibili.com', 'b23.tv'],
     items: ['.reply-item .reply-content', '.reply-content', '.desc-info-text', '.video-desc-container'],
     loginSelectors: ['.bili-login-card', '.login-tip', '.fixed-card .login-btn'],
@@ -43,6 +46,7 @@ export const SITES = {
   zhihu: {
     name: '知乎',
     url: 'https://www.zhihu.com/',
+    loginUrl: 'https://www.zhihu.com/signin?next=%2F',
     hosts: ['zhihu.com'],
     items: ['.RichText', '.Post-RichText', '.CommentContent'],
     loginSelectors: ['.Modal-wrapper', '.signFlow', '.Login-button', '.Button--blue'],
@@ -50,6 +54,7 @@ export const SITES = {
   weibo: {
     name: '微博',
     url: 'https://weibo.com/',
+    loginUrl: 'https://passport.weibo.com/sso/signin',
     hosts: ['weibo.com', 'weibo.cn'],
     items: ['.detail_wbtext', '.comment-content', '.WB_text', '.Feed_wrap'],
     loginSelectors: ['.LoginCard', '.login-form', '.W_login_form'],
@@ -57,6 +62,7 @@ export const SITES = {
   douban: {
     name: '豆瓣',
     url: 'https://www.douban.com/',
+    loginUrl: 'https://accounts.douban.com/passport/login',
     hosts: ['douban.com'],
     items: ['.review-content', '.comment-item .short', '#link-report .topic-content'],
     loginSelectors: ['.login-popup', 'a[href*="accounts.douban.com/passport/login"]'],
@@ -64,6 +70,7 @@ export const SITES = {
   xiaohongshu: {
     name: '小红书',
     url: 'https://www.xiaohongshu.com/',
+    loginUrl: 'https://www.xiaohongshu.com/login',
     hosts: ['xiaohongshu.com', 'xhslink.com'],
     items: ['#detail-desc', '.note-text', '.comment-item .content'],
     loginSelectors: ['.login-container', '.login-box', '.sign-in-container'],
@@ -432,11 +439,24 @@ function extractInPage(config) {
   if (!loginWall) {
     loginWall = /登录后查看|请先登录|扫码登录|登录后继续|Sign in to continue|Log in to continue|You must be logged in/i.test(body.slice(0, 1500))
   }
+  const linkLimit = config.linkLimit || 60
+  const links = []
+  const seenHref = new Set()
+  for (const anchor of document.querySelectorAll('a[href]')) {
+    if (links.length >= linkLimit) break
+    const label = String(anchor.innerText || anchor.textContent || '').replace(/\s+/g, ' ').trim()
+    const href = String(anchor.href || '')
+    if (!label || label.length < 2 || !/^https?:/i.test(href)) continue
+    if (seenHref.has(href)) continue
+    seenHref.add(href)
+    links.push({ text: label.slice(0, 120), href: href.slice(0, 400) })
+  }
   return {
     title: String(document.title || ''),
     url: String(location.href),
     bodyChars: body.length,
     main: main.slice(0, cap),
+    links,
     items: pick(config.items || []).map((text) => text.slice(0, 2000)),
     loginWall,
   }
@@ -548,6 +568,7 @@ export async function browse(url, options = {}) {
       itemLimit: Math.min(Math.max(Number(options.itemLimit) || 40, 1), 120),
       items: custom.length ? custom : (site ? site.items : []),
       loginSelectors: site ? site.loginSelectors : [],
+      linkLimit: Math.min(Math.max(Number(options.linkLimit) || 80, 0), 200),
     }
     const expression = '(' + extractInPage.toString() + ')(' + JSON.stringify(config) + ')'
     const pageData = await evaluate(client, expression)
@@ -568,6 +589,7 @@ export async function browse(url, options = {}) {
       text: pageData.main,
       items: pageData.items,
       itemCount: pageData.items.length,
+      links: pageData.links || [],
       browser: { mode: started.mode, reused: Boolean(started.reused), port: cdpPort() },
     }
   } catch (error) {
@@ -596,7 +618,8 @@ export async function openLogin(siteId) {
   }
   const client = makeClient(socket)
   try {
-    await navigate(client, site.url, 2500)
+    await navigate(client, site.loginUrl || site.url, 2500)
+    lastLogin = { site: id, targetId: page.id, at: Date.now() }
     const check = {
       maxChars: 400,
       items: ['[data-testid="SideNav_AccountSwitcher_Button"]', 'a[href*="member"], a[href*="space"], a[href*="mine"]'],
@@ -611,11 +634,173 @@ export async function openLogin(siteId) {
       mode: started.mode,
       loginWall: state ? Boolean(state.loginWall) : null,
       title: state ? state.title : '',
-      note: '窗口已经打开。登录一次就够，之后抓取会在后台复用这份登录状态。登录完成后用 hw_browse 打开同一站点确认，不要凭这里的返回判断。',
+      note: '窗口已打开，页面上有二维码就扫码登录。登录一次够用，之后抓取在后台复用这份状态；扫完回到面板会自动确认。',
     }
   } catch (error) {
     return { ok: false, error: String((error && error.message) || error) }
   } finally {
     client.close()
+  }
+}
+
+/** Last tab a login opened, so the panel can keep watching that same page. */
+let lastLogin = null
+
+/** Merge one site's login result into logins.json without losing the others. */
+function rememberLogin(id, loginWall, checkedAt) {
+  const site = SITES[id]
+  if (!site) return
+  const current = readLogins()
+  const rows = (current.sites || []).filter((row) => row && row.id !== id)
+  rows.push({ id, name: site.name, url: site.url, loginWall, title: '', error: '' })
+  rows.sort((a, b) => SITE_ORDER.indexOf(a.id) - SITE_ORDER.indexOf(b.id))
+  writeLogins({ ok: true, checkedAt: checkedAt || new Date().toISOString(), sites: rows })
+}
+
+/**
+ * Watch the window a login opened until the wall goes away or time runs out.
+ * A scan on the phone therefore flips the panel by itself, without a second click.
+ */
+export async function waitForLogin(siteId, options) {
+  const o = options || {}
+  const id = String(siteId || '').trim().toLowerCase()
+  const site = SITES[id]
+  if (!site) return { ok: false, error: '不认识的站点：' + siteId }
+  const timeout = Math.min(Math.max(Number(o.timeoutMs) || 25000, 3000), 90000)
+  const started = await ensureBrowser({ headed: true })
+  if (!started.ok) return { ok: false, site: id, error: started.reason }
+  const pages = await pageTargets()
+  const onSite = (row) => {
+    const host = hostOf(row.url)
+    return Boolean(host) && site.hosts.some((h) => host === h || host.endsWith('.' + h))
+  }
+  const remembered = lastLogin && lastLogin.site === id ? pages.find((row) => row.id === lastLogin.targetId) : null
+  const page = remembered || pages.find(onSite) || null
+  if (!page) return { ok: false, site: id, error: '没有打开的登录页，先点「登录」' }
+  let socket
+  try {
+    socket = await openSocket(page.webSocketDebuggerUrl, 8000)
+  } catch (error) {
+    return { ok: false, site: id, error: String((error && error.message) || error) }
+  }
+  const client = makeClient(socket)
+  const began = Date.now()
+  try {
+    let loggedIn = false
+    while (Date.now() - began < timeout) {
+      const check = { maxChars: 200, items: [], loginSelectors: site.loginSelectors }
+      const state = await evaluate(client, '(' + extractInPage.toString() + ')(' + JSON.stringify(check) + ')')
+      if (state && state.loginWall === false) { loggedIn = true; break }
+      await sleep(1200)
+    }
+    const checkedAt = new Date().toISOString()
+    if (loggedIn) rememberLogin(id, false, checkedAt)
+    return { ok: true, site: id, name: site.name, loggedIn, checkedAt, waitedMs: Date.now() - began }
+  } catch (error) {
+    return { ok: false, site: id, error: String((error && error.message) || error) }
+  } finally {
+    client.close()
+  }
+}
+
+const SELFTEST_FILE = join(homedir(), '.dsh', 'humanities-workbench', 'selftest.json')
+
+/** Last real read, so the panel can say whether grabbing works at all. */
+export function readSelfTest() {
+  try { return JSON.parse(readFileSync(SELFTEST_FILE, 'utf8')) } catch { return null }
+}
+
+function writeSelfTest(row) {
+  try {
+    mkdirSync(dirname(SELFTEST_FILE), { recursive: true })
+    writeFileSync(SELFTEST_FILE, JSON.stringify(row, null, 2) + '\n', 'utf8')
+  } catch { /* a read-only home should not break the report */ }
+}
+
+/**
+ * Read one ordinary page for real and report what came back. A green lamp only
+ * proves the debugging port answered; this proves content arrives.
+ */
+export async function selfTest() {
+  const began = Date.now()
+  let result = null
+  for (const url of ['https://example.com/', 'https://www.bing.com/']) {
+    try {
+      result = await browse(url, { maxChars: 3000, wait: 1200 })
+    } catch (error) {
+      result = { ok: false, error: String((error && error.message) || error) }
+    }
+    if (result && result.ok && String(result.text || '').length >= 40) break
+  }
+  const row = {
+    at: new Date().toISOString(),
+    ok: Boolean(result && result.ok && String(result.text || '').length >= 40),
+    url: (result && result.url) || '',
+    title: (result && result.title) || '',
+    chars: result && result.text ? String(result.text).length : 0,
+    ms: Date.now() - began,
+    error: (result && result.error) || '',
+  }
+  writeSelfTest(row)
+  return row
+}
+
+const hostOf = (url) => {
+  try { return new URL(String(url)).hostname.toLowerCase() } catch { return '' }
+}
+
+/** Search pages, one adapter each: which site, which items, which links to keep. */
+const ENGINES = {
+  bing: {
+    url: (q) => 'https://www.bing.com/search?q=' + encodeURIComponent(q),
+    items: ['li.b_algo', 'li.b_algo h2'],
+    keep: 'external',
+    hosts: ['bing.com', 'microsoft.com', 'msn.com'],
+  },
+  zhihu: {
+    url: (q) => 'https://www.zhihu.com/search?type=content&q=' + encodeURIComponent(q),
+    items: ['.SearchResult-Card', '.Card', '.ContentItem'],
+    keep: 'site',
+    hosts: ['zhihu.com'],
+  },
+  bilibili: {
+    url: (q) => 'https://search.bilibili.com/all?keyword=' + encodeURIComponent(q),
+    items: ['.bili-video-card', '.video-list-item', '.bili-video-card__info--tit'],
+    keep: 'site',
+    hosts: ['bilibili.com', 'b23.tv'],
+  },
+}
+
+/** One query, the site it belongs to, and the links that answer it. */
+export async function searchSite(engine, query, limit) {
+  const name = Object.prototype.hasOwnProperty.call(ENGINES, engine) ? engine : 'bing'
+  const spec = ENGINES[name]
+  const cap = Math.min(Math.max(Number(limit) || 10, 1), 30)
+  let res = null
+  try {
+    res = await browse(spec.url(query), {
+      items: spec.items, maxChars: 1500, wait: 2600, scroll: 1, itemLimit: cap, linkLimit: 200,
+    })
+  } catch (error) {
+    res = { ok: false, error: String((error && error.message) || error) }
+  }
+  if (!res || !res.ok) return { ok: false, engine: name, query, error: (res && res.error) || '没有取到结果' }
+  const seen = new Set()
+  const rows = []
+  for (const link of res.links || []) {
+    const host = hostOf(link.href)
+    if (!host) continue
+    const inside = spec.hosts.some((h) => host === h || host.endsWith('.' + h))
+    if (spec.keep === 'site' && !inside) continue
+    if (spec.keep === 'external' && inside) continue
+    if (/\/(search|login|signin|passport)\b/.test(link.href)) continue
+    if (seen.has(link.href)) continue
+    seen.add(link.href)
+    rows.push({ title: link.text, url: link.href })
+    if (rows.length >= cap) break
+  }
+  return {
+    ok: true, engine: name, query, loginWall: Boolean(res.loginWall),
+    total: rows.length, results: rows, snippets: (res.items || []).slice(0, cap),
   }
 }

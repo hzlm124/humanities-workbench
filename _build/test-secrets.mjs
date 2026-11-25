@@ -3,6 +3,8 @@
  * Runs before a release, and stays useful afterwards.
  */
 import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
+import { homedir } from 'node:os'
 import { execSync } from 'node:child_process'
 
 const files = execSync('git ls-files', { encoding: 'utf8' }).split(/\r?\n/).filter(Boolean)
@@ -28,6 +30,39 @@ for (const file of files) {
     if (pattern.test(text)) hits.push(label + ' in ' + file)
   }
 }
-console.log('tracked_files=' + files.length + ' hits=' + hits.length)
-for (const hit of hits.slice(0, 20)) console.log('  ' + hit)
-process.exit(hits.length ? 1 : 0)
+
+/**
+ * A personal skill set must never reach the repository: the built bundle once
+ * carried the owner's own framework as an offline snapshot. Any panel text from
+ * ~/.dsh/skills/humanities-research is a leak, wherever it appears.
+ */
+const personalPanel = join(homedir(), '.dsh', 'skills', 'humanities-research', 'profile', 'panel.json')
+const bundledPanel = readFileSync(new URL('../skill/profile/panel.json', import.meta.url), 'utf8')
+const personalProbes = []
+try {
+  const panel = JSON.parse(readFileSync(personalPanel, 'utf8'))
+  // Only what the personal set adds: shared method text legitimately ships in skill/.
+  const push = (value) => {
+    const text = String(value || '').replace(/\s+/g, ' ').trim()
+    if (text.length < 10) return
+    if (bundledPanel.indexOf(text.slice(0, 14)) >= 0) return
+    personalProbes.push(text.slice(0, 14))
+  }
+  push(panel.thesis)
+  for (const row of panel.redlines || []) push(Array.isArray(row) ? row[1] : row)
+  for (const row of panel.tensions || []) push(Array.isArray(row) ? row[1] : row)
+  for (const row of panel.rules || []) push(Array.isArray(row) ? row[1] : row)
+} catch { /* no personal set on this machine */ }
+const leaked = []
+for (const file of files) {
+  let text = ''
+  try { text = readFileSync(file, 'utf8') } catch { continue }
+  if (text.indexOf('\u0000') >= 0) continue
+  for (const probe of personalProbes) {
+    if (text.indexOf(probe) >= 0) leaked.push('personal-only text in ' + file + ' :: ' + probe)
+  }
+}
+
+console.log('tracked_files=' + files.length + ' personal_only_probes=' + personalProbes.length + ' leaks=' + leaked.length + ' hits=' + hits.length)
+for (const hit of hits.concat(leaked).slice(0, 20)) console.log('  ' + hit)
+process.exit(hits.length || leaked.length ? 1 : 0)

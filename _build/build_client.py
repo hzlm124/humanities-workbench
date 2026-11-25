@@ -64,6 +64,10 @@ subs = sorted(SUBS.glob('*.srt')) if SUBS and SUBS.exists() else []
 now = datetime.datetime.now()
 
 kind = project = 'neutral' if 'neutral' in SKILL.name else 'personal'
+# A personal set carries the user's own framework: never ship it in the bundle
+# unless a local preview explicitly asks for it.
+if kind == 'personal' and os.environ.get('HW_ALLOW_PERSONAL') != '1':
+    sys.exit('refusing to embed the personal set ' + str(SKILL) + '; set HW_ALLOW_PERSONAL=1 for a local preview')
 
 data = {
     'meta': {

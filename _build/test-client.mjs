@@ -141,11 +141,13 @@ check('no terms tab without a table', bareView.text.indexOf('术语与译名') <
 check('no empty term tab label', bareView.text.indexOf('\n术语\n') < 0)
 
 const browserPage = render(payload, 'browser')
-check('browser page heading', browserPage.text.indexOf('登录状态') >= 0 && browserPage.text.indexOf('操作') >= 0)
+check('browser page heading', browserPage.text.indexOf('登录与抓取') >= 0 && browserPage.text.indexOf('← 返回') >= 0)
+check('browser page has no main tabs', browserPage.text.indexOf('\n概览\n') < 0 && browserPage.text.indexOf('\n规则\n') < 0)
+check('browser page leaks nothing', browserPage.text.indexOf('9411') < 0 && browserPage.text.indexOf('C:\\Users') < 0 && browserPage.text.indexOf('Edg/') < 0)
 check('browser page actions', browserPage.text.indexOf('检测登录状态') >= 0 && browserPage.text.indexOf('关闭') >= 0)
 check('browser page lists sites', browserPage.text.indexOf('B站') >= 0 && browserPage.text.indexOf('x.com') >= 0)
 check('browser page states', browserPage.text.indexOf('未检测') >= 0)
-check('browser page running pill', browserPage.text.indexOf('后台运行中') >= 0)
+check('browser page running pill', browserPage.text.indexOf('浏览器运行中') >= 0)
 
 const idle = Object.assign({}, payload, { browser: Object.assign({}, payload.browser, { running: false, mode: '' }) })
 const idlePage = render(idle, 'browser')
