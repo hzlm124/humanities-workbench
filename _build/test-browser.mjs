@@ -60,7 +60,9 @@ check('login wall seen', wall.ok && wall.loginWall === true, JSON.stringify({ ok
 const status = await browserStatus()
 check('status running', status.running === true, status.version)
 check('status headless', status.mode === 'headless', status.mode)
-check('status sites', status.sites.length === 7, status.sites.length)
+check('status sites', status.sites.length === 13, status.sites.length)
+const readOnly = status.sites.filter((row) => row.login === false).map((row) => row.id)
+check('read-only archives marked', readOnly.join(',') === 'gallica,persee,ndl', readOnly.join(','))
 
 const bad = await openLogin('nope')
 check('unknown site refused', bad.ok === false && /可选/.test(bad.error || ''), bad.error)

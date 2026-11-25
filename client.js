@@ -11,7 +11,8 @@ window.__ModuleLoader__.load({
     const VIEW_KEY = 'humanitiesWorkbench.view';
     const CFG_KEY = 'humanitiesWorkbench.config';
     const MODE_KEY = 'humanitiesWorkbench.mode';
-    const DATA = '/humanities-workbench/data.json';
+const DATA = '/humanities-workbench/data.json';
+const UPD = '/humanities-workbench/update';
     const CONFIGS = '/humanities-workbench/configs.json';
 
     const DICTS = {
@@ -19,7 +20,7 @@ window.__ModuleLoader__.load({
       en: { panel: 'Humanities desk', title: 'Humanities research desk', overview: 'Overview', facts: 'Six facts', tensions: 'Tensions', rules: 'Rules', redlines: 'Red lines', refs: 'Material' },
     };
 
-    const SNAPSHOT = {"meta":{"subtitle":"快照 · 规则 15 条 · 参考册 19 · 2026-11-25 23:17","foot":"","headings":{"chain":"条件链（结构性必要条件，不是时间表）","facts":"事实依赖结构","inferences":"硬约束","tensions":"未解张力","rules":"执行规则 R1–R15","redlines":"红线","refs":"方法论参考册"}},"thesis":"过度决定与情势分析：结构规定可能性空间，具体结果由情势与主观抉择决定。读文本用症候阅读——在该说而没说、过度解释、范畴错位三处定位它服务的立场。","kpi":[["0","张力"],["6","事实"],["15","规则"],["5","红线"]],"chain":["谁占有资源与生产资料（产权 / 决策权 / 分配权）","占有的形式决定收益如何被抽取","抽取方式塑造劳动过程的组织","组织方式约束生产力的发展方向","生活形态与个体发展空间由此被限定"],"boundary":["个体自由：始终是相对的，受共同体规范约束","制度自身：同时承担维持与自我转化的双重任务"],"overdetermination":"经济最终决定，但从不单独出场；「最后实例永不到来」。可能性是绝对的，必然性是相对的。不能写「必然走向」，只能写「在什么情势下、由谁抉择、有多大可能」。","facts":[["① 主事实","资源与生产资料占有的实际分布（产权／决策权／分配权分开看）","最重要 · 唯一独立变量"],["② 派生机制","收益抽取的机制（利润／地租／税收／利息／平台抽成）","被①决定"],["③ 派生机制","劳动过程控制权的归属","跟①有关"],["④ 保障结构","权力不对称及其对抽取的保障","重要"],["⑤ 保障结构","强制机关的实际能力","重要"],["⑥ 主体条件","相关群体的组织化程度 × 是否被制度承认","组织化 × 制度化"]],"inferences":["②③ 不能单独承重：分配形式变化不等于生产关系变化，必须回到①。","① 变了 ②③ 会滞后：旧抽取形式常以新名义存活，滞后是常态。","⑥ 不是人数，是组织度 × 制度化：组织化而无制度化＝只有动员能力；制度化而无组织化＝空壳。"],"tensions":[],"rules":[["R1","证据分级","L0 原件（档案、统计原表、原始影像） / L1 同期出版物（报刊、公文、私人通信） / L2 事后研究（专著、论文）"],["R2","论战性著作","限用：仅当可被独立材料交叉支持；标 source_class=polemics-crossed。 / 同时作意识形态样本分析：修辞、受众、必须夸张什么、在哪里沉默。 / 不因立场拒用，也不因「敢揭露」升格。"],["R3","回忆录与口述","三级证据。必查立场、记忆距离、利益、出版背景。 / 准入：档案统计可验 或 与独立证词互证 或 与结构事实相容。 / 不用：纯规范性论断、不描述具体情况的整体评价、文学化段落当引文。"],["R4","官方文件三档","默认：事情本身大概真实，具体经过可疑。 / 等级：意图 > 执行 > 事后总结。 / 意图（讲话、决议）→ 对「想做什么」高；执行（报表、批复、会议记录）→ 对「怎么运行」较高；"],["R5","立场冲突","先报冲突（不改写材料、不静默调和），再给选项：改判断 / 改对材料的评价 / 保留冲突并标注。"],["R6","反目的论","禁「必然走向 X」。改写为情势句：在<条件>下，由<主体>作出<抉择>，X 成为可能；若<条件>改变，则走向<另一分支>。 / 趋势可以写，但必须写成在条件下被生产出来的。"],["R7","代价分析","强制三段：谁承担成本 / 通过什么机制 / 当时约束下有无替代。 / 禁止用总量数字替代机制说明。"],["R8","事实依赖结构","① 资源与生产资料占有的实际分布（产权/决策权/分配权分开看）   ← 主事实 / ② 收益抽取机制　③ 劳动过程控制权    ← ① 的派生，不得单独承重 / ④ 权力不对称对①②③的保障　⑤ 强制机关的实际能力   ← 保障结构"],["R9","概念使用","先定范畴，再定功能，最后查谱系（见 17、18 册）。 / 同一词在不同范畴间切换即为偷换，必须标出。"],["R10","虚构与史实分隔","架空设定一律标 fiction，与史实输出物理分隔（不同文件、不同小节标题）。"],["R11","回答形态","先给结论，一句话，不加「结论是」「总的来说」「综上所述」「希望对你有帮助」这类前缀。 / 第二句给支撑结论的那条证据或那个机制，背景放到第三句之后。 / 按段落推进，不把句子切成分点。允许标题层级、编号与多列数据对照；不用加粗、箭头、分割线做装饰。"],["R12","三类需求先分流","A 现实事物的历史与现状：走档案与统计，交付研究备忘。 / B 历史的可能性与架空设定：走条件替换与约束检查，交付设定档案与合理性审计，一律标 fiction。 / C 未来趋势：走情景与指标，交付情景报告与证伪条件。"],["R13","架空设定的写法","陈述条件与变化，不作对照式否定。 / 禁「不是 A，而是 B」「与其说 A，不如说 B」。 / 改写为：在<条件>下，<主体>做了<事>，于是<变化>；代价由<谁>承担。"],["R14","术语与译名","首次出现给中文（原文，语种）。一词多译标年代与学科；同词异指必须在标题或脚注点明。 / 词表查 hw_term；词表没有的按 21 册四步在线查证，查不到标「译名待定」。 / 不给术语临时造译名，不把英文缩写当术语用。"],["R15","出处与定位符","每条 fact 带定位符：页码、段落号、节号、行号、时间码，或带访问日期的链接。 / 一样都没有的，只能写成 inference，并说明依据的是哪份材料。 / 统计数字带口径：分母、范围、统计者。转述标 cited-in，写清转引自谁。"]],"redlines":[["红线一","非目的论，但承认趋势的条件性生成","不写「必然走向X」；趋势须在条件下生成。"],["红线二","不作单一价值前提","任何整体性贬斥若缺结构与利益分析，视为未完成论断，不采信。"],["红线三","fiction 标记","架空设定一律标 fiction，与史实输出物理分隔。"],["红线四","禁道德账本 + 学派并列","代价写谁承担／何机制／有无替代；禁止数字去语境化；学派并列呈现证据与反驳。"],["红线五","单一来源不作合法性依据","合法性判断须经明确程序，不以情绪或单一来源替代。"]],"redlineNote":"降级项：回忆录与论战著作不作红线，作方法（R1／R2）。冲突优先级：红线三 > 红线一 > 红线四 > 其余。","materials":[["0","字幕文件"],["19","参考册"]],"refs":[["01-evidence-bridge.md","01 · 证据桥接与史料批判","一切研究争议最终都落在同一处：**为什么这份材料支持这个理解？**"],["02-source-routing.md","02 · 来源路由（按材料类型）","| 层 | 材料 | 用途 | 可信度起点 |"],["03-close-reading.md","03 · 精读：四法 + 一句一注","精读不是摘要。摘要把文本压短，精读把文本**翻回它正在解决的问题**。"],["04-orchestration.md","04 · 两级编排（DSH 原生）","Misaka 的卡死来自三处：把整套契约注入每个请求、每个角色再起一个 harness、节点递归等待彼此的会话。"],["05-red-team.md","05 · 红队：只挑错","你的任务是让结论受伤，不是让它更漂亮。不要扩写、不要补充材料、不要调整文风、不要替作者辩护。"],["06-divergence.md","06 · 分歧审查：未取之路与缺口","红队问「你错在哪」，你问「你没走哪条路、你漏了什么」。"],["07-counterfactual.md","07 · 反事实与架空推演","反事实不是「随便改一下看看」。它是一条**受史料约束的推理**：改动必须小到史实仍能承重，后果必须大到值得推演。"],["08-setting-audit.md","08 · 架空设定审计","设定的问题通常不在「不符合史实」，而在**没有代价**：制度免费运转、技术免费扩散、意识形态无摩擦。"],["09-coverage.md","09 · 覆盖表与维度扫描","一张研究计划只能覆盖作者想到的东西。覆盖表的作用不是「更全面」，而是让**空白变成声明**，而不是疏忽。"],["10-deliverables.md","10 · 交付物","四种成品，各有固定骨架。不要在正文里出现流程词（节点、卡片、红队、处置、v1/v2）。"],["11-profile.md","11 · 意识形态画像：怎么读一个人，而不是怎么奉承他","画像的目的不是让输出「合口味」，而是让推演**从你的前提出发**，同时把代价说清。"],["12-source-acquisition.md","12 · 电子书获取、入库与版本校勘","研究卡在「书拿不到」上，比卡在「书读不懂」上更常见。这一册处理获取、入库、版本与检索。"],["15-conceptual-history.md","15 · 概念史先行","中文里大量抽象词是泊来词。**你在用别人翻译过来的范畴思考，而翻译本身带着立场。**"],["16-video-learning.md","16 · 视频作为史料：工具链与可信度","视频（讲座、访谈、课程、UP 主的概念史讲解）是**线索来源**，不是**承重证据**。"],["17-concept-analysis.md","17 · 概念分析（方法册）","先问三层，不许直接给定义："],["18-method-protocol.md","18 · 概念研究方法协议（可复用流程）","| 输入 | 产物 |"],["19-writing-voice.md","19 · 文风：把 AI 味去掉","写出来的东西像模型在汇报，不像人在研究。常见的六种症状。"],["20-scenario-playbook.md","20 · 三类需求的操作路径","研究请求大体分三类，流程不同。先分类再动手；分错类，后面全歪。"],["21-concepts-and-terms.md","21 · 术语、译名与指代演变","概念史的基本要求：一个词什么时候出现，指什么，什么时候换了所指。术语处理不好，整篇研究会在同词异指上打转（R9）。"]],"profileBytes":569};
+    const SNAPSHOT = {"meta":{"subtitle":"快照 · 规则 10 条 · 参考册 18 · 2026-11-26 00:07","foot":"","headings":{"chain":"条件链（结构性必要条件，不是时间表）","facts":"事实依赖结构","inferences":"硬约束","tensions":"未解张力","rules":"执行规则 R1–R10","redlines":"红线","refs":"方法论参考册"}},"thesis":"过度决定与情势分析：结构规定可能性空间，具体结果由情势与主观抉择决定。读文本用症候阅读——在该说而没说、过度解释、范畴错位三处定位它服务的立场。","kpi":[["0","张力"],["6","事实"],["10","规则"],["5","红线"]],"chain":["谁占有资源与生产资料（产权 / 决策权 / 分配权）","占有的形式决定收益如何被抽取","抽取方式塑造劳动过程的组织","组织方式约束生产力的发展方向","生活形态与个体发展空间由此被限定"],"boundary":["个体自由：始终是相对的，受共同体规范约束","制度自身：同时承担维持与自我转化的双重任务"],"overdetermination":"经济最终决定，但从不单独出场；「最后实例永不到来」。可能性是绝对的，必然性是相对的。不能写「必然走向」，只能写「在什么情势下、由谁抉择、有多大可能」。","facts":[["① 主事实","资源与生产资料占有的实际分布（产权／决策权／分配权分开看）","最重要 · 唯一独立变量"],["② 派生机制","收益抽取的机制（利润／地租／税收／利息／平台抽成）","被①决定"],["③ 派生机制","劳动过程控制权的归属","跟①有关"],["④ 保障结构","权力不对称及其对抽取的保障","重要"],["⑤ 保障结构","强制机关的实际能力","重要"],["⑥ 主体条件","相关群体的组织化程度 × 是否被制度承认","组织化 × 制度化"]],"inferences":["②③ 不能单独承重：分配形式变化不等于生产关系变化，必须回到①。","① 变了 ②③ 会滞后：旧抽取形式常以新名义存活，滞后是常态。","⑥ 不是人数，是组织度 × 制度化：组织化而无制度化＝只有动员能力；制度化而无组织化＝空壳。"],"tensions":[],"rules":[["R1","证据分级","L0 原件（档案、统计原表、原始影像） / L1 同期出版物（报刊、公文、私人通信） / L2 事后研究（专著、论文）"],["R2","论战性著作","限用：仅当可被独立材料交叉支持；标 source_class=polemics-crossed。 / 同时作意识形态样本分析：修辞、受众、必须夸张什么、在哪里沉默。 / 不因立场拒用，也不因「敢揭露」升格。"],["R3","回忆录与口述","三级证据。必查立场、记忆距离、利益、出版背景。 / 准入：档案统计可验 或 与独立证词互证 或 与结构事实相容。 / 不用：纯规范性论断、不描述具体情况的整体评价、文学化段落当引文。"],["R4","官方文件三档","默认：事情本身大概真实，具体经过可疑。 / 等级：意图 > 执行 > 事后总结。 / 意图（讲话、决议）→ 对「想做什么」高；执行（报表、批复、会议记录）→ 对「怎么运行」较高；"],["R5","立场冲突","先报冲突（不改写材料、不静默调和），再给选项：改判断 / 改对材料的评价 / 保留冲突并标注。"],["R6","反目的论","禁「必然走向 X」。改写为情势句：在<条件>下，由<主体>作出<抉择>，X 成为可能；若<条件>改变，则走向<另一分支>。 / 趋势可以写，但必须写成在条件下被生产出来的。"],["R7","代价分析","强制三段：谁承担成本 / 通过什么机制 / 当时约束下有无替代。 / 禁止用总量数字替代机制说明。"],["R8","事实依赖结构","① 资源与生产资料占有的实际分布（产权/决策权/分配权分开看）   ← 主事实 / ② 收益抽取机制　③ 劳动过程控制权    ← ① 的派生，不得单独承重 / ④ 权力不对称对①②③的保障　⑤ 强制机关的实际能力   ← 保障结构"],["R9","概念使用","先定范畴，再定功能，最后查谱系（见 17、18 册）。 / 同一词在不同范畴间切换即为偷换，必须标出。"],["R10","虚构与史实分隔","架空设定一律标 fiction，与史实输出物理分隔（不同文件、不同小节标题）。"]],"redlines":[["红线一","非目的论，但承认趋势的条件性生成","不写「必然走向X」；趋势须在条件下生成。"],["红线二","不作单一价值前提","任何整体性贬斥若缺结构与利益分析，视为未完成论断，不采信。"],["红线三","fiction 标记","架空设定一律标 fiction，与史实输出物理分隔。"],["红线四","禁道德账本 + 学派并列","代价写谁承担／何机制／有无替代；禁止数字去语境化；学派并列呈现证据与反驳。"],["红线五","单一来源不作合法性依据","合法性判断须经明确程序，不以情绪或单一来源替代。"]],"redlineNote":"降级项：回忆录与论战著作不作红线，作方法（R1／R2）。冲突优先级：红线三 > 红线一 > 红线四 > 其余。","materials":[["0","字幕文件"],["18","参考册"]],"refs":[["01-evidence-bridge.md","01 · 证据桥接与史料批判","一切研究争议最终都落在同一处：**为什么这份材料支持这个理解？**"],["02-source-routing.md","02 · 来源路由（按材料类型）","| 层 | 材料 | 用途 | 可信度起点 |"],["03-close-reading.md","03 · 精读：四法 + 一句一注","精读不是摘要。摘要把文本压短，精读把文本**翻回它正在解决的问题**。"],["04-orchestration.md","04 · 两级编排（DSH 原生）","Misaka 的卡死来自三处：把整套契约注入每个请求、每个角色再起一个 harness、节点递归等待彼此的会话。"],["05-red-team.md","05 · 红队：只挑错","你的任务是让结论受伤，不是让它更漂亮。不要扩写、不要补充材料、不要调整文风、不要替作者辩护。"],["06-divergence.md","06 · 分歧审查：未取之路与缺口","红队问「你错在哪」，你问「你没走哪条路、你漏了什么」。"],["07-counterfactual.md","07 · 反事实与架空推演","反事实不是「随便改一下看看」。它是一条**受史料约束的推理**：改动必须小到史实仍能承重，后果必须大到值得推演。"],["08-setting-audit.md","08 · 架空设定审计","设定的问题通常不在「不符合史实」，而在**没有代价**：制度免费运转、技术免费扩散、意识形态无摩擦。"],["09-coverage.md","09 · 覆盖表与维度扫描","一张研究计划只能覆盖作者想到的东西。覆盖表的作用不是「更全面」，而是让**空白变成声明**，而不是疏忽。"],["10-deliverables.md","10 · 交付物","四种成品，各有固定骨架。不要在正文里出现流程词（节点、卡片、红队、处置、v1/v2）。"],["11-profile.md","11 · 意识形态画像：怎么读一个人，而不是怎么奉承他","画像的目的不是让输出「合口味」，而是让推演**从你的前提出发**，同时把代价说清。"],["12-source-acquisition.md","12 · 电子书获取、入库与版本校勘","研究卡在「书拿不到」上，比卡在「书读不懂」上更常见。这一册处理获取、入库、版本与检索。"],["13-marxist-analysis.md","13 · 马克思主义分析框架与立场纪律","立场不是给结论预先上色，而是决定**先问什么、按什么顺序解释、用什么标准判断解释的强弱**。"],["14-worldbuilding-marxist.md","14 · 目的导向的架空推演（马克思主义用法）","架空世界不是「换个背景讲故事」，而是一个**受约束的思想实验装置**：给定一个目标状态与一组条件，"],["15-conceptual-history.md","15 · 概念史先行","中文里大量抽象词是泊来词。**你在用别人翻译过来的范畴思考，而翻译本身带着立场。**"],["16-video-learning.md","16 · 视频作为史料：工具链与可信度","视频（讲座、访谈、课程、UP 主的概念史讲解）是**线索来源**，不是**承重证据**。"],["17-concept-analysis.md","17 · 概念分析（方法册）","先问三层，不许直接给定义："],["18-method-protocol.md","18 · 概念研究方法协议（可复用流程）","| 输入 | 产物 |"]],"profileBytes":569};
 
     const CSS = [
       '.hw{height:100%;overflow:auto;overflow-x:hidden;background:var(--dsw-alias-bg-base);color:var(--dsw-alias-label-primary)}',
@@ -34,14 +35,17 @@ window.__ModuleLoader__.load({
       '.hw-link{appearance:none;display:inline-flex;align-items:center;border:none;background:none;padding:4px 0;min-height:28px;font:inherit;font-size:12px;color:var(--dsw-alias-label-secondary);cursor:pointer;border-bottom:1px dotted var(--dsw-alias-border-l1)}',
       '.hw-link:hover{color:var(--dsw-alias-label-primary);border-bottom-color:var(--dsw-alias-brand-primary)}',
       '.hw-link:disabled{opacity:.45;cursor:default}',
-      '.hw-pick{position:relative}',
-      '.hw-pickbtn{appearance:none;border:none;background:none;font:inherit;font-size:12px;color:var(--dsw-alias-label-primary);cursor:pointer;padding:6px 4px;min-height:30px;border-bottom:1px dotted var(--dsw-alias-border-l1)}',
+      '.hw-pickbtn{appearance:none;border:none;background:none;font:inherit;font-size:12px;color:var(--dsw-alias-label-primary);cursor:pointer;padding:6px 4px;min-height:30px;max-width:100%;border-bottom:1px dotted var(--dsw-alias-border-l1)}',
+      '.hw-pickname{display:inline-block;max-width:9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom}',
       '.hw-caret{margin-left:5px;opacity:.55;font-size:9px}',
-      '.hw-scrim{position:fixed;inset:0;z-index:40}',
-      '.hw-menu{position:absolute;top:calc(100% + 6px);right:0;z-index:41;min-width:11rem;padding:5px;border-radius:8px;background:var(--dsw-alias-bg-overlay,var(--dsw-alias-bg-layer-1));border:1px solid var(--dsw-alias-border-l1);box-shadow:0 12px 32px rgb(0 0 0 / .28)}',
-      '.hw-opt{display:block;width:100%;text-align:left;appearance:none;border:none;background:none;font:inherit;font-size:12.5px;color:var(--dsw-alias-label-secondary);padding:6px 9px;border-radius:5px;cursor:pointer}',
+      '.hw-configlist{margin:10px 0 0;padding:5px;border:1px solid var(--dsw-alias-border-l1);border-radius:9px;background:var(--dsw-alias-bg-layer-1);display:grid;gap:2px;max-height:15rem;overflow-y:auto;overflow-x:hidden}',
+      '.hw-opt{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;text-align:left;appearance:none;border:none;background:none;font:inherit;font-size:12.5px;color:var(--dsw-alias-label-secondary);padding:8px 10px;min-height:36px;border-radius:6px;cursor:pointer}',
       '.hw-opt:hover{background:var(--dsw-alias-bg-layer-2,var(--dsw-alias-bg-layer-1));color:var(--dsw-alias-label-primary)}',
       '.hw-opt.on{color:var(--dsw-alias-label-primary);font-weight:600}',
+      '.hw-optname{min-width:0;overflow-wrap:anywhere}',
+      '.hw-optmark{flex:none;font:400 10px/1 sans-serif;letter-spacing:.04em;padding:2px 6px;border-radius:999px;border:1px solid var(--dsw-alias-border-l1);opacity:.7}',
+      '.hw-upd{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:8px;font-size:11.5px;color:var(--dsw-alias-label-secondary)}',
+      '.hw-ver{font-variant-numeric:tabular-nums;letter-spacing:.02em}',
       '.hw-tabs{display:flex;gap:26px;margin:22px 0 0;border-bottom:1px solid var(--dsw-alias-border-l1);overflow-x:auto;scrollbar-width:none}',
       '.hw-tabs::-webkit-scrollbar{display:none}',
       '.hw-tab{appearance:none;border:none;background:none;font:inherit;font-size:13px;color:var(--dsw-alias-label-secondary);padding:0 0 9px;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px}',
@@ -240,12 +244,14 @@ window.__ModuleLoader__.load({
       const sites = (data && data.sites) || [];
       const selfTest = (data && data.selfTest) || null;
       const statusOf = function (site) {
+        if (site.login === false) return '公开可读';
         if (site.error) return '检测失败';
         if (site.loginWall === true) return '未登录';
         if (site.loginWall === false) return '已登录';
         return '未检测';
       };
       const pillOf = function (site) {
+        if (site.login === false) return 'hw-pill live';
         if (site.error || site.loginWall === true) return 'hw-pill bad';
         if (site.loginWall === false) return 'hw-pill live';
         return 'hw-pill';
@@ -259,7 +265,7 @@ window.__ModuleLoader__.load({
           : '上次自检没通过（' + stamp(selfTest.at) + '）：' + (selfTest.error || '没有取到正文') + '。');
       const modeText = data && data.mode === 'headed' ? '可见窗口' : '无头窗口';
       return h('div', null,
-        h('p', { className: 'hw-browserlede' }, '评论、个人动态、视频简介这些内容要先登录、要往下滚才出来，普通抓取拿不到。插件因此用自己的一个浏览器配置去读：不碰你日常那个浏览器，一个站登录一次，之后抓取都在后台复用这份状态，凭证只留在本机。'),
+        h('p', { className: 'hw-browserlede' }, '评论、动态、字幕要登录、要滚动才出来，普通抓取拿不到。插件用自己的一个浏览器配置去读，登录一次之后在后台复用，凭证只留在本机。'),
         h('div', { className: 'hw-note', style: { marginTop: '10px' } }, selfText),
         h('div', { className: 'hw-paneaction' },
           h('button', { type: 'button', className: 'hw-btn' + (running ? '' : ' primary'), disabled: Boolean(state.busy) || running, onClick: function () { run('start'); } }, state.busy === 'start' ? '启动中' : '启动'),
@@ -274,24 +280,27 @@ window.__ModuleLoader__.load({
         h('div', { style: { marginTop: '18px' } },
           h('div', { className: 'hw-h2' }, '站点'),
           sites.map(function (site) {
+            const needsLogin = site.login !== false;
             return h('div', { key: site.id, className: 'hw-sitecard' },
               h('b', null, site.name),
-              h('span', { className: pillOf(site), title: site.error || '' }, statusOf(site)),
+              h('span', { className: pillOf(site), title: site.error || site.note || '' }, statusOf(site)),
               h('span', { className: 'hw-grow hw-note' }, String(site.url || '').replace(/^https?:\/\//, '').replace(/\/$/, '')),
               h('span', { style: { display: 'flex', gap: '8px', flexWrap: 'wrap' } },
-                h('button', {
+                needsLogin ? h('button', {
                   type: 'button', className: 'hw-btn primary', disabled: Boolean(state.busy),
                   onClick: function () { run('login', site.id); },
-                }, state.busy === 'login:' + site.id || state.busy === 'wait:' + site.id ? '等待扫码' : '扫码登录'),
-                h('button', {
+                }, state.busy === 'login:' + site.id || state.busy === 'wait:' + site.id ? '等待扫码' : '扫码登录') : null,
+                needsLogin ? h('button', {
                   type: 'button', className: 'hw-btn', disabled: Boolean(state.busy),
                   onClick: function () { run('wait', site.id); },
-                }, '已登录？')
+                }, '已登录？') : h('button', {
+                  type: 'button', className: 'hw-btn', disabled: Boolean(state.busy),
+                  onClick: function () { run('login', site.id); },
+                }, '打开')
               )
             );
           })
         ),
-        h('p', { className: 'hw-note' }, '「扫码登录」会打开一个可见窗口，停在那个站的登录页：B 站和知乎都是二维码，手机扫一下就行。扫完这里会自动确认；没确认上，就点「已登录？」再看一次。「检测登录状态」会逐站打开首页判断，标的是那一刻的结果。')
       );
     }
 
@@ -376,25 +385,12 @@ window.__ModuleLoader__.load({
     }
 
     function Picker(props) {
-      const [open, setOpen] = React.useState(false);
       const current = props.options.filter(function (o) { return o.id === props.value; })[0] || props.options[0];
       if (!current) return null;
-      return h('div', { className: 'hw-pick' },
-        h('button', {
-          type: 'button', className: 'hw-pickbtn', 'aria-haspopup': 'listbox', 'aria-expanded': open,
-          onClick: function () { setOpen(!open); },
-        }, current.name, h('span', { className: 'hw-caret' }, '\u25BE')),
-        open ? h('div', { className: 'hw-scrim', onClick: function () { setOpen(false); } }) : null,
-        open ? h('div', { className: 'hw-menu', role: 'listbox', onClick: function (e) { e.stopPropagation(); } },
-          props.options.map(function (o) {
-            return h('button', {
-              key: o.id, type: 'button', role: 'option', 'aria-selected': o.id === props.value,
-              className: o.id === props.value ? 'hw-opt on' : 'hw-opt',
-              onClick: function () { props.onChange(o.id); setOpen(false); },
-            }, o.name);
-          })
-        ) : null
-      );
+      return h('button', {
+        type: 'button', className: 'hw-pickbtn', 'aria-haspopup': 'listbox', 'aria-expanded': props.open ? 'true' : 'false',
+        onClick: props.onToggle,
+      }, h('span', { className: 'hw-pickname' }, current.name), h('span', { className: 'hw-caret' }, props.open ? '\u25B4' : '\u25BE'));
     }
 
     function Page(props) {
@@ -411,6 +407,18 @@ window.__ModuleLoader__.load({
       const [moreOpen, setMoreOpen] = React.useState(false);
       const [switches, setSwitches] = React.useState(null);
       const [switchBusy, setSwitchBusy] = React.useState('');
+      const [configOpen, setConfigOpen] = React.useState(false);
+      const [upd, setUpd] = React.useState(null);
+      const [updateBusy, setUpdateBusy] = React.useState(false);
+      const loadUpdate = function (force) {
+        setUpdateBusy(true);
+        window.fetch(UPD + (force ? '?force=1' : ''), { cache: 'no-store' })
+          .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+          .then(function (json) { setUpd(json || {}); })
+          .catch(function (e) { setUpd({ error: (e && e.message) || '请求失败' }); })
+          .then(function () { setUpdateBusy(false); });
+      };
+      React.useEffect(function () { loadUpdate(false); }, []);
       const hit = function (text) {
         if (!q) return true;
         return String(text || '').toLowerCase().indexOf(q.toLowerCase()) >= 0;
@@ -711,6 +719,9 @@ window.__ModuleLoader__.load({
           onClick: toggleMode,
         }, showCustom ? '内置视图' : '自定义前端') : null,
       ];
+      const version = (data && data.version) || (D && D.version) || '';
+      const updateNote = !upd ? '' : (upd.error ? '上游查不到：' + upd.error : (upd.behind ? '上游已到 ' + upd.latest : (upd.latest ? '已是最新 ' + upd.latest : '')));
+      const updateLink = upd && upd.behind ? (upd.url || '') : '';
       const header = subPage
         ? h('div', { className: 'hw-subhead' },
             h('button', { type: 'button', className: 'hw-btn', onClick: function () { setView(prevView); } }, '← 返回'),
@@ -728,7 +739,9 @@ window.__ModuleLoader__.load({
             h('div', { className: 'hw-bar' },
               configs.length > 1 ? h(Picker, {
                 options: configs, value: configId || (configs[0] && configs[0].id),
-                onChange: function (id) { load(id); },
+                open: configOpen,
+                onToggle: function () { setConfigOpen(!configOpen); },
+                onChange: function (id) { setConfigOpen(false); load(id); },
               }) : null,
               lamp('method', '方法论', '方法论与本地配置进不进模型上下文：绿灯进，红灯不进；点一下切换。'),
               lamp('corpus', '语料关键词', '问到本机字幕语料里出现过的词时，才提示去检索；点一下切换。'),
@@ -742,6 +755,22 @@ window.__ModuleLoader__.load({
                 onClick: function () { setMoreOpen(!moreOpen); },
               }, moreOpen ? '收起' : '更多'),
               h('div', { className: 'hw-more' + (moreOpen ? ' open' : '') }, secondary)
+            ),
+            configOpen && configs.length > 1 ? h('div', { className: 'hw-configlist', role: 'listbox', 'aria-label': '配置' },
+              configs.map(function (o) {
+                const on = o.id === (configId || (configs[0] && configs[0].id));
+                return h('button', {
+                  key: o.id, type: 'button', role: 'option', 'aria-selected': on ? 'true' : 'false',
+                  className: on ? 'hw-opt on' : 'hw-opt',
+                  onClick: function () { setConfigOpen(false); load(o.id); },
+                }, h('span', { className: 'hw-optname' }, o.name), on ? h('span', { className: 'hw-optmark' }, '当前') : null);
+              })
+            ) : null,
+            h('div', { className: 'hw-upd' },
+              h('span', { className: 'hw-ver' }, 'v' + version),
+              h('button', { type: 'button', className: 'hw-link', disabled: updateBusy, onClick: function () { loadUpdate(true); } }, updateBusy ? '检查中' : '检查更新'),
+              updateNote ? h('span', { className: 'hw-note' }, updateNote) : null,
+              updateLink ? h('a', { className: 'hw-link', href: updateLink, target: '_blank', rel: 'noopener noreferrer' }, '更新说明') : null
             )
           );
       return h('div', { className: 'hw' },

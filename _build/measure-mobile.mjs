@@ -81,9 +81,10 @@ const payload = Object.assign({}, data, {
   },
 })
 
-function renderHtml(view) {
+function renderHtml(view, extra) {
   plan.clear()
   plan.set(2, payload)
+  if (extra) extra(plan)
   store.set('humanitiesWorkbench.view', view)
   hookIndex = 0
   css = ''
@@ -95,9 +96,13 @@ function renderHtml(view) {
 const work = mkdtempSync(join(tmpdir(), 'hw-measure-'))
 const profile = join(work, 'profile')
 mkdirSync(profile, { recursive: true })
-const files = { terms: join(work, 'terms.html'), browser: join(work, 'browser.html') }
+const files = { terms: join(work, 'terms.html'), browser: join(work, 'browser.html'), config: join(work, 'config.html') }
 writeFileSync(files.terms, renderHtml('terms'), 'utf8')
 writeFileSync(files.browser, renderHtml('browser'), 'utf8')
+writeFileSync(files.config, renderHtml('terms', function (p) {
+  p.set(0, [{ id: 'default', name: '技术红茶' }, { id: 'tiehong', name: '技术红茶·长名字的一套配置用来挤压布局' }])
+  p.set(12, true)
+}), 'utf8')
 
 const BROWSERS = [
   ['Microsoft\\Edge\\Application\\msedge.exe', 'Edge'],
@@ -175,6 +180,12 @@ try {
         ' var r = el.getBoundingClientRect(); return r.height > 0 && r.height < 24' +
       ' }).slice(0, 4).map(function (el) { return el.tagName + "." + String(el.className || "") + ":" + Math.round(el.getBoundingClientRect().height) }),' +
       ' lamps: document.querySelectorAll(".hw-lamp").length,' +
+      ' opts: document.querySelectorAll(".hw-configlist .hw-opt").length,' +
+      ' menuOver: (function () {' +
+        ' var m = document.querySelector(".hw-configlist"); var w = document.querySelector(".hw-wrap");' +
+        ' if (!m || !w) return null; var a = m.getBoundingClientRect(), b = w.getBoundingClientRect();' +
+        ' return Math.round(Math.max(b.left - a.left, a.right - b.right));' +
+      ' })(),' +
       ' tabs: document.querySelectorAll(".hw-tabs").length' + '})'
     const res = await page.send('Runtime.evaluate', { expression: expr, returnByValue: true })
     return JSON.parse(res.result.value)
@@ -184,6 +195,10 @@ try {
     checks.push({ name: width + ' 主视图无横向溢出', ok: overview.wide.length === 0 && overview.scroll <= overview.inner, detail: JSON.stringify(overview.wide) + ' scroll=' + overview.scroll + ' inner=' + overview.inner })
     checks.push({ name: width + ' 主视图按钮不小于 24px', ok: overview.small.length === 0, detail: JSON.stringify(overview.small) })
     checks.push({ name: width + ' 两个开关灯存在', ok: overview.lamps === 2, detail: 'lamps=' + overview.lamps })
+    const openList = await measure('file:///' + files.config.replace(/\\/g, '/'), 'terms', width)
+    checks.push({ name: width + ' 配置列表在列内展开', ok: openList.opts >= 2 && openList.menuOver !== null && openList.menuOver <= 1, detail: 'opts=' + openList.opts + ' over=' + openList.menuOver })
+    checks.push({ name: width + ' 配置列表不越界', ok: openList.wide.length === 0 && openList.scroll <= openList.inner, detail: JSON.stringify(openList.wide) + ' scroll=' + openList.scroll + ' inner=' + openList.inner })
+    checks.push({ name: width + ' 配置项不小于 24px', ok: openList.small.length === 0, detail: JSON.stringify(openList.small) })
     const sub = await measure('file:///' + files.browser.replace(/\\/g, '/'), 'browser', width)
     checks.push({ name: width + ' 二级页无主视图签', ok: sub.tabs === 0, detail: 'tabs=' + sub.tabs })
     checks.push({ name: width + ' 二级页无横向溢出', ok: sub.wide.length === 0 && sub.scroll <= sub.inner, detail: JSON.stringify(sub.wide) })

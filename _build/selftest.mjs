@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url'
 import { buildData } from '../data.mjs'
-import { apply, DATA_PATH, CONFIGS_PATH, FRONTEND_PATH, BROWSER_PATH, STATE_PATH, browserAction, frontendPayload } from '../index.js'
+import { apply, DATA_PATH, CONFIGS_PATH, FRONTEND_PATH, BROWSER_PATH, STATE_PATH, UPDATE_PATH, browserAction, frontendPayload } from '../index.js'
 
 const repoRoot = new URL('..', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1')
 const data = buildData()
@@ -173,18 +173,19 @@ const searchTool = tools.get('hw_search')
 const grabShape = grabTool && grabTool.parameters.properties.mode && Array.isArray(grabTool.parameters.properties.mode.enum)
 const searchShape = searchTool && searchTool.parameters.properties.engine && Array.isArray(searchTool.parameters.properties.engine.enum)
 
-const toolsOk = tools.size === 13 && Boolean(auditShape) && Boolean(graphShape) && Boolean(grabShape) && Boolean(searchShape)
+const biliShape = Boolean(tools.get('hw_bili') && tools.get('hw_bili').parameters.properties.kind)
+const toolsOk = tools.size === 14 && Boolean(auditShape) && Boolean(graphShape) && Boolean(grabShape) && Boolean(searchShape) && biliShape
 const redacted = Boolean(statusBody.browser) && !('port' in statusBody.browser) && !('profile' in statusBody.browser) && !('version' in statusBody.browser)
 console.log('browser_redacted=' + redacted)
 const browserOk = routes.has(BROWSER_PATH) && getStatus === 405 && Boolean(browserRoute.handler) && redacted &&
-  postRes.statusCode === 200 && (postBody.browser && postBody.browser.sites.length === 7) &&
-  statusBody.browser.sites.length === 7 &&
+  postRes.statusCode === 200 && (postBody.browser && postBody.browser.sites.length === 13) &&
+  statusBody.browser.sites.length === 13 &&
   wroteLogins && readBack.sites.length === 1 && readBack.checkedAt === '2026-11-24T00:00:00.000Z'
 console.log('browser_checks=' + (browserOk ? 'OK' : 'FAIL'))
 const termOk = data.terms.total === 16 && termHit.hits.length === 1 && termHit.hits[0].zh === '长时段' &&
   termMiss.hits.length === 0 && termMiss.hint && termAll.total === 16
 console.log('term_checks=' + (termOk ? 'OK' : 'FAIL'))
 console.log('tool_shape_bad=' + bad.length)
-const pass = toolsOk && toolChecks && bad.length === 0 && browserOk && termOk && digestOk && switchOk && routes.size === 7
+const pass = toolsOk && toolChecks && bad.length === 0 && browserOk && termOk && digestOk && switchOk && routes.size === 8 && routes.has('/humanities-workbench/update')
 console.log(pass ? 'OK' : 'FAIL')
 process.exit(pass ? 0 : 1)

@@ -75,9 +75,57 @@ export const SITES = {
     items: ['#detail-desc', '.note-text', '.comment-item .content'],
     loginSelectors: ['.login-container', '.login-box', '.sign-in-container'],
   },
+  ctext: {
+    name: '中国哲学书电子化',
+    url: 'https://ctext.org/zhs',
+    loginUrl: 'https://ctext.org/account.pls',
+    hosts: ['ctext.org'],
+    items: ['.ctexttext', '.ctext'],
+    loginSelectors: ['.login', 'input[name="email"]'],
+  },
+  wikisource: {
+    name: '维基文库',
+    url: 'https://zh.wikisource.org/wiki/Wikisource:%E9%A6%96%E9%A1%B5',
+    loginUrl: 'https://zh.wikisource.org/wiki/Special:UserLogin',
+    hosts: ['wikisource.org'],
+    items: ['#mw-content-text .mw-parser-output', '.mw-parser-output p'],
+    loginSelectors: ['.mw-ui-vform', '#userloginForm'],
+  },
+  archive: {
+    name: 'Internet Archive',
+    url: 'https://archive.org/',
+    loginUrl: 'https://archive.org/account/login',
+    hosts: ['archive.org'],
+    items: ['.item-ttl', '#descript', '.metadata-definition'],
+    loginSelectors: ['.login-form', 'form[action="/account/login"]'],
+  },
+  gallica: {
+    name: 'Gallica 法国国家图书馆',
+    url: 'https://gallica.bnf.fr/',
+    login: false,
+    hosts: ['gallica.bnf.fr'],
+    items: ['.content', '#textContent', '.document'],
+    loginSelectors: [],
+  },
+  persee: {
+    name: 'Persée 法语期刊',
+    url: 'https://www.persee.fr/',
+    login: false,
+    hosts: ['persee.fr'],
+    items: ['.article__content', '#article', '.content'],
+    loginSelectors: [],
+  },
+  ndl: {
+    name: '日本国会图书馆',
+    url: 'https://dl.ndl.go.jp/',
+    login: false,
+    hosts: ['dl.ndl.go.jp', 'ndl.go.jp'],
+    items: ['.itemInfo', '#itemInfo', '.contents'],
+    loginSelectors: [],
+  },
 }
 
-const SITE_ORDER = ['x', 'youtube', 'bilibili', 'zhihu', 'weibo', 'douban', 'xiaohongshu']
+const SITE_ORDER = ['x', 'youtube', 'bilibili', 'zhihu', 'weibo', 'douban', 'xiaohongshu', 'ctext', 'wikisource', 'archive', 'gallica', 'persee', 'ndl']
 
 export const sleep = (ms) => new Promise((done) => setTimeout(done, ms))
 
@@ -192,9 +240,15 @@ export async function probeLogins() {
   const rows = []
   for (const id of SITE_ORDER) {
     const site = SITES[id]
-    const row = { id, name: site.name, url: site.url, loginWall: null, title: '', error: '' }
+    const row = { id, name: site.name, url: site.url, loginWall: null, title: '', error: '', login: site.login !== false }
+    if (site.login === false) {
+      row.loginWall = false
+      row.title = site.name
+      row.note = '公开可读，不需要登录'
+      rows.push(row)
+      continue
+    }
     let picked = null
-    let client = null
     try {
       picked = await grabTarget({ fresh: true })
       if (!picked) throw new Error('没有可用的页面目标')
@@ -242,8 +296,10 @@ export async function browserStatus() {
       const known = knownSite.get(id) || {}
       return {
         id, name: SITES[id].name, url: SITES[id].url,
+        login: SITES[id].login !== false,
         loginWall: typeof known.loginWall === 'boolean' ? known.loginWall : null,
         title: known.title || '',
+        note: known.note || '',
         error: known.error || '',
       }
     }),
@@ -600,11 +656,49 @@ export async function browse(url, options = {}) {
   }
 }
 
+/**
+ * Open one tab on a site's own origin and hand the caller a reader. Reading a
+ * URL means navigating to it and taking the document text, so an API answer
+ * arrives as JSON with the profile's own cookies and no CORS layer between.
+ */
+export async function pageSession(home, fn, options = {}) {
+  const started = await ensureBrowser({ headed: Boolean(options.headed) })
+  if (!started.ok) return { ok: false, error: started.reason }
+  const picked = await grabTarget({ fresh: true })
+  if (!picked) return { ok: false, error: '调试口没有可用的页面目标' }
+  const page = picked.target
+  let socket
+  try {
+    socket = await openSocket(page.webSocketDebuggerUrl, 8000)
+  } catch (error) {
+    return { ok: false, error: String((error && error.message) || error) }
+  }
+  const client = makeClient(socket)
+  const read = async (url, settle) => {
+    await navigate(client, url, Math.min(Math.max(Number(settle) || 400, 100), 5000))
+    const text = await evaluate(client, 'document.body ? String(document.body.innerText || "") : ""')
+    return String(text || '')
+  }
+  try {
+    if (home) await navigate(client, home, Math.min(Math.max(Number(options.wait) || 1500, 200), 15000))
+    const value = await fn({ read, evaluate: (expression) => evaluate(client, expression) })
+    return { ok: true, value, browser: { mode: started.mode, reused: Boolean(started.reused), port: cdpPort() } }
+  } catch (error) {
+    return { ok: false, error: String((error && error.message) || error) }
+  } finally {
+    client.close()
+    if (picked.created) await closeTarget(page.id)
+  }
+}
+
 /** Open a visible window on a site so the user can log in once. */
 export async function openLogin(siteId) {
   const id = String(siteId || '').trim().toLowerCase()
   const site = SITES[id]
   if (!site) return { ok: false, error: '不认识的站点：' + siteId + '；可选 ' + SITE_ORDER.join(' / ') }
+  if (site.login === false) {
+    return { ok: true, site: id, name: site.name, url: site.url, login: false, loginWall: false, note: '这个站点公开可读，不需要登录。' }
+  }
   const started = await ensureBrowser({ headed: true })
   if (!started.ok) return { ok: false, error: started.reason }
   const picked = await grabTarget()

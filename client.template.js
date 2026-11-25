@@ -11,7 +11,8 @@ window.__ModuleLoader__.load({
     const VIEW_KEY = 'humanitiesWorkbench.view';
     const CFG_KEY = 'humanitiesWorkbench.config';
     const MODE_KEY = 'humanitiesWorkbench.mode';
-    const DATA = '/humanities-workbench/data.json';
+const DATA = '/humanities-workbench/data.json';
+const UPD = '/humanities-workbench/update';
     const CONFIGS = '/humanities-workbench/configs.json';
 
     const DICTS = {
@@ -34,14 +35,17 @@ window.__ModuleLoader__.load({
       '.hw-link{appearance:none;display:inline-flex;align-items:center;border:none;background:none;padding:4px 0;min-height:28px;font:inherit;font-size:12px;color:var(--dsw-alias-label-secondary);cursor:pointer;border-bottom:1px dotted var(--dsw-alias-border-l1)}',
       '.hw-link:hover{color:var(--dsw-alias-label-primary);border-bottom-color:var(--dsw-alias-brand-primary)}',
       '.hw-link:disabled{opacity:.45;cursor:default}',
-      '.hw-pick{position:relative}',
-      '.hw-pickbtn{appearance:none;border:none;background:none;font:inherit;font-size:12px;color:var(--dsw-alias-label-primary);cursor:pointer;padding:6px 4px;min-height:30px;border-bottom:1px dotted var(--dsw-alias-border-l1)}',
+      '.hw-pickbtn{appearance:none;border:none;background:none;font:inherit;font-size:12px;color:var(--dsw-alias-label-primary);cursor:pointer;padding:6px 4px;min-height:30px;max-width:100%;border-bottom:1px dotted var(--dsw-alias-border-l1)}',
+      '.hw-pickname{display:inline-block;max-width:9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom}',
       '.hw-caret{margin-left:5px;opacity:.55;font-size:9px}',
-      '.hw-scrim{position:fixed;inset:0;z-index:40}',
-      '.hw-menu{position:absolute;top:calc(100% + 6px);right:0;z-index:41;min-width:11rem;padding:5px;border-radius:8px;background:var(--dsw-alias-bg-overlay,var(--dsw-alias-bg-layer-1));border:1px solid var(--dsw-alias-border-l1);box-shadow:0 12px 32px rgb(0 0 0 / .28)}',
-      '.hw-opt{display:block;width:100%;text-align:left;appearance:none;border:none;background:none;font:inherit;font-size:12.5px;color:var(--dsw-alias-label-secondary);padding:6px 9px;border-radius:5px;cursor:pointer}',
+      '.hw-configlist{margin:10px 0 0;padding:5px;border:1px solid var(--dsw-alias-border-l1);border-radius:9px;background:var(--dsw-alias-bg-layer-1);display:grid;gap:2px;max-height:15rem;overflow-y:auto;overflow-x:hidden}',
+      '.hw-opt{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;text-align:left;appearance:none;border:none;background:none;font:inherit;font-size:12.5px;color:var(--dsw-alias-label-secondary);padding:8px 10px;min-height:36px;border-radius:6px;cursor:pointer}',
       '.hw-opt:hover{background:var(--dsw-alias-bg-layer-2,var(--dsw-alias-bg-layer-1));color:var(--dsw-alias-label-primary)}',
       '.hw-opt.on{color:var(--dsw-alias-label-primary);font-weight:600}',
+      '.hw-optname{min-width:0;overflow-wrap:anywhere}',
+      '.hw-optmark{flex:none;font:400 10px/1 sans-serif;letter-spacing:.04em;padding:2px 6px;border-radius:999px;border:1px solid var(--dsw-alias-border-l1);opacity:.7}',
+      '.hw-upd{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:8px;font-size:11.5px;color:var(--dsw-alias-label-secondary)}',
+      '.hw-ver{font-variant-numeric:tabular-nums;letter-spacing:.02em}',
       '.hw-tabs{display:flex;gap:26px;margin:22px 0 0;border-bottom:1px solid var(--dsw-alias-border-l1);overflow-x:auto;scrollbar-width:none}',
       '.hw-tabs::-webkit-scrollbar{display:none}',
       '.hw-tab{appearance:none;border:none;background:none;font:inherit;font-size:13px;color:var(--dsw-alias-label-secondary);padding:0 0 9px;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px}',
@@ -240,12 +244,14 @@ window.__ModuleLoader__.load({
       const sites = (data && data.sites) || [];
       const selfTest = (data && data.selfTest) || null;
       const statusOf = function (site) {
+        if (site.login === false) return '公开可读';
         if (site.error) return '检测失败';
         if (site.loginWall === true) return '未登录';
         if (site.loginWall === false) return '已登录';
         return '未检测';
       };
       const pillOf = function (site) {
+        if (site.login === false) return 'hw-pill live';
         if (site.error || site.loginWall === true) return 'hw-pill bad';
         if (site.loginWall === false) return 'hw-pill live';
         return 'hw-pill';
@@ -259,7 +265,7 @@ window.__ModuleLoader__.load({
           : '上次自检没通过（' + stamp(selfTest.at) + '）：' + (selfTest.error || '没有取到正文') + '。');
       const modeText = data && data.mode === 'headed' ? '可见窗口' : '无头窗口';
       return h('div', null,
-        h('p', { className: 'hw-browserlede' }, '评论、个人动态、视频简介这些内容要先登录、要往下滚才出来，普通抓取拿不到。插件因此用自己的一个浏览器配置去读：不碰你日常那个浏览器，一个站登录一次，之后抓取都在后台复用这份状态，凭证只留在本机。'),
+        h('p', { className: 'hw-browserlede' }, '评论、动态、字幕要登录、要滚动才出来，普通抓取拿不到。插件用自己的一个浏览器配置去读，登录一次之后在后台复用，凭证只留在本机。'),
         h('div', { className: 'hw-note', style: { marginTop: '10px' } }, selfText),
         h('div', { className: 'hw-paneaction' },
           h('button', { type: 'button', className: 'hw-btn' + (running ? '' : ' primary'), disabled: Boolean(state.busy) || running, onClick: function () { run('start'); } }, state.busy === 'start' ? '启动中' : '启动'),
@@ -274,24 +280,27 @@ window.__ModuleLoader__.load({
         h('div', { style: { marginTop: '18px' } },
           h('div', { className: 'hw-h2' }, '站点'),
           sites.map(function (site) {
+            const needsLogin = site.login !== false;
             return h('div', { key: site.id, className: 'hw-sitecard' },
               h('b', null, site.name),
-              h('span', { className: pillOf(site), title: site.error || '' }, statusOf(site)),
+              h('span', { className: pillOf(site), title: site.error || site.note || '' }, statusOf(site)),
               h('span', { className: 'hw-grow hw-note' }, String(site.url || '').replace(/^https?:\/\//, '').replace(/\/$/, '')),
               h('span', { style: { display: 'flex', gap: '8px', flexWrap: 'wrap' } },
-                h('button', {
+                needsLogin ? h('button', {
                   type: 'button', className: 'hw-btn primary', disabled: Boolean(state.busy),
                   onClick: function () { run('login', site.id); },
-                }, state.busy === 'login:' + site.id || state.busy === 'wait:' + site.id ? '等待扫码' : '扫码登录'),
-                h('button', {
+                }, state.busy === 'login:' + site.id || state.busy === 'wait:' + site.id ? '等待扫码' : '扫码登录') : null,
+                needsLogin ? h('button', {
                   type: 'button', className: 'hw-btn', disabled: Boolean(state.busy),
                   onClick: function () { run('wait', site.id); },
-                }, '已登录？')
+                }, '已登录？') : h('button', {
+                  type: 'button', className: 'hw-btn', disabled: Boolean(state.busy),
+                  onClick: function () { run('login', site.id); },
+                }, '打开')
               )
             );
           })
         ),
-        h('p', { className: 'hw-note' }, '「扫码登录」会打开一个可见窗口，停在那个站的登录页：B 站和知乎都是二维码，手机扫一下就行。扫完这里会自动确认；没确认上，就点「已登录？」再看一次。「检测登录状态」会逐站打开首页判断，标的是那一刻的结果。')
       );
     }
 
@@ -376,25 +385,12 @@ window.__ModuleLoader__.load({
     }
 
     function Picker(props) {
-      const [open, setOpen] = React.useState(false);
       const current = props.options.filter(function (o) { return o.id === props.value; })[0] || props.options[0];
       if (!current) return null;
-      return h('div', { className: 'hw-pick' },
-        h('button', {
-          type: 'button', className: 'hw-pickbtn', 'aria-haspopup': 'listbox', 'aria-expanded': open,
-          onClick: function () { setOpen(!open); },
-        }, current.name, h('span', { className: 'hw-caret' }, '\u25BE')),
-        open ? h('div', { className: 'hw-scrim', onClick: function () { setOpen(false); } }) : null,
-        open ? h('div', { className: 'hw-menu', role: 'listbox', onClick: function (e) { e.stopPropagation(); } },
-          props.options.map(function (o) {
-            return h('button', {
-              key: o.id, type: 'button', role: 'option', 'aria-selected': o.id === props.value,
-              className: o.id === props.value ? 'hw-opt on' : 'hw-opt',
-              onClick: function () { props.onChange(o.id); setOpen(false); },
-            }, o.name);
-          })
-        ) : null
-      );
+      return h('button', {
+        type: 'button', className: 'hw-pickbtn', 'aria-haspopup': 'listbox', 'aria-expanded': props.open ? 'true' : 'false',
+        onClick: props.onToggle,
+      }, h('span', { className: 'hw-pickname' }, current.name), h('span', { className: 'hw-caret' }, props.open ? '\u25B4' : '\u25BE'));
     }
 
     function Page(props) {
@@ -411,6 +407,18 @@ window.__ModuleLoader__.load({
       const [moreOpen, setMoreOpen] = React.useState(false);
       const [switches, setSwitches] = React.useState(null);
       const [switchBusy, setSwitchBusy] = React.useState('');
+      const [configOpen, setConfigOpen] = React.useState(false);
+      const [upd, setUpd] = React.useState(null);
+      const [updateBusy, setUpdateBusy] = React.useState(false);
+      const loadUpdate = function (force) {
+        setUpdateBusy(true);
+        window.fetch(UPD + (force ? '?force=1' : ''), { cache: 'no-store' })
+          .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+          .then(function (json) { setUpd(json || {}); })
+          .catch(function (e) { setUpd({ error: (e && e.message) || '请求失败' }); })
+          .then(function () { setUpdateBusy(false); });
+      };
+      React.useEffect(function () { loadUpdate(false); }, []);
       const hit = function (text) {
         if (!q) return true;
         return String(text || '').toLowerCase().indexOf(q.toLowerCase()) >= 0;
@@ -711,6 +719,9 @@ window.__ModuleLoader__.load({
           onClick: toggleMode,
         }, showCustom ? '内置视图' : '自定义前端') : null,
       ];
+      const version = (data && data.version) || (D && D.version) || '';
+      const updateNote = !upd ? '' : (upd.error ? '上游查不到：' + upd.error : (upd.behind ? '上游已到 ' + upd.latest : (upd.latest ? '已是最新 ' + upd.latest : '')));
+      const updateLink = upd && upd.behind ? (upd.url || '') : '';
       const header = subPage
         ? h('div', { className: 'hw-subhead' },
             h('button', { type: 'button', className: 'hw-btn', onClick: function () { setView(prevView); } }, '← 返回'),
@@ -728,7 +739,9 @@ window.__ModuleLoader__.load({
             h('div', { className: 'hw-bar' },
               configs.length > 1 ? h(Picker, {
                 options: configs, value: configId || (configs[0] && configs[0].id),
-                onChange: function (id) { load(id); },
+                open: configOpen,
+                onToggle: function () { setConfigOpen(!configOpen); },
+                onChange: function (id) { setConfigOpen(false); load(id); },
               }) : null,
               lamp('method', '方法论', '方法论与本地配置进不进模型上下文：绿灯进，红灯不进；点一下切换。'),
               lamp('corpus', '语料关键词', '问到本机字幕语料里出现过的词时，才提示去检索；点一下切换。'),
@@ -742,6 +755,22 @@ window.__ModuleLoader__.load({
                 onClick: function () { setMoreOpen(!moreOpen); },
               }, moreOpen ? '收起' : '更多'),
               h('div', { className: 'hw-more' + (moreOpen ? ' open' : '') }, secondary)
+            ),
+            configOpen && configs.length > 1 ? h('div', { className: 'hw-configlist', role: 'listbox', 'aria-label': '配置' },
+              configs.map(function (o) {
+                const on = o.id === (configId || (configs[0] && configs[0].id));
+                return h('button', {
+                  key: o.id, type: 'button', role: 'option', 'aria-selected': on ? 'true' : 'false',
+                  className: on ? 'hw-opt on' : 'hw-opt',
+                  onClick: function () { setConfigOpen(false); load(o.id); },
+                }, h('span', { className: 'hw-optname' }, o.name), on ? h('span', { className: 'hw-optmark' }, '当前') : null);
+              })
+            ) : null,
+            h('div', { className: 'hw-upd' },
+              h('span', { className: 'hw-ver' }, 'v' + version),
+              h('button', { type: 'button', className: 'hw-link', disabled: updateBusy, onClick: function () { loadUpdate(true); } }, updateBusy ? '检查中' : '检查更新'),
+              updateNote ? h('span', { className: 'hw-note' }, updateNote) : null,
+              updateLink ? h('a', { className: 'hw-link', href: updateLink, target: '_blank', rel: 'noopener noreferrer' }, '更新说明') : null
             )
           );
       return h('div', { className: 'hw' },

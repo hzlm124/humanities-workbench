@@ -28,9 +28,10 @@
     POST /humanities-workbench/import
     POST /humanities-workbench/browser
     POST /humanities-workbench/state
+    GET  /humanities-workbench/update?force=1
     GET  /humanities-workbench/frontend/<token>/<config>/<path>
 
-前四条只读同源，每次请求重读磁盘（1.5 秒防抖）；导入那条收 JSON，超过 2 MB 直接中止。browser 那条收 POST，动作是 start、stop、probe、login、verify、wait，只给面板用；返回给面板的浏览器状态里不带端口、版本与配置目录。state 那条收 POST，写两个开关。改 profile.md 后点「刷新」即生效。
+前四条只读同源，每次请求重读磁盘（1.5 秒防抖）；导入那条收 JSON，超过 2 MB 直接中止。browser 那条收 POST，动作是 start、stop、probe、login、verify、wait，只给面板用；返回给面板的浏览器状态里不带端口、版本与配置目录。state 那条收 POST，写两个开关。update 那条是 GET，读 GitHub 的最新 Release，六小时缓存，`?force=1` 跳过缓存；查不到时退回缓存并把错误一起返回，面板照样能显示。改 profile.md 后点「刷新」即生效。
 
 前端那条是 `prefix` 路由、`auth: anonymous`，因为沙箱 iframe 不带凭据，只能这么放行；换来的是路径里的随机令牌加目录围栏：只服务配置指向的那个前端目录，白名单之外的扩展名返回 403，越界 403，缺文件 404，ETag 命中 304。
 
@@ -43,6 +44,7 @@
 | `hw_batch` | 批量正文，最多 8 个地址、并发 3 | 同上 |
 | `hw_wiki` | 维基百科纯文本摘要（先搜索再取 extract） | 维基可达 |
 | `hw_search` | 站内搜索 bing / zhihu / bilibili，返回标题与链接 | 插件自带浏览器 |
+| `hw_bili` | B 站结构化读取：视频简介、CC 字幕全文、评论、专栏正文、UP 主动态 | 插件自带浏览器（字幕与动态需登录） |
 | `hw_bilibili` | 按 BV 号取 B 站 CC 字幕 | 本地字幕库 subsDir |
 | `hw_corpus` | 字幕语料检索，返回片段、BV 号与时间码 | 语料索引 |
 | `hw_term` | 术语卡查询：译名沿革、年代、出处、同词异指 | skillDir 下的 `profile/terms.json` |
@@ -75,13 +77,15 @@
 ## 开关与兼容
 
 - Plugins 页该 bundle 那一行是总开关。
-- 注入一段运行时上下文（`systemPrompt.context`，开关可关，关掉返回空串），不改系统提示、不写会话事件；七条 HTTP 路由、十三个工具、两个客户端插槽。
+- 注入一段运行时上下文（`systemPrompt.context`，开关可关，关掉返回空串），不改系统提示、不写会话事件；八条 HTTP 路由、十四个工具、两个客户端插槽。
 - 依赖 `webServer` 与 `tools` 两个宿主服务；缺失该组合的 profile 里插件不激活。
 - 抓取浏览器是按需拉起的独立进程，插件停用后它仍在跑，用 `hw_browser_state { action: "stop" }` 关。
 
 ## 自测
 
-    node _build/selftest.mjs       # 解析、六条路由、九个工具的形态、术语查询、浏览器动作路由与登录记录
+node _build/selftest.mjs       # 解析、八条路由、十四个工具的形态、术语查询、浏览器动作路由与登录记录
+node _build/test-bili.mjs      # B 站层：id 解析、WBI 签名、字幕/评论/动态/专栏的解析（不联网）
+node _build/test-update.mjs    # 上游检查：版本比较、说明压缩、缓存复用与失败回退
     node _build/test-tools.mjs     # 抓取：内网拦截、结果顺序、GBK 解码
     node _build/test-knowledge.mjs # 语料：SRT 解析、时间码、排序
     node _build/test-frontend.mjs  # 前端路由：围栏、白名单、令牌、ETag
