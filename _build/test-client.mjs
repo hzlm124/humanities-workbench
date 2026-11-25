@@ -87,9 +87,10 @@ const payload = Object.assign({}, data, {
     sites: [{ id: 'x', name: 'X', url: 'https://x.com/' }, { id: 'bilibili', name: 'B站', url: 'https://www.bilibili.com/' }],
   },
 })
-function render(payload, view) {
+function render(payload, view, extra) {
   plan.clear()
   plan.set(2, payload)
+  if (extra) extra(plan)
   store.set('humanitiesWorkbench.view', view)
   hookIndex = 0
   const tree = Page({ t: function (key) { return key }, openWizard() { return 'copied' }, exportMd() {} })
@@ -124,11 +125,16 @@ check('terms tab present', termsView.text.indexOf('术语与译名') >= 0)
 check('term card rendered', termsView.text.indexOf('长时段') >= 0 && termsView.text.indexOf('longue durée') >= 0)
 check('alternate names shown', termsView.text.indexOf('又译') >= 0)
 check('term count note', /共 16 条/.test(termsView.text))
-const order = ['刷新', '新建配置', '导入', '导出'];
-const at = order.map(function (label) { return termsView.text.indexOf('\n' + label + '\n'); });
-check('header order starts 刷新', at[0] >= 0 && at[1] > at[0] && at[2] > at[1] && at[3] > at[2], at.join(','));
+const menuView = render(payload, 'terms', function (p) {
+  p.set(0, [{ id: 'default', name: '技术红茶' }, { id: 'alt', name: '另一套' }])
+  p.set(9, true)
+})
+const order = ['刷新', '检查更新', '新建配置', '完善配置', '导出', '导入'];
+const at = order.map(function (label) { return menuView.text.indexOf('\n' + label + '\n'); });
+check('menu lists actions in order', at.every(function (v) { return v >= 0 }) && at.every(function (v, i) { return i === 0 || v > at[i - 1] }), at.join(','));
 check('login page entry', termsView.text.indexOf('登录与抓取') >= 0)
-check('refine entry', termsView.text.indexOf('完善配置') >= 0)
+check('one tool row with menu button', menuView.text.indexOf('\u22EF') >= 0 && menuView.text.indexOf('\u25BE') >= 0 && termsView.text.indexOf('\u22EF') >= 0)
+check('header drops the live text', !/实时|快照|读取中/.test(termsView.text))
 check('no old checkbox', termsView.text.indexOf('对话改配置') < 0)
 
 const overview = render(payload, 'overview')

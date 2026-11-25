@@ -26,10 +26,13 @@ check('notes flattened', upd.cleanNotes('## 标题\n\n- 一条\n- 两条') === '
 const longNotes = upd.cleanNotes('x'.repeat(500))
 check('notes capped', longNotes.length === 300 && longNotes.endsWith('…'), longNotes.length)
 
-const okFetch = async () => ({ ok: true, status: 200, json: async () => ({ tag_name: 'v0.0.9', html_url: 'https://example.test/r', body: '修复若干', published_at: '2026-11-25T00:00:00Z' }) })
+// A version above whatever this checkout ships, so the check stays honest after a bump.
+const parts = upd.localVersion().split('.').map(Number)
+const nextVersion = parts[0] + '.' + parts[1] + '.' + (parts[2] + 1)
+const okFetch = async () => ({ ok: true, status: 200, json: async () => ({ tag_name: 'v' + nextVersion, html_url: 'https://example.test/r', body: '修复若干', published_at: '2026-11-25T00:00:00Z' }) })
 const fresh = await upd.checkUpdate({ fetchImpl: okFetch, state: readState(), now: Date.parse('2026-11-25T10:00:00Z') })
-check('behind detected', fresh.behind === true, fresh.latest)
-check('record offered for saving', fresh.record && fresh.record.latest === '0.0.9')
+check('behind detected', fresh.behind === true, fresh.latest + ' vs ' + fresh.version)
+check('record offered for saving', fresh.record && fresh.record.latest === nextVersion, fresh.record && fresh.record.latest)
 check('notes carried', fresh.notes === '修复若干', fresh.notes)
 
 writeState({ update: fresh.record })

@@ -96,12 +96,16 @@ function renderHtml(view, extra) {
 const work = mkdtempSync(join(tmpdir(), 'hw-measure-'))
 const profile = join(work, 'profile')
 mkdirSync(profile, { recursive: true })
-const files = { terms: join(work, 'terms.html'), browser: join(work, 'browser.html'), config: join(work, 'config.html') }
+const files = { terms: join(work, 'terms.html'), browser: join(work, 'browser.html'), config: join(work, 'config.html'), menu: join(work, 'menu.html') }
 writeFileSync(files.terms, renderHtml('terms'), 'utf8')
 writeFileSync(files.browser, renderHtml('browser'), 'utf8')
 writeFileSync(files.config, renderHtml('terms', function (p) {
   p.set(0, [{ id: 'default', name: '技术红茶' }, { id: 'tiehong', name: '技术红茶·长名字的一套配置用来挤压布局' }])
   p.set(12, true)
+}), 'utf8')
+writeFileSync(files.menu, renderHtml('terms', function (p) {
+  p.set(0, [{ id: 'default', name: '技术红茶' }, { id: 'tiehong', name: '技术红茶·另一套' }])
+  p.set(9, true)
 }), 'utf8')
 
 const BROWSERS = [
@@ -176,15 +180,27 @@ try {
       ' wide: Array.prototype.slice.call(document.querySelectorAll("#root *")).filter(function (el) {' +
         ' var r = el.getBoundingClientRect(); return r.right > window.innerWidth + 1 && r.width > 0' +
       ' }).slice(0, 4).map(function (el) { return el.tagName + "." + String(el.className || "").slice(0, 40) }),' +
-      ' small: Array.prototype.slice.call(document.querySelectorAll("button, a.hw-link, input")).filter(function (el) {' +
+      ' small: Array.prototype.slice.call(document.querySelectorAll("button, input")).filter(function (el) {' +
         ' var r = el.getBoundingClientRect(); return r.height > 0 && r.height < 24' +
       ' }).slice(0, 4).map(function (el) { return el.tagName + "." + String(el.className || "") + ":" + Math.round(el.getBoundingClientRect().height) }),' +
       ' lamps: document.querySelectorAll(".hw-lamp").length,' +
-      ' opts: document.querySelectorAll(".hw-configlist .hw-opt").length,' +
+      ' opts: document.querySelectorAll(".hw-sheet .hw-opt").length,' +
       ' menuOver: (function () {' +
-        ' var m = document.querySelector(".hw-configlist"); var w = document.querySelector(".hw-wrap");' +
+        ' var m = document.querySelector(".hw-sheet"); var w = document.querySelector(".hw-wrap");' +
         ' if (!m || !w) return null; var a = m.getBoundingClientRect(), b = w.getBoundingClientRect();' +
         ' return Math.round(Math.max(b.left - a.left, a.right - b.right));' +
+      ' })(),' +
+      ' headtools: document.querySelectorAll(".hw-tools").length,' +
+      ' headver: document.querySelectorAll(".hw-head .hw-ver").length,' +
+      ' headpick: document.querySelectorAll(".hw-tools .hw-pickbtn").length,' +
+      ' headupd: document.querySelectorAll(".hw-tools .hw-btn").length,' +
+      ' headtext: document.querySelector(".hw-head") ? String(document.querySelector(".hw-head").textContent || "") : "",' +
+      ' headleft: (function () { var t = document.querySelector(".hw-title"); var m = document.querySelector(".hw-tools");' +
+        ' if (!t || !m) return 999; return Math.round(Math.abs(t.getBoundingClientRect().left - m.getBoundingClientRect().left));' +
+      ' })(),' +
+      ' headdy: (function () { var t = document.querySelector(".hw-title"); var m = document.querySelector(".hw-tools");' +
+        ' if (!t || !m) return null; var a = t.getBoundingClientRect(), b = m.getBoundingClientRect();' +
+        ' return Math.round(Math.abs((a.top + a.height / 2) - (b.top + b.height / 2)));' +
       ' })(),' +
       ' tabs: document.querySelectorAll(".hw-tabs").length' + '})'
     const res = await page.send('Runtime.evaluate', { expression: expr, returnByValue: true })
@@ -197,8 +213,14 @@ try {
     checks.push({ name: width + ' 两个开关灯存在', ok: overview.lamps === 2, detail: 'lamps=' + overview.lamps })
     const openList = await measure('file:///' + files.config.replace(/\\/g, '/'), 'terms', width)
     checks.push({ name: width + ' 配置列表在列内展开', ok: openList.opts >= 2 && openList.menuOver !== null && openList.menuOver <= 1, detail: 'opts=' + openList.opts + ' over=' + openList.menuOver })
+    checks.push({ name: width + ' 一条工具列收齐控件', ok: openList.headtools === 1 && openList.headver === 1 && openList.headpick === 1 && openList.headupd === 2, detail: 'tools=' + openList.headtools + ' ver=' + openList.headver + ' pick=' + openList.headpick + ' btn=' + openList.headupd })
+    checks.push({ name: width + ' 标题与工具列对齐', ok: openList.headdy !== null && (openList.headdy <= 10 || openList.headleft <= 4), detail: 'dy=' + openList.headdy + ' dleft=' + openList.headleft })
+    checks.push({ name: width + ' 页头没有实时文字', ok: openList.headtext.indexOf('实时') < 0 && openList.headtext.indexOf('快照') < 0, detail: JSON.stringify(String(openList.headtext).slice(0, 60)) })
     checks.push({ name: width + ' 配置列表不越界', ok: openList.wide.length === 0 && openList.scroll <= openList.inner, detail: JSON.stringify(openList.wide) + ' scroll=' + openList.scroll + ' inner=' + openList.inner })
     checks.push({ name: width + ' 配置项不小于 24px', ok: openList.small.length === 0, detail: JSON.stringify(openList.small) })
+    const openMenu = await measure('file:///' + files.menu.replace(/\\/g, '/'), 'terms', width)
+    checks.push({ name: width + ' 维护菜单在列下展开', ok: openMenu.opts >= 5 && openMenu.menuOver !== null && openMenu.menuOver <= 1, detail: 'rows=' + openMenu.opts + ' over=' + openMenu.menuOver })
+    checks.push({ name: width + ' 维护菜单不越界', ok: openMenu.wide.length === 0 && openMenu.scroll <= openMenu.inner, detail: JSON.stringify(openMenu.wide) })
     const sub = await measure('file:///' + files.browser.replace(/\\/g, '/'), 'browser', width)
     checks.push({ name: width + ' 二级页无主视图签', ok: sub.tabs === 0, detail: 'tabs=' + sub.tabs })
     checks.push({ name: width + ' 二级页无横向溢出', ok: sub.wide.length === 0 && sub.scroll <= sub.inner, detail: JSON.stringify(sub.wide) })

@@ -26,26 +26,20 @@ const UPD = '/humanities-workbench/update';
       '.hw{height:100%;overflow:auto;overflow-x:hidden;background:var(--dsw-alias-bg-base);color:var(--dsw-alias-label-primary)}',
       '.hw *{box-sizing:border-box}',
       '.hw-wrap{padding:26px 32px 72px}',
-      '.hw-head{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap}',
+      '.hw-head{display:flex;align-items:center;justify-content:space-between;gap:10px 20px;flex-wrap:wrap}',
       '.hw-title{margin:0;font:600 21px/1.3 "Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Songti SC","Noto Serif CJK SC",serif;letter-spacing:.01em}',
-      '.hw-right{display:flex;align-items:center;gap:12px;row-gap:8px;flex-wrap:wrap;justify-content:flex-end;min-width:0;font-size:12px;color:var(--dim,var(--dsw-alias-label-secondary))}',
       '.hw-dot{width:6px;height:6px;border-radius:50%;display:inline-block;background:var(--dsw-alias-state-idle-primary);margin-right:6px;vertical-align:1px}',
       '.hw-dot.live{background:var(--dsw-alias-state-success-primary)}',
       '.hw-dot.bad{background:var(--dsw-alias-state-error-primary)}',
-      '.hw-link{appearance:none;display:inline-flex;align-items:center;border:none;background:none;padding:4px 0;min-height:28px;font:inherit;font-size:12px;color:var(--dsw-alias-label-secondary);cursor:pointer;border-bottom:1px dotted var(--dsw-alias-border-l1)}',
-      '.hw-link:hover{color:var(--dsw-alias-label-primary);border-bottom-color:var(--dsw-alias-brand-primary)}',
-      '.hw-link:disabled{opacity:.45;cursor:default}',
       '.hw-pickbtn{appearance:none;border:none;background:none;font:inherit;font-size:12px;color:var(--dsw-alias-label-primary);cursor:pointer;padding:6px 4px;min-height:30px;max-width:100%;border-bottom:1px dotted var(--dsw-alias-border-l1)}',
       '.hw-pickname{display:inline-block;max-width:9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom}',
       '.hw-caret{margin-left:5px;opacity:.55;font-size:9px}',
-      '.hw-configlist{margin:10px 0 0;padding:5px;border:1px solid var(--dsw-alias-border-l1);border-radius:9px;background:var(--dsw-alias-bg-layer-1);display:grid;gap:2px;max-height:15rem;overflow-y:auto;overflow-x:hidden}',
       '.hw-opt{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;text-align:left;appearance:none;border:none;background:none;font:inherit;font-size:12.5px;color:var(--dsw-alias-label-secondary);padding:8px 10px;min-height:36px;border-radius:6px;cursor:pointer}',
       '.hw-opt:hover{background:var(--dsw-alias-bg-layer-2,var(--dsw-alias-bg-layer-1));color:var(--dsw-alias-label-primary)}',
       '.hw-opt.on{color:var(--dsw-alias-label-primary);font-weight:600}',
       '.hw-optname{min-width:0;overflow-wrap:anywhere}',
       '.hw-optmark{flex:none;font:400 10px/1 sans-serif;letter-spacing:.04em;padding:2px 6px;border-radius:999px;border:1px solid var(--dsw-alias-border-l1);opacity:.7}',
-      '.hw-upd{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:8px;font-size:11.5px;color:var(--dsw-alias-label-secondary)}',
-      '.hw-ver{font-variant-numeric:tabular-nums;letter-spacing:.02em}',
+      '.hw-ver{font-variant-numeric:tabular-nums;letter-spacing:.02em;color:var(--dsw-alias-label-primary)}',
       '.hw-tabs{display:flex;gap:26px;margin:22px 0 0;border-bottom:1px solid var(--dsw-alias-border-l1);overflow-x:auto;scrollbar-width:none}',
       '.hw-tabs::-webkit-scrollbar{display:none}',
       '.hw-tab{appearance:none;border:none;background:none;font:inherit;font-size:13px;color:var(--dsw-alias-label-secondary);padding:0 0 9px;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px}',
@@ -59,10 +53,6 @@ const UPD = '/humanities-workbench/update';
       '.hw-quote{margin:16px 0 0;padding-left:13px;border-left:2px solid var(--dsw-alias-border-l2,var(--dsw-alias-border-l1));color:var(--dsw-alias-label-secondary);font-size:12.5px;line-height:1.85;text-indent:0}',
       '.hw-stats{display:flex;gap:26px;flex-wrap:wrap;margin:18px 0 0;font-size:11.5px;color:var(--dsw-alias-label-secondary)}',
       '.hw-stats b{display:block;font:600 18px/1.35 "Iowan Old Style",Palatino,Georgia,serif;color:var(--dsw-alias-label-primary);font-variant-numeric:tabular-nums}',
-      '.hw-steps{counter-reset:s;margin:6px 0 0}',
-      '.hw-step{counter-increment:s;position:relative;padding:9px 0 9px 22px;font-size:13px;line-height:1.75;border-top:1px solid var(--dsw-alias-border-l1)}',
-      '.hw-step:before{content:counter(s);position:absolute;left:0;top:10px;font-size:10.5px;color:var(--dsw-alias-label-secondary);opacity:.6;font-variant-numeric:tabular-nums}',
-      '.hw-step.off{color:var(--dsw-alias-label-secondary);font-style:italic}',
       '.hw-row{display:grid;grid-template-columns:11rem 1fr;gap:22px;padding:11px 0;border-top:1px solid var(--dsw-alias-border-l1)}',
       '.hw-row:last-child{border-bottom:1px solid var(--dsw-alias-border-l1)}',
       '.hw-k{font-size:11.5px;line-height:1.75;color:var(--dsw-alias-label-secondary);font-variant-numeric:tabular-nums}',
@@ -72,10 +62,9 @@ const UPD = '/humanities-workbench/update';
       '.hw-ul li{margin:3px 0}',
       '.hw-err{color:var(--dsw-alias-state-error-primary);font-size:11.5px;margin-top:4px;max-width:22rem}',
       '.hw-titlerow{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}',
-      '.hw-search{appearance:none;border:none;border-bottom:1px solid var(--dsw-alias-border-l1);background:none;color:var(--dsw-alias-label-primary);font:inherit;font-size:12px;padding:4px 2px;min-height:30px;width:8rem}',
+      '.hw-search{appearance:none;border:1px solid var(--dsw-alias-border-l1);border-radius:7px;background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font:inherit;font-size:12px;padding:5px 9px;min-height:32px;width:9rem;max-width:100%;flex:0 1 9rem}',
       '.hw-search:focus{outline:none;border-bottom-color:var(--dsw-alias-brand-primary)}',
       '.hw-search::placeholder{color:var(--dsw-alias-label-secondary);opacity:.7}',
-      '.hw-check{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;color:var(--dsw-alias-label-secondary);cursor:pointer;user-select:none}',
       '.hw-check input{margin:0;accent-color:var(--dsw-alias-brand-primary)}',
       '.hw-notice{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:60;padding:8px 16px;border-radius:8px;background:var(--dsw-alias-bg-overlay,var(--dsw-alias-bg-layer-1));border:1px solid var(--dsw-alias-border-l1);color:var(--dsw-alias-label-primary);font-size:12.5px;box-shadow:0 10px 28px rgb(0 0 0 / .25);max-width:24rem}',
       '.hw-credit{font-size:11px;color:var(--dsw-alias-label-secondary);text-decoration:none;border-bottom:1px dotted var(--dsw-alias-border-l1);word-break:break-all}',
@@ -108,9 +97,10 @@ const UPD = '/humanities-workbench/update';
       '.hw-pill{font-size:11px;line-height:1.7;padding:0 7px;border-radius:9px;border:1px solid var(--dsw-alias-border-l1);color:var(--dsw-alias-label-secondary);white-space:nowrap}',
       '.hw-pill.live{color:var(--dsw-alias-state-success-primary);border-color:var(--dsw-alias-state-success-primary)}',
       '.hw-pill.bad{color:var(--dsw-alias-state-error-primary);border-color:var(--dsw-alias-state-error-primary)}',
-      '.hw-panehead{display:flex;flex-wrap:wrap;align-items:baseline;gap:14px;margin:0 0 8px}',
       '.hw-paneaction{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin:14px 0 4px}',
-      '.hw-bar{display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;margin-top:14px}',
+      '.hw-tools{display:flex;align-items:center;gap:2px 10px;flex-wrap:wrap;justify-content:flex-end;min-width:0;flex:1 1 auto}',
+      '.hw-sep{width:1px;height:16px;background:var(--dsw-alias-border-l2,var(--dsw-alias-border-l1));flex:none}',
+      '.hw-sheet{margin:10px 0 0;padding:5px;border:1px solid var(--dsw-alias-border-l1);border-radius:9px;background:var(--dsw-alias-bg-layer-1);display:grid;gap:2px;max-height:15rem;overflow-y:auto;overflow-x:hidden;width:100%;flex:1 1 100%}',
       '.hw-lamp{appearance:none;display:inline-flex;align-items:center;gap:6px;min-height:30px;padding:3px 10px;border-radius:15px;border:1px solid var(--dsw-alias-border-l1);background:none;font:inherit;font-size:11.5px;color:var(--dsw-alias-label-secondary);cursor:pointer}',
       '.hw-lamp:hover{border-color:var(--dsw-alias-brand-primary);color:var(--dsw-alias-label-primary)}',
       '.hw-lamp.on{color:var(--dsw-alias-label-primary)}',
@@ -118,17 +108,14 @@ const UPD = '/humanities-workbench/update';
       '.hw-btn:hover{border-color:var(--dsw-alias-brand-primary)}',
       '.hw-btn:disabled{opacity:.45;cursor:default}',
       '.hw-btn.primary{border-color:var(--dsw-alias-brand-primary);color:var(--dsw-alias-brand-primary)}',
-      '.hw-morebtn{display:none}',
-      '.hw-more{display:flex;align-items:center;gap:12px;flex-wrap:wrap}',
       '.hw-subhead{display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;padding-bottom:12px;border-bottom:1px solid var(--dsw-alias-border-l1)}',
       '.hw-subhead h1{font:600 18px/1.3 "Iowan Old Style",Palatino,Georgia,"Songti SC",serif;margin:0}',
       '.hw-browserlede{font-size:13px;line-height:1.9;color:var(--dsw-alias-label-secondary);margin:14px 0 0;max-width:52rem}',
       '.hw-sitecard{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;padding:11px 0;border-top:1px solid var(--dsw-alias-border-l1)}',
       '.hw-sitecard b{font-size:13px;font-weight:600}',
       '.hw-sitecard .hw-grow{flex:1 1 8rem;min-width:0}',
-      '@media (min-width:821px){.hw-more{display:flex}}',
-      '@media (max-width:820px){.hw-morebtn{display:inline-flex}.hw-more{display:none}.hw-more.open{display:flex;width:100%}.hw-right{justify-content:flex-start}.hw-head{gap:10px}}',
-      '@media (max-width:560px){.hw-wrap{padding:16px 12px 48px}.hw-title{font-size:18px}.hw-right,.hw-bar{gap:8px 10px;font-size:11.5px}.hw-tabs{gap:16px;margin-top:16px}.hw-tab{font-size:12.5px}.hw-body{margin-top:18px}.hw-lede{font-size:14.5px;line-height:1.9}.hw-h2{font-size:12px;margin:24px 0 8px}.hw-row{grid-template-columns:1fr;gap:2px;padding:10px 0}.hw-flow{grid-template-columns:1fr;gap:14px}.hw-cols{columns:1}.hw-tbl{display:block;overflow-x:auto}.hw-tbl thead{display:none}.hw-tbl tbody,.hw-tbl tr,.hw-tbl td{display:block;width:auto}.hw-tbl tr{border-top:1px solid var(--dsw-alias-border-l1);padding:10px 0}.hw-tbl td{border:none;padding:2px 0}.hw-tbl td:before{content:attr(data-label);display:block;font-size:10.5px;letter-spacing:.08em;color:var(--dsw-alias-label-secondary);opacity:.8}.hw-notice{left:12px;right:12px;transform:none;max-width:none}.hw-iframe{min-height:360px;height:70vh}.hw-search{width:100%}}',
+      '@media (max-width:820px){.hw-head{gap:10px}}',
+      '@media (max-width:560px){.hw-wrap{padding:16px 12px 48px}.hw-title{font-size:18px}.hw-tools{gap:8px 10px;font-size:11.5px}.hw-tabs{gap:16px;margin-top:16px}.hw-tab{font-size:12.5px}.hw-body{margin-top:18px}.hw-lede{font-size:14.5px;line-height:1.9}.hw-h2{font-size:12px;margin:24px 0 8px}.hw-row{grid-template-columns:1fr;gap:2px;padding:10px 0}.hw-flow{grid-template-columns:1fr;gap:14px}.hw-cols{columns:1}.hw-tbl{display:block;overflow-x:auto}.hw-tbl thead{display:none}.hw-tbl tbody,.hw-tbl tr,.hw-tbl td{display:block;width:auto}.hw-tbl tr{border-top:1px solid var(--dsw-alias-border-l1);padding:10px 0}.hw-tbl td{border:none;padding:2px 0}.hw-tbl td:before{content:attr(data-label);display:block;font-size:10.5px;letter-spacing:.08em;color:var(--dsw-alias-label-secondary);opacity:.8}.hw-notice{left:12px;right:12px;transform:none;max-width:none}.hw-iframe{min-height:360px;height:70vh}.hw-tools{width:100%;justify-content:flex-start}.hw-search{flex:1 1 6rem;width:auto}}',
     ].join('\n');
 
     function read(key, fallback) {
@@ -398,7 +385,7 @@ const UPD = '/humanities-workbench/update';
       const [configs, setConfigs] = React.useState([]);
       const [configId, setConfigId] = React.useState(function () { return read(CFG_KEY, ''); });
       const [data, setData] = React.useState(null);
-      const [state, setState] = React.useState({ busy: true, live: false, message: '' });
+      const [state, setState] = React.useState({ busy: true, message: '' });
       const [view, setView] = React.useState(function () { return read(VIEW_KEY, 'overview'); });
       const [prevView, setPrevView] = React.useState('overview');
       const [q, setQ] = React.useState('');
@@ -425,7 +412,7 @@ const UPD = '/humanities-workbench/update';
       };
 
       const load = function (id) {
-        setState({ busy: true, live: false, message: '' });
+        setState({ busy: true, message: '' });
         window.fetch(DATA + (id ? '?config=' + encodeURIComponent(id) : ''), { cache: 'no-store' })
           .then(function (r) {
             if (!r.ok) throw new Error('HTTP ' + r.status);
@@ -435,10 +422,10 @@ const UPD = '/humanities-workbench/update';
             setData(json);
             if (json.switches) setSwitches(json.switches);
             if (json.config) { setConfigId(json.config.id); write(CFG_KEY, json.config.id); }
-            setState({ busy: false, live: true, message: '' });
+            setState({ busy: false, message: '' });
           })
           .catch(function (e) {
-            setState({ busy: false, live: false, message: String((e && e.message) || e) });
+            setState({ busy: false, message: String((e && e.message) || e) });
             if (!data) setData(SNAPSHOT);
           });
       };
@@ -453,10 +440,6 @@ const UPD = '/humanities-workbench/update';
 
       const D = data || SNAPSHOT;
       const H = D.meta.headings;
-      let readAt = '';
-      try {
-        readAt = new Date(D.generatedAt).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', hour12: false });
-      } catch (e) { readAt = ''; }
 
       const all = ['overview', 'facts', 'tensions', 'rules', 'redlines', 'refs', 'terms', 'corpus'];
       const allowed = (D.config && D.config.tabs && D.config.tabs.length) ? D.config.tabs : all;
@@ -666,8 +649,6 @@ const UPD = '/humanities-workbench/update';
         : current === 'terms' ? termCards()
         : overview();
 
-      const status = state.busy ? '' : state.live ? ' live' : ' bad';
-      const statusText = state.busy ? '读取中' : state.live ? '实时' : '快照';
       const subPage = showBrowserPage;
       const lampOn = function (key) {
         const s = switches || (D && D.switches) || null;
@@ -702,61 +683,52 @@ const UPD = '/humanities-workbench/update';
           onClick: function () { setSwitch(key, !on); },
         }, h('span', { className: 'hw-dot' + (on ? ' live' : ' bad') }), label + (on ? ' 开' : ' 关'));
       };
-      const secondary = [
-        h('button', { key: 'refresh', type: 'button', className: 'hw-link', disabled: state.busy, onClick: function () { load(configId); setMoreOpen(false); } }, '刷新'),
-        h('button', { key: 'new', type: 'button', className: 'hw-link', title: '新建配置：先问一组问题，再按回答生成一套配置与配套前端', onClick: function () { setMoreOpen(false); askWizard('new', D.config); } }, '新建配置'),
-        h('label', { key: 'import', className: 'hw-link' }, '导入',
-          h('input', {
-            type: 'file', accept: '.json,.md,.txt,.markdown', style: { display: 'none' },
-            onChange: function (e) { doImport(e.target.files && e.target.files[0]); e.target.value = ''; },
-          })
-        ),
-        h('button', { key: 'export', type: 'button', className: 'hw-link', onClick: function () { props.exportMd && props.exportMd(D, current); } }, '导出'),
-        h('button', { key: 'refine', type: 'button', className: 'hw-link', title: '完善配置：读当前这套配置与最近的使用，提出增量改动，只改这一套', onClick: function () { setMoreOpen(false); askWizard('refine', D.config); } }, '完善配置'),
-        fx ? h('button', {
-          key: 'mode', type: 'button', className: 'hw-link',
-          title: '在自定义前端与内置视图之间切换' + (fx.title ? '：' + fx.title : ''),
-          onClick: toggleMode,
-        }, showCustom ? '内置视图' : '自定义前端') : null,
-      ];
       const version = (data && data.version) || (D && D.version) || '';
-      const updateNote = !upd ? '' : (upd.error ? '上游查不到：' + upd.error : (upd.behind ? '上游已到 ' + upd.latest : (upd.latest ? '已是最新 ' + upd.latest : '')));
+      const updateNote = !upd ? '' : (upd.error ? '查不到上游：' + upd.error : (upd.behind ? '上游已到 ' + upd.latest : (upd.latest ? '已是最新 ' + upd.latest : '')));
       const updateLink = upd && upd.behind ? (upd.url || '') : '';
+      const menu = [
+        { key: 'refresh', label: '刷新', title: '重新读取当前配置的数据', disabled: state.busy, run: function () { load(configId); } },
+        { key: 'update', label: updateBusy ? '检查更新中' : '检查更新', title: '向 GitHub 取最新 Release，六小时内不重复请求', disabled: updateBusy, run: function () { loadUpdate(true); } },
+        { key: 'new', label: '新建配置', title: '先问一组问题，再按回答生成一套配置与配套前端', run: function () { askWizard('new', D.config); } },
+        { key: 'refine', label: '完善配置', title: '读当前这套配置与最近的使用，提出增量改动，只改这一套', run: function () { askWizard('refine', D.config); } },
+        { key: 'export', label: '导出', title: '把当前这套配置导出成 Markdown', run: function () { props.exportMd && props.exportMd(D, current); } },
+      ];
+      if (fx) menu.push({ key: 'mode', label: showCustom ? '内置视图' : '自定义前端', title: '在自定义前端与内置视图之间切换' + (fx.title ? '：' + fx.title : ''), run: toggleMode });
       const header = subPage
         ? h('div', { className: 'hw-subhead' },
             h('button', { type: 'button', className: 'hw-btn', onClick: function () { setView(prevView); } }, '← 返回'),
             h('h1', null, '登录与抓取'),
             h('span', { className: 'hw-pill' + (D.browser && D.browser.running ? ' live' : '') }, D.browser && D.browser.running ? '浏览器运行中' : '未启动')
           )
-        : h('div', null,
-            h('div', { className: 'hw-head' },
-              h('div', { className: 'hw-titlerow' },
-                h('h1', { className: 'hw-title' }, t('title')),
-                h('a', { className: 'hw-credit', href: 'https://b23.tv/mNKRdjZ', target: '_blank', rel: 'noopener noreferrer' }, '技术红茶@bilibili')
-              ),
-              h('span', { className: 'hw-note', title: state.message || '' }, h('span', { className: 'hw-dot' + status }), statusText + (readAt && state.live ? ' ' + readAt : ''))
+        : h('div', { className: 'hw-head' },
+            h('div', { className: 'hw-titlerow' },
+              h('h1', { className: 'hw-title' }, t('title')),
+              h('span', { className: 'hw-ver', title: '当前安装的版本' }, 'v' + version),
+              h('a', { className: 'hw-credit', href: 'https://b23.tv/mNKRdjZ', target: '_blank', rel: 'noopener noreferrer' }, '技术红茶@bilibili')
             ),
-            h('div', { className: 'hw-bar' },
+            h('div', { className: 'hw-tools' },
               configs.length > 1 ? h(Picker, {
                 options: configs, value: configId || (configs[0] && configs[0].id),
                 open: configOpen,
-                onToggle: function () { setConfigOpen(!configOpen); },
+                onToggle: function () { setConfigOpen(!configOpen); setMoreOpen(false); },
                 onChange: function (id) { setConfigOpen(false); load(id); },
               }) : null,
+              configs.length > 1 ? h('span', { className: 'hw-sep', 'aria-hidden': 'true' }) : null,
               lamp('method', '方法论', '方法论与本地配置进不进模型上下文：绿灯进，红灯不进；点一下切换。'),
               lamp('corpus', '语料关键词', '问到本机字幕语料里出现过的词时，才提示去检索；点一下切换。'),
+              h('span', { className: 'hw-sep', 'aria-hidden': 'true' }),
               h('button', { type: 'button', className: 'hw-btn', onClick: function () { setPrevView(current); setView('browser'); } }, '登录与抓取'),
               h('input', {
-                className: 'hw-search', type: 'search', value: q, placeholder: '搜索',
+                className: 'hw-search', type: 'search', value: q, placeholder: '搜索', 'aria-label': '搜索本页内容',
                 onChange: function (e) { setQ(e.target.value); },
               }),
               h('button', {
-                type: 'button', className: 'hw-btn hw-morebtn', 'aria-expanded': moreOpen,
-                onClick: function () { setMoreOpen(!moreOpen); },
-              }, moreOpen ? '收起' : '更多'),
-              h('div', { className: 'hw-more' + (moreOpen ? ' open' : '') }, secondary)
+                type: 'button', className: 'hw-btn', 'aria-haspopup': 'menu', 'aria-expanded': moreOpen,
+                title: upd && upd.behind ? '上游有 ' + upd.latest : '配置维护：刷新、新建、导入、导出、完善、检查更新',
+                onClick: function () { setMoreOpen(!moreOpen); setConfigOpen(false); },
+              }, '\u22EF')
             ),
-            configOpen && configs.length > 1 ? h('div', { className: 'hw-configlist', role: 'listbox', 'aria-label': '配置' },
+            configOpen && configs.length > 1 ? h('div', { className: 'hw-sheet', role: 'listbox', 'aria-label': '配置' },
               configs.map(function (o) {
                 const on = o.id === (configId || (configs[0] && configs[0].id));
                 return h('button', {
@@ -766,12 +738,23 @@ const UPD = '/humanities-workbench/update';
                 }, h('span', { className: 'hw-optname' }, o.name), on ? h('span', { className: 'hw-optmark' }, '当前') : null);
               })
             ) : null,
-            h('div', { className: 'hw-upd' },
-              h('span', { className: 'hw-ver' }, 'v' + version),
-              h('button', { type: 'button', className: 'hw-link', disabled: updateBusy, onClick: function () { loadUpdate(true); } }, updateBusy ? '检查中' : '检查更新'),
-              updateNote ? h('span', { className: 'hw-note' }, updateNote) : null,
-              updateLink ? h('a', { className: 'hw-link', href: updateLink, target: '_blank', rel: 'noopener noreferrer' }, '更新说明') : null
-            )
+            moreOpen ? h('div', { className: 'hw-sheet', role: 'menu' },
+              updateLink ? h('a', { className: 'hw-opt', href: updateLink, target: '_blank', rel: 'noopener noreferrer' }, h('span', { className: 'hw-optname' }, '上游有 ' + upd.latest + '，看更新说明')) : null,
+              menu.map(function (row) {
+                return h('button', {
+                  key: row.key, type: 'button', role: 'menuitem', className: 'hw-opt',
+                  disabled: Boolean(row.disabled), title: row.title || '',
+                  onClick: function () { setMoreOpen(false); row.run(); },
+                }, h('span', { className: 'hw-optname' }, row.label));
+              }),
+              h('label', { className: 'hw-opt', title: '导入配置：JSON、Markdown 或纯文本' },
+                h('span', { className: 'hw-optname' }, '导入'),
+                h('input', {
+                  type: 'file', accept: '.json,.md,.txt,.markdown', style: { display: 'none' },
+                  onChange: function (e) { setMoreOpen(false); doImport(e.target.files && e.target.files[0]); e.target.value = ''; },
+                })
+              )
+            ) : null
           );
       return h('div', { className: 'hw' },
         h('style', null, CSS),
