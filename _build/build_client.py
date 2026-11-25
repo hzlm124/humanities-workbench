@@ -63,9 +63,11 @@ refs = parse_refs()
 subs = sorted(SUBS.glob('*.srt')) if SUBS and SUBS.exists() else []
 now = datetime.datetime.now()
 
-kind = project = 'neutral' if 'neutral' in SKILL.name else 'personal'
-# A personal set carries the user's own framework: never ship it in the bundle
-# unless a local preview explicitly asks for it.
+# Shippable: the set inside this package, or an explicitly neutral copy. Anything
+# else carries the user's own framework and must be asked for.
+BUNDLED = (BUNDLE / 'skill').resolve()
+inside = SKILL.resolve() == BUNDLED
+kind = project = 'neutral' if (inside or 'neutral' in SKILL.name) else 'personal'
 if kind == 'personal' and os.environ.get('HW_ALLOW_PERSONAL') != '1':
     sys.exit('refusing to embed the personal set ' + str(SKILL) + '; set HW_ALLOW_PERSONAL=1 for a local preview')
 
